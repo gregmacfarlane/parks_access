@@ -1,0 +1,12 @@
+name: "Parks Access"
+navbar:
+  title: "Parks Access"
+  left:
+    - text: "Home"
+      href: index.html
+    - text: "Health Data"
+      href: 01_health_data.html
+    - text: "Parks Data"
+      href: 02_parks_data.html
+    - text: "Logsum specifications"
+      href: 03_logsums.html
