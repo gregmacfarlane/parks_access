@@ -1,0 +1,171 @@
+---
+title: "Health Data"
+author: "Greg Macfarlane"
+date: "6/6/2019"
+output: html_document
+---
+
+```{r setup}
+library(leaflet)
+library(tidyverse)
+library(tidycensus)
+library(RSocrata)
+library(sf)
+options(tigris_use_cache=TRUE)
+```
+
+
+In this document we collect the health and socioeconomic data necessary for the
+project from the American Community Survey and the Centers for Disease Control.
+
+## American Community Survey
+We will use the `tidycensus` package from Kyle Walker to get the datatables in 
+our analysis region, which is the five boroughs of New York City.
+
+```{r region}
+# The study area includes the five boroughs of New York City
+counties <- c("081", "047", "061", "005", "085")
+names(counties) <- c("Queens", "Brooklyn", "Manhattan", "Bronx", "Staten Island")
+```
+
+
+We need to get lots of variables from the American Community Survey 5-year data.
+This vector defines the variable names as well as the table/cell in the Census
+API that each variable is drawn from. The comments help to identify which
+table name and population type they come from.
+```{r acsvariables}
+variables <- c(
+  "population" = "B25008_001", # TOTAL POPULATION IN OCCUPIED HOUSING UNITS BY TENURE
+  "housing_units" = "B25001_001", # HOUSING UNITS
+  "households" = "B19001_001", #HOUSEHOLD INCOME IN THE PAST 12 MONTHS (IN 2017 INFLATION-ADJUSTED DOLLARS)
+  # Employment status
+  "men_fulltime" = "B23022_004",
+  # Estimate!!Total!!Male!!Worked in the past 12 months!!Usually worked 35 or more hours per week
+  "women_fulltime" = "B23022_028",
+  #Estimate!!Total!!Female!!Worked in the past 12 months!!Usually worked 35 or more hours per week
+  # LIVING ARRANGEMENTS OF ADULTS 18 YEARS AND OVER BY AGE
+  # everyone who
+  "adults" = "B09021_001",
+  "lives_alone" = "B09021_002",
+  "child_of_hhr" = "B09021_005",
+  "other_rel" = "B09021_006",
+  "other_nonrel" = "B09021_007",
+  # EDUCATIONAL ATTAINMENT BY EMPLOYMENT STATUS FOR THE POPULATION 25 TO 64 YEARS
+  "college" = "B23006_016",
+  # RACE
+  "black" = "B02001_003",
+  "asian" = "B02001_005",
+  "pacific" = "B02001_006",
+  "nativeam" = "B02001_004",
+  # HISPANIC OR LATINO ORIGIN BY SPECIFIC ORIGIN
+  # The number of hispanic individuals needs to be drawn from a different table.
+  "hispanic" = "B03001_003",
+  #MEDIAN HOUSEHOLD INCOME IN THE PAST 12 MONTHS (IN 2017 INFLATION-ADJUSTED DOLLARS)
+  "income" = "B19013_001",
+  #HOUSEHOLD INCOME IN THE PAST 12 MONTHS (IN 2017 INFLATION-ADJUSTED DOLLARS)
+  "inc_0010" = "B19001_002",  "inc_1015" = "B19001_003", "inc_1520" = "B19001_004",
+  "inc_2025" = "B19001_005", "inc_2530" = "B19001_006", "inc_3035" = "B19001_007",
+  "inc_125"  = "B19001_015", "inc_150"  = "B19001_016", "inc_200"  = "B19001_017",
+  #AGE BY RATIO OF INCOME TO POVERTY LEVEL IN THE PAST 12 MONTHS.
+  # we really only need the numbers of individuals in each age group, and the groups
+  # are more coarse here than in the sex by age table.
+  "age_0005" = "B17024_002", "age_0611" = "B17024_015", "age_1217" = "B17024_028",
+  "age_1824" = "B17024_041", "age_2534" = "B17024_054",
+  "age_3544" = "B17024_067", "age_4554" = "B17024_080", "age_5564" = "B17024_093",
+  "age_6574" = "B17024_106",
+  "age_75up" = "B17024_119"
+)
+```
+
+Now that we've defined the necessary variables and geographic scope, we can pull
+the data from the API. Because the data coming from census are counts, we need 
+to transform the numbers into percents of the relevant population denominator.
+
+```{r acs}
+acs <- get_acs(geography = "tract", variables = variables, year = 2017,
+               state = "NY", county = counties, geometry = TRUE) %>%
+  select(-moe) %>%
+  spread(variable, estimate) %>%
+  filter(adults > 0) %>%
+  mutate(area = as.numeric(st_area(geometry) * 1e-6)) %>%
+  # area is in m^2, change to km^2
+  transmute(
+    geoid = GEOID,
+    county_fips = substr(GEOID, 3, 5),
+    borough = case_when(
+      county_fips == "081" ~ "Queens",
+      county_fips == "047" ~ "Brooklyn",
+      county_fips == "061" ~ "Manhattan",
+      county_fips == "005" ~ "Bronx",
+      county_fips == "085" ~ "Staten Island",
+      TRUE ~ as.character(NA)
+    ),
+    population, households, housing_units, adults,
+    density = households / area,
+    income,
+    # many of the variables come in raw counts, but we want to consider
+    # them as shares of a relevant denominator.
+    lowincome    = 100 * (inc_0010 + inc_1015 + inc_1520 + inc_2530 +
+                            inc_3035) / households,
+    highincome   = 100 * (inc_125 + inc_150 + inc_200) / households,
+    fulltime     = 100 * (men_fulltime + women_fulltime) / adults,
+    college      = 100 * college / adults,
+    single       = 100 * (lives_alone + child_of_hhr + other_rel +
+                            other_nonrel) / adults,
+    youth        = 100 * (age_0005 + age_0611 + age_1217) / population,
+    young_adults = 100 * (age_1824 + age_2534) / population,
+    seniors      = 100 * (age_6574 + age_75up) / population,
+    black        = 100 * black / population,
+    asian        = 100 * asian / population,
+    hispanic     = 100 * hispanic / population,
+    other        = 100 * (nativeam + pacific) / population
+  )
+```
+
+## 500 Cities
+The Centers for Disease Control and Prevention makes small-area estimates on
+key health indicators available through its 500 Cities data program (CDC5002016).
+The indicators are multilevel aggregations and imputations of BRFSS responses
+(Wang2018, Wang2017), and have been recently used to study the tract-level
+link between gentrification and urban health (Gibbons2018). We use two
+indicators as our dependent variables in this study: the share of adults
+in a Census tract who are obese, and the share of adults who participate in no
+leisure-time physical activity. To improve clarity in our interpretation, we use
+the complement of the second variable --- the share of tract adults who
+participate in {\em some} physical activity --- even if the amount is not
+sufficient to affect overall health. Both indicators are estimated for the year
+2016.
+
+The CDC 500 cities project makes its data available through the Socrata API.
+The url endpoints for each data object are different, though we have identified
+them as below. We pre-filter the data to New York to save ourselves and the
+API a bit of time. For each URL endpoint, get the data through Socrata (you will
+need your own Socrata API key), filter to the FIPS codes we specified above, and
+trim to only the data values we want to keep.
+
+```{r cdc500}
+cdc_urls <- list(
+  "physact" = "https://chronicdata.cdc.gov/resource/axqz-rkkp.json?stateabbr=NY",
+  "obesity" = "https://chronicdata.cdc.gov/resource/bjvu-3y7d.json?stateabbr=NY"
+)
+
+cdc500 <- lapply(cdc_urls, function(url){
+  read.socrata(url, app_token = Sys.getenv("CDC_KEY"),
+               stringsAsFactors = FALSE) %>%
+    tbl_df() %>%
+    filter(tractfips %in% acs$geoid) %>%
+    transmute( geoid = tractfips, value = as.numeric(data_value ), year = year)
+}) %>%
+  bind_rows(.id = "measure") %>%
+  spread(measure, value) %>%
+  mutate(physact = 100 - physact)
+```
+
+
+Save the dataset for further analysis.
+```{r writeout}
+tracts <- left_join(acs, cdc500, by = "geoid") %>%
+  filter(!is.na(obesity), !is.na(income)) %>% 
+  write_rds("data/tracts.rds")
+```
+
