@@ -1,0 +1,122 @@
+---
+title: "Parks Data"
+author: "Greg Macfarlane"
+date: "6/6/2019"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup}
+library(leaflet)
+library(tidyverse)
+library(RSocrata)
+library(leaflet)
+library(sf)
+```
+
+In this document we get the parks data from the New York City open data
+repository and do some cleaning. First, we get the parks dataset. The original
+data dictionary is available at 
+[on Github](https://github.com/CityOfNewYork/nyc-planimetrics/blob/master/Capture_Rules.md#open-space)
+```{r parks}
+parks_url <- "https://data.cityofnewyork.us/api/geospatial/y6ja-fw4f?method=export&format=GeoJSON"
+parks <- st_read(parks_url, stringsAsFactors = FALSE) %>%
+  mutate(shape_area = as.numeric(shape_area))
+```
+
+## Cleaning
+The map of Flushing Meadows in Queens below shows some of the difficulties of this dataset:
+  - First, the park is constructed of multiple outlines that limits the size of 
+  the total park. This makes Flushing Meadows appear smaller than Central Park, 
+  which is a single large park. 
+  - Second, the dataset includes tennis parks and baseball fields as separate 
+  facilities.
+  - Third, parking lots for stadia (in this case Citi Field) are included as 
+  open park space. We should remove these as they are categorically unlike other
+  green spaces.
+  - Fourth, important green spaces like cemeteries are in a different dataset.
+  
+```{r fm1}
+leaflet(st_buffer(parks %>% filter(grepl("Flushing Meadows", park_name)), dist = 0.000001)) %>%
+  addProviderTiles(providers$Esri.WorldGrayCanvas) %>%
+  addPolygons(label = ~as.character(park_name), stroke = 0.5)
+```
+
+First, we manually remove the park facilities corresponding to stadia and their
+associated parking lots, and then filter out facilities that are not explicitly
+park boundaries, as identified by the code `4980`.
+
+```{r notparks}
+notparks <- c(9498000833, 14498000872, 14498000794, # citi field, Yankee stadium, garage
+              9498000631)  # USTA Billie Jean Tennis Center
+parks <- parks %>% 
+  filter(feat_code == 4980) %>%
+  filter(!(source_id %in% notparks))
+```
+
+```{r fm2}
+leaflet(st_buffer(parks %>% filter(grepl("Flushing Meadows", park_name)), dist = 0.000001)) %>%
+  addProviderTiles(providers$Esri.WorldGrayCanvas) %>%
+  addPolygons(label = ~as.character(park_name), stroke = 0.5)
+```
+
+With those areas removed, we build a 30-foot buffer around each park and 
+dissolve interior boundaries. This will make parks that are effectively the same
+facility a single polygon feature. We also re-calculate the area of the parks in
+acres and remove parks smaller than half an acre.
+
+```{r dissolve}
+dissolved <- parks %>%
+  #filter(grepl("Flushing Meadows", park_name)) %>%
+  st_transform(3628) %>%
+  st_buffer(30) %>%
+  group_by(parknum) %>%
+  summarise(area = sum(shape_area),
+            park_name = park_name[1]) %>%
+  mutate(sqft = st_area(.), acres = units::set_units(sqft, acres)) 
+```
+
+```{r fm3}
+leaflet(st_transform(dissolved, 4326) ) %>%
+  addProviderTiles(providers$Esri.WorldGrayCanvas) %>%
+  addPolygons(stroke = 0.5)
+```
+  
+### Cemeteries
+Some important green spaces that can be used for physical activity but are not
+parks include cemeteries. These are stored in a separate dataset called Open
+Space (Other) with the feature code `2500`.
+
+```{r cemeteries}
+cemeteries_url <- "https://data.cityofnewyork.us/api/geospatial/pckb-8r2z?method=export&format=GeoJSON"
+cemeteries <- st_read(cemeteries_url) %>%
+  filter(feature_co == 2500)
+```
+
+```{r d_cemeteries}
+dissolved_cemeteries <- cemeteries %>%
+  st_transform(3628) %>%
+  st_buffer(5) %>%
+  mutate(sqft = st_area(.), acres = units::set_units(sqft, acres))
+```
+
+```{r cemeteries_map}
+leaflet(st_transform(dissolved_cemeteries, 4326)) %>%
+  addProviderTiles(providers$Esri.WorldGrayCanvas) %>%
+  addPolygons(stroke = 0.5)
+```
+
+
+Now we can join the cemeteries data to the parks data and write out the results
+```{r write}
+rbind(
+  dissolved %>% transmute(name = park_name, acres, type = "park"),
+  dissolved_cemeteries %>% transmute(name, acres, type = "cemetery")
+) %>%
+  filter(as.numeric(acres) > 0.5) %>%
+  st_simplify(preserveTopology = TRUE) %>%
+  write_rds("data/open_spaces.rds")
+```
+
+
