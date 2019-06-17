@@ -1,0 +1,133 @@
+---
+title: "Logsums"
+author: "Greg Macfarlane"
+date: "6/7/2019"
+output: html_document
+---
+
+```{r setup}
+library(tidyverse)
+library(sf)
+library(spdep)
+library(leaflet)
+```
+
+In this document we calculate the distance between each tract in New York City 
+and each park to help calculate a logsum-based measure of accessibility. We 
+cleaned and gathered the data in the previous two pages.
+
+```{r load}
+open_spaces <- read_rds("data/open_spaces.rds")
+tracts <- read_rds("data/tracts.rds")
+```
+
+We are going to do a point-to-polygon distance calculation. The geometric centroid
+of the tracts are not satisfying, so we will use the population-weighted centroid
+instead.
+
+```{r pop_weighted_centroids}
+pop_weighted_centroids <- tracts %>% tbl_df() %>%
+  dplyr::select(geoid) %>%
+  left_join(
+    read_csv("https://www2.census.gov/geo/docs/reference/cenpop2010/tract/CenPop2010_Mean_TR36.txt") %>%
+      transmute(geoid = str_c(STATEFP, COUNTYFP, TRACTCE), LATITUDE, LONGITUDE)
+  ) %>%
+  # convert to sf and project into the feet-based projection used in the
+  # parks dataset.
+  st_as_sf(crs = 4326, coords = c("LONGITUDE", "LATITUDE")) %>%
+  st_transform(3628)
+```
+
+The population-weighted centroid also serves as the orientation for the spatial
+weights matrix.
+
+```{r W}
+# determine which tracts are neighbors of each other. Need to be less than
+# 1.8 miles away from the centroids
+tracts.dnn <- dnearneigh(as(pop_weighted_centroids, "Spatial"), 0, 1.8 * 5280)
+# calculate the inverse distance to use as a weight on the neighbor connection
+dists <- nbdists(tracts.dnn, as(pop_weighted_centroids, "Spatial"))
+dists.inv <- lapply(dists, function(x) 1 / x)
+# get the spatial weights matrix and its trace to use in any impact analyses
+W <- nb2listw(neighbours = tracts.dnn, glist = dists.inv,
+              zero.policy = TRUE, style = "W")
+trMC <- trW(as(W, "CsparseMatrix"), type="MC") # trace used in montecarlo impacts
+print(W, zero.policy = TRUE)
+```
+
+
+
+
+## Distances
+We want to make sure that the distance between a park and a tract centroid is
+based on the edge of the polygon instead of the centroid thereof, so that spaces
+at the corners of Central park, for instance, don't appear as longer than they should be.
+It seems that things are working appropriately.
+
+```{r test_measurement}
+central_park <- open_spaces %>% filter(name == "Central Park")
+pop_weighted_centroids$central_park <- log(as.numeric(st_distance(pop_weighted_centroids, central_park)))
+
+dmeasure <- colorNumeric(palette = "Blues", domain = pop_weighted_centroids$central_park)
+leaflet(pop_weighted_centroids %>% st_transform(4326)) %>%
+  addProviderTiles(providers$Esri.WorldGrayCanvas) %>%
+  addCircleMarkers(color = ~dmeasure(central_park))
+```
+
+Now we can calculate everything.
+```{r distances}
+# distances from all tract centroids to all parks
+distances <- st_distance(pop_weighted_centroids, open_spaces, byid = TRUE) %>%
+  units::set_units(miles) %>%
+  units::drop_units()
+
+# assert that a tract must be at least 1/10 mile from a park
+distances <- pmax(distances, 0.1)
+```
+
+```{r write}
+write_rds(distances, "data/distances.rds")
+write_rds(W, "data/W.rds")
+```
+
+
+
+## Logsums
+Here's the function we use to calculate the logsums
+```{r}
+#' Calculate destination choice logsums from a distance matrix
+#'
+#' @param d An $n\times p$ matrix with the distance from all tracts to
+#'   all parks
+#' @param sizes A p-length vector of park sizes
+#' @param tweets A p-length vector of tweets at parks
+#' @param betas A vector containing the size, distance, and tweet coefficients.
+#'   If we submit two variables the tweets are ignored.
+#'
+#' @return An n-length vector containing the weighted log-sum based
+#'   accessibility between a tract and all parks.
+#' @details If we have n tracts and p parks, distances needs to be a
+#'
+calculate_park_logsums <- function(d, sizes, tweets = NULL,
+                                   betas = c(-0.4,0.2,0.001)){
+
+  # A is n x p
+  a <- betas[1] * d
+
+  # B is p x 1
+  b <- betas[2] * sizes
+
+  if(!is.null(tweets))
+    b <- b + betas[3] * tweets
+
+  # calculate observed utility by adding the weighted park-level attributes
+  # to the columns of the matrix
+  # V is n x p, with b added by-column to each element in a
+  V <- sweep(a, 2, b, `+`)
+
+  # log-sum of exponentiated utility, Output is n-length vector
+  log(rowSums(exp(V)))
+
+}
+```
+
