@@ -10,15 +10,6 @@
 library(shiny)
 library(leaflet)
 
-vars <- c(
-    "Is SuperZIP?" = "superzip",
-    "Centile score" = "centile",
-    "College education" = "college",
-    "Median income" = "income",
-    "Population" = "adultpop"
-)
-
-
 navbarPage(
     "Park Accessibility", id="nav",
     
@@ -43,10 +34,12 @@ navbarPage(
                 
                 h2("Tract Accessibility"),
                 
-                sliderInput("distance_coef", "Distance Effect", min = -5, max = -0.01,
-                            step = 0.1, value = -1.9),
-                sliderInput("size_coef", "Size Effect", min = 0.01, max = 5,
+                sliderInput("distance_c", "Distance Effect (negative)", min = 0.1, max = 5,
+                            step = 0.1, value = 1.9),
+                sliderInput("size_c", "Size Effect (positive)", min = 0.01, max = 5,
                             step = 0.1, value = .3),
+                sliderInput("playground", "Playground Effect", min = 0, max = 5,
+                            step = 1, value = 1),
                 conditionalPanel("input.color == 'superzip' || input.size == 'superzip'",
                                  # Only prompt for threshold when coloring or sizing by superzip
                                  numericInput("threshold", "SuperZIP threshold (top n percentile)", 5)

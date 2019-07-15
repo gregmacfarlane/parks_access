@@ -31,10 +31,10 @@ shinyServer(function(input, output) {
     
     # Calculate the log-sum values for park choice
     colorData <- reactive({
-        distance_c <- input$distance_coef
-        size_c <- input$size_coef
+        distance_c <- -1 * input$distance_c
+        size_c <- input$size_c
         courts_c <- 0
-        playgrounds_c <- 0
+        playgrounds_c <- input$playground
         trails_c <- 0
         
         size_term <- openspaces %>%
@@ -72,7 +72,8 @@ shinyServer(function(input, output) {
         
         ggplot(df, aes(x = access, y = obesity)) +
             geom_point() +
-            stat_smooth(method = "lm")
+            stat_smooth(method = "lm") + 
+            xlab("Access Score") + ylab("Obesity Rate")
     })
     
     
