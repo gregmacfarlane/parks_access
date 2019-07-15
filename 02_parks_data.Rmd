@@ -25,13 +25,23 @@ parks <- st_read(parks_url, stringsAsFactors = FALSE) %>%
   mutate(shape_area = as.numeric(shape_area))
 ```
 
+The New York City open data portal also contains a list of designated trails 
+within parks.
+
+```{r trails}
+trails <- read_csv("https://data.cityofnewyork.us/api/views/vjbm-hsyr/rows.csv?accessType=DOWNLOAD")
+trails2 <- jsonlite::fromJSON("https://www.nycgovparks.org/bigapps/DPR_Hiking_001.json")
+parks_with_trails <- c(trails$ParkID, trails2$Prop_ID)
+```
+
 ## Cleaning
 The map of Flushing Meadows in Queens below shows some of the difficulties of this dataset:
   - First, the park is constructed of multiple outlines that limits the size of 
   the total park. This makes Flushing Meadows appear smaller than Central Park, 
   which is a single large park. 
   - Second, the dataset includes tennis parks and baseball fields as separate 
-  facilities.
+  facilities. We want to include these as attributes of their containing park
+  rather than independent facilities.
   - Third, parking lots for stadia (in this case Citi Field) are included as 
   open park space. We should remove these as they are categorically unlike other
   green spaces.
@@ -44,43 +54,49 @@ leaflet(st_buffer(parks %>% filter(grepl("Flushing Meadows", park_name)), dist =
 ```
 
 First, we manually remove the park facilities corresponding to stadia and their
-associated parking lots, and then filter out facilities that are not explicitly
-park boundaries, as identified by the code `4980`.
+associated parking lots, and then tag facilities that are not explicitly
+park boundaries.
 
 ```{r notparks}
 notparks <- c(9498000833, 14498000872, 14498000794, # citi field, Yankee stadium, garage
               9498000631)  # USTA Billie Jean Tennis Center
-parks <- parks %>% 
-  filter(feat_code == 4980) %>%
-  filter(!(source_id %in% notparks))
-```
 
-```{r fm2}
-leaflet(st_buffer(parks %>% filter(grepl("Flushing Meadows", park_name)), dist = 0.000001)) %>%
-  addProviderTiles(providers$Esri.WorldGrayCanvas) %>%
-  addPolygons(label = ~as.character(park_name), stroke = 0.5)
+parks <- parks %>% 
+  filter(!(source_id %in% notparks)) %>%
+  mutate(
+    courts = ifelse(grepl("Courts", landuse), TRUE, FALSE),
+    playgrounds = ifelse(grepl("Playground", landuse), TRUE, FALSE),
+    trails = ifelse(parknum %in% parks_with_trails, TRUE, FALSE)
+  ) 
 ```
 
 With those areas removed, we build a 30-foot buffer around each park and 
-dissolve interior boundaries. This will make parks that are effectively the same
-facility a single polygon feature. We also re-calculate the area of the parks in
-acres and remove parks smaller than half an acre.
+dissolve interior boundaries based on the park number. Tennis courts, etc. become
+boolean variables indicating whether the park has the facilities or not. This
+will make parks that are effectively the same facility a single polygon feature.
+We also re-calculate the area of the parks in acres and remove parks smaller
+than half an acre.
 
 ```{r dissolve}
 dissolved <- parks %>%
-  #filter(grepl("Flushing Meadows", park_name)) %>%
-  st_transform(3628) %>%
-  st_buffer(30) %>%
+  filter(!is.na(parknum)) %>%
   group_by(parknum) %>%
-  summarise(area = sum(shape_area),
-            park_name = park_name[1]) %>%
-  mutate(sqft = st_area(.), acres = units::set_units(sqft, acres)) 
+  filter(shape_area > 0.5 * 43560 | courts) %>%
+  summarise(
+    area = sum(shape_area), 
+    courts = any(courts), 
+    playgrounds = any(playgrounds),
+    trails = any(trails),
+    park_name = park_name[1]
+  ) %>%
+  mutate(sqft = st_area(.), acres = units::set_units(sqft, acres)) %>%
+  st_transform(3628)
 ```
 
 ```{r fm3}
 leaflet(st_transform(dissolved, 4326) ) %>%
   addProviderTiles(providers$Esri.WorldGrayCanvas) %>%
-  addPolygons(stroke = 0.5)
+  addPolygons(stroke = 0.5,)
 ```
   
 ### Cemeteries
@@ -111,12 +127,18 @@ leaflet(st_transform(dissolved_cemeteries, 4326)) %>%
 Now we can join the cemeteries data to the parks data and write out the results
 ```{r write}
 rbind(
-  dissolved %>% transmute(name = park_name, acres, type = "park"),
-  dissolved_cemeteries %>% transmute(name, acres, type = "cemetery")
-) %>%
+  dissolved %>% 
+    transmute(id = parknum, name = park_name, acres, courts, playgrounds, trails, 
+              type = "park"),
+  dissolved_cemeteries %>% 
+    transmute(id = source_id, name, acres, courts = FALSE, playgrounds = FALSE, 
+              trails = FALSE, type = "cemetery")
+  ) %>%
   filter(as.numeric(acres) > 0.5) %>%
   st_simplify(preserveTopology = TRUE) %>%
-  write_rds("data/open_spaces.rds")
+  write_rds("data/open_spaces.rds") %>%
+  geojsonio::geojson_write(file = "data/open_spaces.geojson")
 ```
+
 
 
