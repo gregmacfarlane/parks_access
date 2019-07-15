@@ -93,41 +93,65 @@ write_rds(W, "data/W.rds")
 
 
 ## Logsums
-Here's the function we use to calculate the logsums
+
+Here's the function we use to calculate the logsums. 
 ```{r}
 #' Calculate destination choice logsums from a distance matrix
 #'
-#' @param d An $n\times p$ matrix with the distance from all tracts to
+#' @param impedance An $n\times p$ matrix with the distance from all tracts to
 #'   all parks
-#' @param sizes A p-length vector of park sizes
-#' @param tweets A p-length vector of tweets at parks
-#' @param betas A vector containing the size, distance, and tweet coefficients.
-#'   If we submit two variables the tweets are ignored.
+#' @param size_term A p-length vector of the park size terms
 #'
 #' @return An n-length vector containing the weighted log-sum based
 #'   accessibility between a tract and all parks.
 #' @details If we have n tracts and p parks, distances needs to be a
 #'
-calculate_park_logsums <- function(d, sizes, tweets = NULL,
-                                   betas = c(-0.4,0.2,0.001)){
-
-  # A is n x p
-  a <- betas[1] * d
-
-  # B is p x 1
-  b <- betas[2] * sizes
-
-  if(!is.null(tweets))
-    b <- b + betas[3] * tweets
+calculate_park_logsums <- function(impedance, size_term){
 
   # calculate observed utility by adding the weighted park-level attributes
   # to the columns of the matrix
   # V is n x p, with b added by-column to each element in a
-  V <- sweep(a, 2, b, `+`)
+  V <- sweep(impedance, 2, size_term, `+`)
 
   # log-sum of exponentiated utility, Output is n-length vector
   log(rowSums(exp(V)))
-
 }
+```
+
+
+```{r gravity}
+logsum_vars <- tracts %>%
+  transmute(
+    geoid, 
+    # Log-sum based utilities, without and with Twitter data
+    access_ls = calculate_park_logsums(
+      log(distances), open_spaces$acres, betas = c(-0.5, 0.05)),
+    # Normalize the logsum onto the Z-scale
+    access_ls_n = (access_ls - mean(access_ls) ) / sd(access_ls)
+  ) %>%
+  st_set_geometry(NULL)
+```
+
+
+```{r binary}
+tracts_access <- tracts %>%
+  left_join(logsum_vars, by = "geoid") %>%
+  mutate(access_025 = ifelse(geoid %in% inside_025$geoid, TRUE, FALSE))
+
+tracts_sp <- as(tracts_access, "Spatial")
+```
+
+```{r}
+# this interactive map is much easier to create and explore
+pal <- colorQuantile("GnBu", tracts_access$access_ls_n, n = 5)
+bin <- colorFactor("Dark2", tracts_access$access_025)
+leaflet(tracts_access) %>%
+  addProviderTiles(providers$CartoDB.Positron) %>%
+  addPolygons(group = "access", color = ~ pal(access_ls_n),
+              label = ~as.character(round(access_ls_n,2))) %>%
+  # addPolygons(group = "tweets", color = ~ pal(tweets_ls),
+  #             label = ~as.character(round(tweets_ls,2))) %>%
+  addPolygons(group = "1/4 mile", color = ~ bin(access_025)) %>%
+  addLayersControl(baseGroups = c("access", "tweets", "1/4 mile"))
 ```
 
