@@ -16,5 +16,10 @@ calculate_park_logsums <- function(impedance, size_term){
   V <- sweep(impedance, 2, size_term, `+`)
   
   # log-sum of exponentiated utility, Output is n-length vector
-  log(rowSums(exp(V)))
+  log(rowSums(exp(V), na.rm = TRUE))
+}
+
+
+get_nearest <- function(impedance) {
+  
 }

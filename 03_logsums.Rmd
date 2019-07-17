@@ -6,6 +6,7 @@ output: html_document
 ---
 
 ```{r setup}
+knitr::opts_chunk$set(cache = TRUE)
 library(tidyverse)
 library(sf)
 library(spdep)
@@ -74,7 +75,8 @@ leaflet(pop_weighted_centroids %>% st_transform(4326)) %>%
   addCircleMarkers(color = ~dmeasure(central_park))
 ```
 
-Now we can calculate everything.
+Now we can calculate the distance from every park to every tract population
+centroid, and write the distances and neighbors weights matrix to a file.
 ```{r distances}
 # distances from all tract centroids to all parks
 distances <- st_distance(pop_weighted_centroids, open_spaces, byid = TRUE) %>%
@@ -83,9 +85,7 @@ distances <- st_distance(pop_weighted_centroids, open_spaces, byid = TRUE) %>%
 
 # assert that a tract must be at least 1/10 mile from a park
 distances <- pmax(distances, 0.1)
-```
 
-```{r write}
 write_rds(distances, "data/distances.rds")
 write_rds(W, "data/W.rds")
 ```
@@ -95,63 +95,56 @@ write_rds(W, "data/W.rds")
 ## Logsums
 
 Here's the function we use to calculate the logsums. 
-```{r}
-#' Calculate destination choice logsums from a distance matrix
-#'
-#' @param impedance An $n\times p$ matrix with the distance from all tracts to
-#'   all parks
-#' @param size_term A p-length vector of the park size terms
-#'
-#' @return An n-length vector containing the weighted log-sum based
-#'   accessibility between a tract and all parks.
-#' @details If we have n tracts and p parks, distances needs to be a
-#'
-calculate_park_logsums <- function(impedance, size_term){
-
-  # calculate observed utility by adding the weighted park-level attributes
-  # to the columns of the matrix
-  # V is n x p, with b added by-column to each element in a
-  V <- sweep(impedance, 2, size_term, `+`)
-
-  # log-sum of exponentiated utility, Output is n-length vector
-  log(rowSums(exp(V)))
-}
+```{r calculate_park_logsums}
+source("R/logsums.R")
+print(calculate_park_logsums)
 ```
 
-
-```{r gravity}
+We use this function with asserted beta values of -1.98 and 0.3 to calculate the
+accessibility logsum.
+```{r logsum_vars}
 logsum_vars <- tracts %>%
   transmute(
     geoid, 
     # Log-sum based utilities, without and with Twitter data
     access_ls = calculate_park_logsums(
-      log(distances), open_spaces$acres, betas = c(-0.5, 0.05)),
+      log(distances) * -1.98, log(open_spaces$acres) * 0.3
+    ),
     # Normalize the logsum onto the Z-scale
     access_ls_n = (access_ls - mean(access_ls) ) / sd(access_ls)
   ) %>%
   st_set_geometry(NULL)
 ```
 
+We are also interested in looking at what happens when the tracts are within a 
+10-minute walk of a park, the threshold established by the Trust for Public Lands.
+```{r nyc10mw}
+access_10mw <- st_read("data/nyc_10mw.geojson") %>%
+  summarise(d = 1)
 
-```{r binary}
+inside_access <- pop_weighted_centroids %>%
+  st_transform(4326) %>%
+  st_join(access_10mw, st_intersects) %>%
+  filter(!is.na(d))
+
 tracts_access <- tracts %>%
   left_join(logsum_vars, by = "geoid") %>%
-  mutate(access_025 = ifelse(geoid %in% inside_025$geoid, TRUE, FALSE))
-
-tracts_sp <- as(tracts_access, "Spatial")
+  mutate(walk_10 = ifelse(geoid %in% inside_access$geoid, TRUE, FALSE)) %>%
+  write_rds("data/tracts_acces.rds")
 ```
 
-```{r}
+Here's a map of the values 
+```{r access_map}
 # this interactive map is much easier to create and explore
 pal <- colorQuantile("GnBu", tracts_access$access_ls_n, n = 5)
-bin <- colorFactor("Dark2", tracts_access$access_025)
+bin <- colorFactor("Dark2", tracts_access$walk_10)
 leaflet(tracts_access) %>%
-  addProviderTiles(providers$CartoDB.Positron) %>%
+  addProviderTiles(providers$Esri.WorldGrayCanvas) %>%
   addPolygons(group = "access", color = ~ pal(access_ls_n),
               label = ~as.character(round(access_ls_n,2))) %>%
   # addPolygons(group = "tweets", color = ~ pal(tweets_ls),
   #             label = ~as.character(round(tweets_ls,2))) %>%
-  addPolygons(group = "1/4 mile", color = ~ bin(access_025)) %>%
-  addLayersControl(baseGroups = c("access", "tweets", "1/4 mile"))
+  addPolygons(group = "10-minute walk", color = ~ bin(walk_10)) %>%
+  addLayersControl(baseGroups = c("access", "tweets", "10-minute walk"))
 ```
 
