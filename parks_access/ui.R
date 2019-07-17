@@ -38,8 +38,8 @@ navbarPage(
                             step = 0.1, value = 1.9),
                 sliderInput("size_c", "Size Effect (positive)", min = 0.01, max = 5,
                             step = 0.1, value = .3),
-                sliderInput("playground", "Playground Effect", min = 0, max = 5,
-                            step = 1, value = 1),
+                sliderInput("maxdist", "Maximum distance", min = 0, max = 20,
+                            step = 1, value = 20),
                 conditionalPanel("input.color == 'superzip' || input.size == 'superzip'",
                                  # Only prompt for threshold when coloring or sizing by superzip
                                  numericInput("threshold", "SuperZIP threshold (top n percentile)", 5)

@@ -12,6 +12,7 @@ library(here)
 library(sf)
 library(leaflet)
 library(tidyverse)
+library(broom)
 
 # load data
 openspaces <- read_rds(here("data/open_spaces.rds"))
@@ -34,20 +35,23 @@ shinyServer(function(input, output) {
         distance_c <- -1 * input$distance_c
         size_c <- input$size_c
         courts_c <- 0
-        playgrounds_c <- input$playground
+        playgrounds_c <- 0
         trails_c <- 0
         
         size_term <- openspaces %>%
-            mutate(size_term  = log(as.numeric(acres)) * scoef + 
+            mutate(size_term  = log(as.numeric(acres)) * size_c + 
                        courts * courts_c +
                        playgrounds * playgrounds_c + 
                        trails * trails_c
                    ) %>%
             pull(size_term)
         
+        d <- distances
+        d[d > input$maxdist] <- NA
+        
         suppressWarnings(
             
-            ls <- calculate_park_logsums(impedance = log(distances) * distance_c, 
+            ls <- calculate_park_logsums(impedance = log(d) * distance_c, 
                                          size_term = size_term)
         )
         
@@ -65,21 +69,24 @@ shinyServer(function(input, output) {
     })
     
     output$scatterObesity <- renderPlot({
-        df <- data_frame(
-            obesity = tracts$obesity,
-            access = colorData()
-        )
+        df <- tracts %>% mutate(access = colorData()) 
         
-        ggplot(df, aes(x = access, y = obesity)) +
-            geom_point() +
-            stat_smooth(method = "lm") + 
-            xlab("Access Score") + ylab("Obesity Rate")
+        fit <- lm(obesity ~ log(density) + log(income) +
+                           fulltime + college + single +
+                           youth + young_adults + seniors + 
+                           black + asian + hispanic + other + access,
+                       data = df)
+        
+        sjPlot::plot_model(fit, type = "pred", terms = c("access"))
+        
+        
     })
     
     
     # This observer is responsible for maintaining the circles and legend,
     # according to the variables the user has chosen to map to color and size.
     observe({
+        
         
         cd <- as.numeric(colorData())
         pal <- colorBin("viridis", cd, bins = c(-Inf, -3, -2, -1, 1, 2, 3, Inf))
