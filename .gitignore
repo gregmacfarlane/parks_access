@@ -3,3 +3,11 @@
 _site/
 .Rproj.user/
 *_cache/
+data/obesity_models.rds
+data/pa_models.rds
+data/tracts.geojson
+data/tracts_access.rds
+data/tweet_counts.csv
+data/open_spaces.rds
+data/open_spaces.geojson
+
