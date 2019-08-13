@@ -124,9 +124,9 @@ leaflet(st_transform(dissolved_cemeteries, 4326)) %>%
 ```
 
 
-Now we can join the cemeteries data to the parks data and write out the results
+Now we can join the cemeteries data to the parks data and write out the results.
 ```{r write}
-rbind(
+open_spaces <- rbind(
   dissolved %>% 
     transmute(id = parknum, name = park_name, acres, courts, playgrounds, trails, 
               type = "park"),
@@ -136,9 +136,14 @@ rbind(
   ) %>%
   filter(as.numeric(acres) > 0.5) %>%
   st_simplify(preserveTopology = TRUE) %>%
-  write_rds("data/open_spaces.rds") %>%
-  geojsonio::geojson_write(file = "data/open_spaces.geojson")
+  write_rds("data/open_spaces.rds")
+
+geojsonio::geojson_write(open_spaces, file = "data/open_spaces.geojson")
 ```
+
+
+
+
 
 
 

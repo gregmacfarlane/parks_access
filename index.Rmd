@@ -3,5 +3,5 @@ title: "Parks Access"
 ---
 
 
-This website contains the analysis code and note for the Macfarlane et al. parks
+This website contains the analysis code and notes for the Macfarlane et al. parks
 accessibility projects. It is a reorganization of the material found at [https://github.com/boydnpb/park_access_new](https://github.com/boydnpb/park_access_new).

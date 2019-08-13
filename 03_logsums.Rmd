@@ -11,6 +11,7 @@ library(tidyverse)
 library(sf)
 library(spdep)
 library(leaflet)
+library(lubridate)
 ```
 
 In this document we calculate the distance between each tract in New York City 
@@ -90,6 +91,77 @@ write_rds(distances, "data/distances.rds")
 write_rds(W, "data/W.rds")
 ```
 
+## Tweet Counts
+
+We obtained geolocated tweets sent from within the boundaries of each park for
+the period from July through October, 2014.
+
+```{r tweets}
+tweets <- read_csv("data/tweet_counts.csv") %>%
+  filter(id %in% open_spaces$id) %>%
+  gather(date, count, PK_7_1:PK_10_31) %>%
+  separate(date, c("pk", "month", "day"), sep = "_") %>%
+  mutate(date = as_date(str_c("2014", month, day, sep = "-"))) %>%
+  dplyr::select(id, date, count) %>%
+  mutate(
+    month = month(date, TRUE),
+    wday = wday(date, TRUE)
+  ) 
+```
+
+We have a question about how consistent the twitter data is by month or across
+days of the week. Somewhat surprisingly, the twitter activity is lowest on saturday, 
+and then next lowest on Sunday.
+
+```{r wday}
+tweets %>%
+  ggplot(aes(x = wday)) +
+  geom_bar()
+```
+
+August is very low! Let's make sure to use September or October.
+
+```{r month}
+tweets %>%
+  ggplot(aes(x = month)) +
+  geom_bar()
+```
+
+Let's look at the within-park consistency or variability of twitter activity.
+It appears that there is some variation, but that parks with high use typically 
+have high use.
+
+```{r consistency}
+tweets %>%
+  filter(month == "Sep") %>%
+  ggplot(aes(x = date, y = count + 1, group = id)) +
+  geom_line(alpha = 0.5) + scale_y_log10()
+```
+
+Let's calculate the weekday average for each park in September and then go with
+that.
+
+```{r tweets_summary}
+(tweets_summary <- tweets %>%
+  filter(month == "Sep") %>%
+  #filter(!wday %in% c("Sat", "Sun")) %>%
+  group_by(id) %>%
+  summarise(
+    tweet_average = mean(count),
+    tweet_count = sum(count)
+  ) %>%
+  arrange(-tweet_count))
+ggplot(tweets_summary, aes(x = tweet_count)) +
+  geom_histogram() 
+
+open_spaces <- open_spaces %>%
+  left_join(tweets_summary, by = "id") %>%
+  mutate_at(
+    vars(starts_with("tweet")), 
+    funs(replace_na(., 0))
+  ) 
+```
+
 
 
 ## Logsums
@@ -103,17 +175,34 @@ print(calculate_park_logsums)
 We use this function with asserted beta values of -1.98 and 0.3 to calculate the
 accessibility logsum.
 ```{r logsum_vars}
+open_spaces$acres <- as.numeric(open_spaces$acres)
 logsum_vars <- tracts %>%
   transmute(
     geoid, 
     # Log-sum based utilities, without and with Twitter data
     access_ls = calculate_park_logsums(
-      log(distances) * -1.98, log(open_spaces$acres) * 0.3
+      log(distances) * -1.768, log(open_spaces$acres) * 0.373
     ),
-    # Normalize the logsum onto the Z-scale
-    access_ls_n = (access_ls - mean(access_ls) ) / sd(access_ls)
+    tweets_ls = calculate_park_logsums(
+      log(distances) * -1.768, 
+      log(open_spaces$acres) * 0.373 + 
+        0.1 * yeo.johnson(open_spaces$tweet_count, lambda = 0)
+    ),
+    multi_ls = calculate_park_logsums(
+      log(distances) * -1.768, 
+      log(open_spaces$acres) * 0.373 + 
+        open_spaces$trails * 0.99 + 
+        open_spaces$playgrounds * 0.26 + 
+        open_spaces$courts * 0.43
+    ),
   ) %>%
-  st_set_geometry(NULL)
+  mutate_at(
+    vars(ends_with("_ls")),
+    # Normalize the logsum onto the Z-scale
+    funs( (. - mean(.) ) / sd(.))
+  ) %>%
+  st_set_geometry(NULL) %>%
+  as_tibble()
 ```
 
 We are also interested in looking at what happens when the tracts are within a 
@@ -130,21 +219,24 @@ inside_access <- pop_weighted_centroids %>%
 tracts_access <- tracts %>%
   left_join(logsum_vars, by = "geoid") %>%
   mutate(walk_10 = ifelse(geoid %in% inside_access$geoid, TRUE, FALSE)) %>%
-  write_rds("data/tracts_acces.rds")
+  write_rds("data/tracts_access.rds")
 ```
 
-Here's a map of the values 
+Here's a map of the values. Note that there is also a shiny app in this project that
+allows the user to set different values for the logsum parameters.
 ```{r access_map}
 # this interactive map is much easier to create and explore
-pal <- colorQuantile("GnBu", tracts_access$access_ls_n, n = 5)
+pal <- colorQuantile("GnBu", c(tracts_access$access_ls, tracts_access$multi_ls), n = 5)
 bin <- colorFactor("Dark2", tracts_access$walk_10)
 leaflet(tracts_access) %>%
   addProviderTiles(providers$Esri.WorldGrayCanvas) %>%
-  addPolygons(group = "access", color = ~ pal(access_ls_n),
-              label = ~as.character(round(access_ls_n,2))) %>%
-  # addPolygons(group = "tweets", color = ~ pal(tweets_ls),
-  #             label = ~as.character(round(tweets_ls,2))) %>%
+  addPolygons(group = "access", color = ~ pal(access_ls),
+              label = ~as.character(round(access_ls, 2))) %>%
+  addPolygons(group = "tweets", color = ~ pal(tweets_ls),
+              label = ~as.character(round(tweets_ls, 2))) %>%
+  addPolygons(group = "Kinner", color = ~ pal(multi_ls),
+              label = ~as.character(round(multi_ls, 2))) %>%
   addPolygons(group = "10-minute walk", color = ~ bin(walk_10)) %>%
-  addLayersControl(baseGroups = c("access", "tweets", "10-minute walk"))
+  addLayersControl(baseGroups = c("access", "tweets", "Kinner", "10-minute walk"))
 ```
 

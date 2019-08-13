@@ -18,15 +18,13 @@ attribute, for each tract and its attributes, and the distance matrix between
 parks and tracts.
 
 ```{r loaddata}
-tracts_access <- read_rds("data/tracts_acces.rds")
+tracts_access <- read_rds("data/tracts_access.rds")
 W <- read_rds("data/W.rds")
 trMC <- trMC <- trW(as(W, "CsparseMatrix"), type="MC")
 tracts_sp <- as(tracts_access, "Spatial")
 ```
 
-
-
-
+The base formula includes all of the tract-level covariates.
 
 ```{r base_formula}
 base_formula <- formula(
@@ -36,6 +34,30 @@ base_formula <- formula(
     black + asian + hispanic + other)
 ```
 
+```{r}
+names_for_terms <- c(
+  "(Intercept)", "log(Density)", "log(Income)",
+  "Fulltime", "College-educated",  "Single Adults",
+  "Youth (0-17)", "Young adults (18-34)",
+  "Seniors (65+)", "Black population share",
+  "Asian population share",
+  "Hispanic population share", "Other Minorities",
+  "$\\gamma$: spatial correlation","Physical activity",
+  "Logsum", "Tweets", "Attributes", "10-min walk"
+)
+
+termnames <- tibble(
+  name = names_for_terms,
+  term = c("Intercept", "log(density)", "log(income)", "fulltime", "college",
+           "single", "youth", "young_adults", "seniors", "black", "asian", 
+           "hispanic", "other",
+           "lag", "physact", "access_ls", "tweets_ls", "multi_ls", "walk_10TRUE"))
+```
+
+
+We estimate an SEM and SDM version of the base formula, to see if a LRT can 
+exclude the SDM. It doesn't, so we use the SDM going forward. This makes the 
+impacts analysis a little more difficult, but it's not a huge deal. 
 
 ```{r spatial selection}
 physact_base_sem <- errorsarlm(update(base_formula, physact ~ .),
@@ -43,28 +65,26 @@ physact_base_sem <- errorsarlm(update(base_formula, physact ~ .),
 physact_base_sdm <- lagsarlm(update(base_formula, physact ~ .),
                              data = tracts_sp, listw = W, zero.policy = TRUE,
                              type = "mixed")
-test_sdmsem <- lmtest::lrtest(physact_base_sem, physact_base_sdm)
+(test_sdmsem <- lmtest::lrtest(physact_base_sem, physact_base_sdm))
 ```
+
+Now we can add all four access measures to the formula one after the other.
 
 ```{r access_sdm}
 # estimate models
-pa_access_sem <- update(physact_base_sem, .~ . + access_ls)
-pa_quarter_sem <- update(physact_base_sem, .~ . + walk_10)
+pa_access_sdm  <- update(physact_base_sdm, .~ . + access_ls)
+pa_tweets_sdm  <- update(physact_base_sdm, .~ . + tweets_ls)
+pa_multi_sdm   <- update(physact_base_sdm, .~ . + multi_ls)
+pa_walk10_sdm  <- update(physact_base_sdm, .~ . + walk_10)
 
-pa_models <- list("Base" = physact_base_sem,
-                  "Access: logsum" = pa_access_sem,
-                  "Access: 10-min walk" = pa_quarter_sem)
+pa_models <- list("Base"        = physact_base_sdm,
+                  "Logsum"      = pa_access_sdm,
+                  "Tweets"      = pa_tweets_sdm,
+                  "Attributes"  = pa_multi_sdm,
+                  "10-min walk" = pa_walk10_sdm)
 ```
 
 ```{r screen_pa_models}
-view_kable(
-htmlreg(pa_models, digits = 4, table = FALSE, single.row = TRUE, 
-                   caption.above = TRUE, caption = "Spatial Error Model ",
-          stars = c(0.001, 0.01, 0.05, 0.1) )
-)
-```
-
-```{r}
 view_kable <- function(x){
   tab <- paste(capture.output(x))
   tf <- tempfile(fileext = ".html")
@@ -72,6 +92,38 @@ view_kable <- function(x){
   viewer <- getOption("viewer")
   viewer(tf)
 }
+view_kable(
+htmlreg(pa_models, digits = 4, table = FALSE, single.row = TRUE, 
+                   caption.above = TRUE, caption = "Spatial Error Model ",
+          stars = c(0.001, 0.01, 0.05, 0.1) )
+)
+```
+
+Let's look at the impacts. The total effect of each park access measure is
+significant at the 95% level. Indeed, it is the only 
+
+```{r impacts}
+source(here("R/impacts_extractor.R"))
+
+pa_impacts <- lapply(pa_models, function(x) impacts_extractor(x, trMC)) %>%
+  bind_rows(.id = "model")  %>%
+  left_join(termnames, by = "term") %>%
+  mutate(name = factor(name, levels = rev(names_for_terms)))
+
+ggplot(pa_impacts, 
+       aes(x = name, ymin = `2.5%`, ymax = `97.5%`,  y = `50%`, color = model)) +
+  geom_abline(slope = 0, intercept = 0, color = "gray") +
+  geom_errorbar(position = "dodge2") +
+  facet_wrap(~effect, scales = "free_x") +
+  scale_color_brewer("Model", palette = "Set1") +
+  #geom_point(position = "dodge2") +
+  ylab("Simulated Total Impact on Physical Activity Rate") +
+  coord_flip() +
+  #facet_wrap(~effect) +
+  theme_bw() +
+  theme(legend.position = "bottom", 
+        axis.text.y = element_text(size = 10),
+        axis.title.y = element_blank())
 ```
 
 
@@ -84,53 +136,30 @@ names(obesity_models) <- names(pa_models)
 ```
 
 ```{r screen_obesity_models}
-screenreg(obesity_models, digits = 4, table = FALSE)
+view_kable(
+  htmlreg(obesity_models, digits = 4, table = FALSE, single.row = TRUE, 
+                   caption.above = TRUE, caption = "Spatial Error Model ",
+          stars = c(0.001, 0.01, 0.05, 0.1) )
+)
 ```
 
-```{r screen_obese_models, eval = FALSE}
-  screenreg(obesity_models, digits = 4, table = FALSE, ci.force = TRUE,
-          single.row = TRUE, caption = "Spatial Error Model Estimates of Effect on Obesity Rates",
-          caption.above = TRUE, custom.coef.names = c(
-            "(Intercept)", "log(Density)", "log(Income)",
-            "Fulltime", "College-educated",  "Single Adults",
-            "Youth (0-17)", "Young adults (18-34)",
-            "Seniors (65+)", "Black population share",
-            "Asian population share",
-            "Hispanic population share", "Other Minorities",
-            "Physical activity",
-            "Spatial correlation", "Access: Logsum", "Access: 10-min walk"
-          ))
-```
 
 ```{r obesityplot}
-names_for_terms <- c(
-  "(Intercept)", "log(density)", "log(Income)",
-  "Fulltime", "College-educated",  "Single Adults",
-  "Youth (0-17)", "Young adults (18-34)",
-  "Seniors (65+)", "Black population share",
-  "Asian population share",
-  "Hispanic population share", "Other Minorities",
-  "$\\gamma$: spatial correlation","Physical activity",
-  "Access: Logsum", "Access: 10-min walk"
-)
-termnames <- tibble(
-  name = names_for_terms,
-  term = c("Intercept", "log(density)", "log(income)", "fulltime", "college", "single",
-           "youth", "young_adults", "seniors", "black", "asian", "hispanic", "other",
-           "lag", "physact", "access_ls", "walk_10TRUE"))
-source("R/impacts_extractor.R")
 obesity_impacts <- lapply(obesity_models, function(x) impacts_extractor(x, trMC)) %>%
   bind_rows(.id = "model")  %>%
   left_join(termnames, by = "term") %>%
   mutate(name = factor(name, levels = rev(names_for_terms)))
 
-ggplot(obesity_impacts %>% filter(effect == "Total"), 
+
+
+ggplot(obesity_impacts, 
        aes(x = name, ymin = `2.5%`, ymax = `97.5%`,  y = `50%`, color = model)) +
   geom_abline(slope = 0, intercept = 0, color = "gray") +
   geom_errorbar(position = "dodge2") +
+  facet_wrap(~effect, scales = "free_x") +
   scale_color_brewer("Model", palette = "Set1") +
   #geom_point(position = "dodge2") +
-  ylab("Simulated Total Impact on Obesity Rate") +
+  ylab("Simulated Total Impact on Physical Activity Rate") +
   coord_flip() +
   #facet_wrap(~effect) +
   theme_bw() +
@@ -138,3 +167,10 @@ ggplot(obesity_impacts %>% filter(effect == "Total"),
         axis.text.y = element_text(size = 10),
         axis.title.y = element_blank())
 ```
+
+
+```{r models}
+write_rds(pa_models, "data/pa_models.rds")
+write_rds(obesity_models, "data/obesity_models.rds")
+```
+
