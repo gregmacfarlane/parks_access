@@ -7,7 +7,20 @@ data/obesity_models.rds
 data/pa_models.rds
 data/tracts.geojson
 data/tracts_access.rds
-data/tweet_counts.csv
 data/open_spaces.rds
 data/open_spaces.geojson
 
+manuscript/*.bbl
+manuscript/*.blg
+manuscript/*.log
+manuscript/*.aux
+manuscript/*.out
+manuscript/*.spl
+manuscript/manuscript.tex
+manuscript/manuscript_files/
+
+
+
+manuscript/manuscript\.aux
+
+manuscript/manuscript-tikzDictionary
