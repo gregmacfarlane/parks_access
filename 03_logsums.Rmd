@@ -12,6 +12,7 @@ library(sf)
 library(spdep)
 library(leaflet)
 library(lubridate)
+library(VGAM)
 ```
 
 In this document we calculate the distance between each tract in New York City 
@@ -129,7 +130,7 @@ logsum_vars <- tracts %>%
   mutate_at(
     vars(ends_with("_ls")),
     # Normalize the logsum onto the Z-scale
-    funs( (. - mean(.) ) / sd(.))
+    list(~ (. - mean(.) ) / sd(.))
   ) %>%
   st_set_geometry(NULL) %>%
   as_tibble()
