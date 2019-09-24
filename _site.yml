@@ -8,5 +8,7 @@ navbar:
       href: 01_health_data.html
     - text: "Parks Data"
       href: 02_parks_data.html
-    - text: "Logsum specifications"
+    - text: "Logsum Specifications"
       href: 03_logsums.html
+    - text: "Model Estimation"
+      href: 04_estimation.html

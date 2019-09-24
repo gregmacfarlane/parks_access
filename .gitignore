@@ -3,6 +3,7 @@
 _site/
 .Rproj.user/
 *_cache/
+*_files/
 data/obesity_models.rds
 data/pa_models.rds
 data/tracts.geojson

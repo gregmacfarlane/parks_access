@@ -2,4 +2,5 @@
 title: "About This Website"
 ---
 
-More about this website.
+This website contains notes and data cleaning scripts for the Macfarlane et al.
+investigation into park accessibility in New York.
