@@ -1,5 +1,5 @@
 ---
-title: "04_estimation"
+title: "Model "
 author: "Greg Macfarlane"
 date: "6/17/2019"
 output: html_document
@@ -375,6 +375,7 @@ view_kable(
 
 
 ```{r models}
+write_rds(slx_vs_sdem, "data/slx_vs_sdem.rds")
 write_rds(pa_models, "data/pa_models.rds")
 write_rds(obesity_models, "data/obesity_models.rds")
 ```

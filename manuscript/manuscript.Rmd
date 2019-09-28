@@ -433,61 +433,83 @@ bind_rows(tract_summary, park_summary) %>%
 ## Model 
 \label{subsec:model}
 
-We predict the rate of physical activity ($y$) in a census tract as a
-function of the tract's sociodemographic characteristics and choice-based
-accessibility to parks with the following  specification:
+We predict either the physical activity or the obesity rate ($y$) in a census
+tract as a linear function of the tract's sociodemographic characteristics $X$
+and accessibility to parks ($A$),
 \begin{equation}\label{eq:themodel}
- y_i = f(\vect{x}_i, C_i, g(W, \vect{y}, \vect{X}))
+ y = X\beta + \beta_{a}A + \varepsilon
 \end{equation}
-where $\vect{x}_i$ is a vector of tract-level sociodemographic attributes,
-$C_i$ is a choice-based accessibility measure for the tract computed from
-Equation \ref{eq:cs} and $g(W, \vect{y}, X)$ represents the impact of spatial
-neighborhood effects on the outcome.
 
-Using tracts as the unit of observation in the model allows us to consider the
-availability of parks at a sub-metropolitan level, but it also introduces the problem
-of spatial correlation of unobserved errors and spatial dependence in the data
-generating process [@Cliff1970; @Anselin1980]. Spatial correlation occurs
-when spatially-distributed unobservable or missing variables (school quality,
-neighborhood prestige, etc.) influence the modeled outcomes. Spatial dependence
-occurs when the outcome *depends* on the outcome in neighboring areas; for
-example, seeing neighbors exercising may encourage exercise. The relaxed spatial
-Durbin model (SDM) proposed by @Burridge1981 controls for both processes:
-\begin{equation}\label{eq:sdm}
-  \vect{y}= \rho W\vect{y} + X\vect{\beta} + WX\vect{\gamma} + \vect{\epsilon}
+As the observations are related to each other spatially, it is likely that this
+process involves spatial spillovers of one kind or another. A complete treatment of
+spatial econometrics is not warranted here; the reader is directed to
+@LeSage2009 as well as @LeSage2014.
+Suffice it to say that the presence of spatial data generating processes can
+negatively affect econometric interpretation in a variety of ways. Each of these
+process relies on spatial autoregression, where elements of some random
+variable $x$ are spatially dependent on other elements, 
+\begin{equation}\label{eq:autoregression}
+ x = \rho W x + \varepsilon
 \end{equation}
-where $\rho$ is the estimated spatial correlation between the outcome variables
-$y_i, y_j, \ldots  \in \vect{y}$, $W$ is a matrix specifying the spatial
-relationship between observations $i$ and $j$ in the dataset,
-$\vect{\beta}$ is a vector of estimable coefficients relating the attributes $X$
-of an observation to its outcome, and $\vect{\gamma}$ is a vector of
-estimated coefficients relating the attributes of an observation's *neighbors*
-to its outcome. If only correlation and not dependence exists in the data
-generating process, it may  be more efficient to estimate a restricted
-spatial autoregressive model and therefore
-save degrees of freedom in the estimation. @tra_autoregression_paper
-illustrate a decision algorithm originally proposed by @Florax2003 which uses
-a likelihood ratio test of the SDM against the restricted spatial error model (SEM):
-\begin{align}
-{\boldsymbol y} &= X{\boldsymbol \beta} + {\boldsymbol u},  {\boldsymbol u} = \gamma W {\boldsymbol u} +
-{\boldsymbol \epsilon} \label{eq:SEM}\\
-{\boldsymbol y} &= X{\boldsymbol \beta} + (I-\gamma W)^{-1}{\boldsymbol \epsilon}\notag
-\end{align}
-If the likelihood ratio test rejects that the models are equivalent, then the SDM
-should be used because its estimates are unbiased. One consequence of using the SDM
-is that the estimated coefficients do not represent the  
+with the strength of dependence an estimated parameter $\rho$, the structure of 
+dependence governed by the asserted matrix $W$ (details of $W$ follow below),
+and some random uncorrelated residual $\varepsilon$. A collection of models is
+available to represent spatial autodependence in the model residuals, the 
+independent variables, and the dependent variable.
 
-The researcher must assert $W$ *a priori*, though there are several
-common specifications \citep{Dubin1998}. In this study we specify that tracts
-with population-weighted centroids located within 1.8 Euclidean miles of each
-other are considered neighbors, and the strength of the relationship is the
-row-standardized (each row sums to 1) inverse of the distance between them:
-\begin{equation}\label{eq:weightsrule}
-W_{ij} = \begin{cases}
-  {\frac{d_{ij}^{-1}} {\sum_{k=1}^n d_{ik}^{-1}}} & \text{for $d_{ij} \leq 1.8$ miles}\\
-  0  & \text{for $d_{ij} > 1.8$ miles}
-  \end{cases}
+The specific spatial model applied is both an econometric choice
+--- as improperly specified spatial models can lead to inconsistent estimates of
+model parameters and standard errors --- as well as a philosophical choice about
+the likely structure of spillovers in the problem at hand. In case of physical
+activity and obesity rates, we believe that these outcomes
+are locally determined: That is, a particular individual decides whether or not
+to participate in physical activity independently of whether his or her neighbors
+participate in physical activity. Mathematically, we assert that the autodependence
+relationship on the dependent variable $y = \rho W y + \varepsilon$ has 
+$\rho = 0$ in the current case.
+
+With this relationship ruled out, it remains a possibility that the 
+model residuals are spatially dependent,
+\begin{equation}\label{eq:SEM}
+ y = X\beta + \beta_a A + u; u = \lambda W u + \varepsilon
 \end{equation}
+that the outcome is partially dependent on the socioeconomic variables in *neighboring*
+tracts,
+\begin{equation}\label{eq:SLX}
+ y = X\beta + \beta_a A + W X \lambda + \varepsilon
+\end{equation}
+or a linear combination of both.
+\begin{equation}\label{eq:SDEM}
+ y = X\beta + \beta_a A + W X \gamma + u; u = \lambda W u + \varepsilon 
+\end{equation}
+These models are referred as the spatial error model (SEM), the spatial lag of
+$X$ model (SLX), and the spatial Durbin error model (SDEM). @LeSage2014 suggest
+that a Hausman-style test of the estimates of $\beta$ derived from the OLS 
+(Equation \ref{eq:themodel}) and SEM (Equation \ref{eq:SEM}) can identify whether
+the estimates are consistent. If the $\beta$ estimates are dissimilar, both 
+specifications are inappropriate as they contain untreated omitted variables.
+Similarly, if the SLX and SDEM estimates are dissimilar it is an indication of 
+missing variables in that specification. On the other hand if the estimates of
+both pairs of models are similar and the residual correlation parameter $\lambda$
+is non-zero, the model accounting for spatially dependent residuals will produce 
+proper estimates of the model standard errors.
+
+Note that in the lag-$X$ specifications (SLX and SDEM) we exclude the accessiblity 
+component $A$, that is we do *not* consider that the accessibility
+in a neighboring zone will have an effect on physical activity or obesity rates.
+In a practical sense, this is because the accessibility term $A$ is itself spatially
+determined.
+
+
+### Spatial Weights
+
+The spatial weights matrix $W$ is constructed of individual elements where
+$w_{ij} = 0$ if observations $i$ and $j$ are spatially independent of each other,
+and $w_{ij} > 0$ if $i$ and $j$ are spatially related in some way. 
+@Dubin1998 presents details on constructing $W$, but in this study we
+assume that tracts sharing at least one common border point are neighbors of
+each other. The elements of $W$ are then row-standardized so that each observation
+has an equal total influence from all its neighbors.
 
 ```{r weights, warning = FALSE}
 # This are developed in 03_logsums.Rmd
@@ -495,10 +517,7 @@ distances <- read_rds(here("data/distances.rds"))
 W <- read_rds(here("data/W.rds"))
 trMC <- trW(as(W, "CsparseMatrix"), type="MC")
 ```
-This is a similar specification to that used by  \citet{tra_autoregression_paper}
-in a study of home prices in Atlanta. We selected this specification after
-comparing overall model likelihoods between it and a specification where tracts
-sharing a boundary are considered neighbors.
+
 
 ## Accessibility 
 \label{subsec:accessibility}
@@ -570,23 +589,18 @@ obesity_models <- read_rds(here("data/obesity_models.rds"))
 ```
 
 ```{r termnames}
-names_for_terms <- c(
-  "(Intercept)", "log(Density)", "log(Income)",
-  "Fulltime", "College-educated",  "Single Adults",
-  "Youth (0-17)", "Young adults (18-34)",
-  "Seniors (65+)", "Black population share",
-  "Asian population share",
-  "Hispanic population share", "Other Minorities",
-  "$\\gamma$: spatial correlation","Physical activity",
-  "Logsum", "Tweets", "Attributes", "10-min walk"
+base_termnames <- c(
+  "(Intercept)", "log(Density)", "log(Income)", "Fulltime", "College-educated",  "Single Adults",
+  "Youth (0-17)", "Young adults (18-34)", "Seniors (65+)", "Black population share",
+  "Asian population share", "Hispanic population share", "Other Minorities"
 )
 
-termnames <- tibble(
-  name = names_for_terms,
-  term = c("Intercept", "log(density)", "log(income)", "fulltime", "college",
-           "single", "youth", "young_adults", "seniors", "black", "asian", 
-           "hispanic", "other",
-           "lag", "physact", "access_ls", "tweets_ls", "multi_ls", "walk_10TRUE"))
+names_for_terms <- c(
+  base_termnames, str_c("$\\gamma$: ", base_termnames[-1]),
+  "$\\lambda$: spatial correlation"
+)
+
+access_terms <- c("Logsum", "Tweets",  "Attributes", "10-min walk")
 ```
 
 We estimated SDM and SEM models regressing the physical activity rate
