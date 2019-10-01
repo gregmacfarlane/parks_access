@@ -1,6 +1,6 @@
 ---
 title: >
-  Modeling the impacts of park access on health outcomes: a choice-based 
+  Modeling the impacts of park access on health outcomes: a utility-based 
   accessibility approach
 author:
   - name: Gregory Macfarlane
@@ -97,12 +97,12 @@ activity [@Wolf2008].
 Historically, most large-scale health promotion efforts focused on
 individual-level interventions intended to educate people about healthy
 lifestyles and behaviors, touching on topics including diet and exercise.
-Over the last few years a new social model of health has evolved, treating health
+Over the last several years a new social model of health has evolved, treating health
 ``as an outcome of the effects of socioeconomic status, culture,
 environmental conditions, housing, employment and community influences.''[@Duhl1999, p.7]
 In this new paradigm, resources provided via civil infrastructure --- in
 particular parks and other public green spaces --- play a crucial role in
-promoting and sustaining public health [@Bedimo-Rung2005; @Coutts2008].
+promoting and sustaining public health [@Bedimo-Rung2005; Wells2007; @Coutts2008].
 After all, it does little to lecture individuals on the importance of exercise
 if their community is built in such a way that such exercise is expensive,
 unenjoyable, or unsafe.
@@ -113,9 +113,9 @@ outcomes, evidence to date has been mixed. A major challenge researchers have
 faced is a proliferation of techniques for measuring access to green spaces, of
 which many are plausible but lack robust theoretical basis. In this
 paper, we present a holistic and flexible measurement for park accessibility
-based in activity location choice theory. This choice-based accessibility measure
+based in activity location choice theory. This utility-based accessibility measure
 compares the continuous distance to all parks in the region, weighted against
-the sizes of the each park and other assorted amenities.
+the sizes of each park and its other assorted amenities.
 
 We apply this measurement to study the link between
 park accessibility and attractiveness and Census tract-level aggregate physical
@@ -131,7 +131,7 @@ between the choice-based park accessibility metric and decreased obesity rates
 physical activity rates. In this case a traditional buffer analysis does not
 show significance.
 
-We also demonstrate how the choice-based accessibility metric can potentially be
+We also demonstrate how the utility-based accessibility metric can potentially be
 expanded to account for other measures of a park's attractiveness including its
 observed social media activity and the presence of various park amenities.
 The paper concludes with a discussion of opportunities for future research.
@@ -139,49 +139,33 @@ The paper concludes with a discussion of opportunities for future research.
 # Literature Review 
 \label{sec:litreview}
 
-Numerous previous studies have found relationships between characteristics of
-the built environment and aspects of physical, mental, social, and economic
-health. For the purposes of this study, it is clear that parks and other
-vegetated areas support outdoor physical activity in ways distinct from other
-urban environments [@Giles-Corti2005; @Wells2007].  In spite of these generally
-positive findings, the evidence of a specific link between green space and
-physical activity is somewhat mixed.
-
-<!-- Rewrite this section: 
-  - Cross-metropolitan studies are somewhat clear?
-  - Within-metropolitan studies are limited
--->
-
-@Wolf2008 reports that people self-identify as more active and attain a
-higher quality of life when a greater portion of their environment is greenspace.
-@Larson2016 similarly used self-reported scores on the Gallup-Healthways
-Wellbeing Index to evaluate the relationship between different areas of
-wellbeing, including physical health, and park quantity, quality, and
-accessibility in 44 U.S. cities. While the authors found positive associations
-between wellbeing and park quality and accessibility, these relationships were
-not statistically significant. A study by @West2012 used park data from
+The large majority of extant research on the topic of park access and public health
+outcomes has been involved comparing metropolitan regions against each other. For example,
+a study by @West2012 used park data from
 the Trust for Public Land’s 2010 City Park Facts and public health data from the
-Behavioral Risk Factor Surveillance System (BRFSS) to examine relationships
-between the density of parkland, parkland per capita, and levels of physical
-activity and obesity for 67 metropolitan statistical areas in the U.S. The study
-found a significant, positive association between park density and physical
-activity and a significant, negative association between park density and
-obesity. Conversely, @Richardson2012 examined the relationship between
-urban greenspace and selected mortality rates, and though the authors did not
+Behavioral Risk Factor Surveillance System (BRFSS) to examine the relationship
+between the density of park land and physical activity and obesity rates for 67
+metropolitan statistical areas in the U.S. The findings in this case conformed to 
+expectation; that is, the study found a significant positive association
+between park density and physical activity and a significant negative
+association between park density and obesity.
+@Larson2016 similarly used self-reported scores on the Gallup-Healthways
+Wellbeing Index to evaluate the relationship between physical health and park
+quantity, quality, and accessibility in 44 U.S. cities. While the authors found
+positive associations between wellbeing and park quality and accessibility,
+these relationships were not statistically significant.
+Conversely, @Richardson2012 examined the relationship between total urban
+greenspace and mortality rates for selected maladies; though the authors did not
 find a statistically significant relationship between the quantity of urban
 greenspace and mortality caused by lung cancer, diabetes, heart disease or car
-accidents, they did find that all-cause mortality was oddly, *higher* in
-greener cities. In a meta-analysis of 20 peer reviewed journal articles
-exploring the relationship between parks and objectively measured physical
-activity, @Bancroft2015 found that five studies reported a significant
-positive association between the two, six studies produced mixed results, and
-nine studies found no association at all.
+accidents, they did find that all-cause mortality was oddly, *higher* in greener
+cities. Finally, in a meta-analysis of 20 peer reviewed journal articles exploring the
+relationship between parks and objectively measured physical activity,
+@Bancroft2015 found that five studies reported a significant positive
+association between the two, six studies produced mixed results, and nine
+studies found no association at all.
 
-While several of the aforementioned studies reported results consistent with the
-hypothesis that park access and use confer health benefits stemming from
-increased physical activity and attendant decreases in obesity, the large
-majority of extant research has been conducted at the level of the city or
-metropolitan statistical area. Metropolitan-level analyses do not capture the
+Metropolitan-level analyses such as those described above do not capture the
 within-city variation in accessibility to parks that exist in many cities. Some
 cities with large amounts of total greenspace may nevertheless unequally
 distribute this space throughout the city, leading to areas with poor access.
@@ -189,47 +173,80 @@ Conversely, a city with a smaller overall proportion of greenspace may give all
 of its citizens better access to sufficient greenspace to meet their needs or
 wants for physical activity. Considering access at the neighborhood level within
 a single city may also eliminate some regional or cultural fixed effects
-affecting metropolitan-level analyses.
-
-In a study of neighborhoods in New York City, @Stark2014 used
-hierarchical linear models to explore relationships between the proportion of
-zip codes that was park space, the cleanliness of parks, and the body mass index
-of adult residents. The authors found that a higher proportion of park space in
-a neighborhood was associated with a lower BMI for its residents, and lower park
-cleanliness scores were associated with a higher BMI, suggesting that increasing
-the supply of clean, well-maintained parks could positively impact adult BMI.
+affecting metropolitan-level analyses. In a study of neighborhoods in New York
+City, @Stark2014 found that a higher proportion of park space in a neighborhood
+was associated with a lower BMI for its residents, and lower park cleanliness
+scores were associated with a higher BMI, suggesting that increasing the supply
+of clean, well-maintained parks could positively impact adult BMI. 
 
 
-## Choice-based Accessibility
+## Park Accessibility Measures
 
-Consider that an individual is choosing a park for a recreation activity.
-If we apply random utility choice theory, specifically the multinomial
-logit model [@McFadden1974], the expected probability of individual
-$i$ choosing park $j$ from the set of all regional parks $J$ is
-\begin{equation}\label{eq:mnl}
-P(j | V_{ij}) = \frac{\exp(V_{ij})}{\sum_{p \in J}\exp(V_{ip})}
+Loosely defined, the *accessibility* of an arbitrary place describes the ease
+with which people can accomplish activities there. Accessibility is an abstract
+concept with tempting quantifiability, perhaps explaining the proliferation of
+calculation mechanisms. @Dong2006 present a helpful mathematical heirarchy of
+common mechanisms, which we follow here. Consider a person residing at
+point $i$ in a city with parks $j \in 1 \ldots J$. An analyst might consider
+point $i$ as "having access" to a park if the distance to the park $d_ij$  is less than some threshold
+$D$,
+
+\begin{equation}\ref{eq:isochrone}
+A_i = \begin{cases} 
+      1 & d_{ij}\leq D\\
+      0 & d_{ij} > D
+   \end{cases}
+\end{equation}
+
+Variations of this isochrone-based framework are easily derived and relatively common. 
+@ParkScore is a sophisticated application of this approach where $d_{ij}$ is a
+carefully calculated 10-minute network-bound walk, with a demographic analysis of
+areas within and without this threshold. In other applications $D$ might be more variably defined,
+such as "Does a park exist within the census tract?". The indicator function could also be
+modified into the total number of parks or percent of park space within radius $D$ of point $i$.
+
+A somewhat more holistic approach is the so-called "gravity" accessibility
+statistic. In this case the accessibility of a point is the denominator of the 
+gravity formulation of a trip distribution model, 
+
+\begin{equation}\ref{eq:gravity}
+A_i = \sum_{j = 1}^J S_j f(d_{ij})
+\end{equation}
+
+where $S_j$ is the "size" of each park literally (i.e. acres) or abstractly (i.e.
+trip attractions) and $f(d_ij)$ is a monotonically decreasing cost function,
+usually a negative exponential. @Dong2006 note that the isochrone framework is a
+special case of the gravity model where $f(d_{ij})$ is a binary function. 
+
+A third accessibility mechanism is a utility-based specification, termed as such
+for being derived from random utility choice theory. Consider that an individual
+living at point $i$ is choosing a park for a recreation activity. If we apply the multinomial logit
+model [@McFadden1974], the expected consumer surplus enjoyed by this individual 
+can be shown to be 
+\begin{equation}\label{eq:utility}
+A_i = \ln\left({\sum_{j = 1}^J\exp(V_{ij})}\right) + C
 \end{equation}
 where parks are differentiated from each other by their relative measurable
-utilities $V_{ij}$. In principle, $V$ may include any measurable attributes of either
-the choice maker or the park. In this study we use a linear formulation of
-\begin{equation}\label{eq:v_sd}
-V_{ij} = size_j\lambda_s + distance_{ij}\lambda_d
+*utilities* $V_{ij}$. $C$ is an unknown constant, but the difference in consumer
+surplus between two points $i$ and $k$ can be quantitatively compared as 
+$A_i - A_k$. In principle, $V$ may include any measurable attributes of either
+the choice maker or the park, and is typically represented as a linear-in-parameters
+function of destination attributes $X_j$ and the travel cost $d_{ij}$,
+\begin{equation}\label{eq:utility}
+V_{ij} = X_j\beta + \beta_d * d_{ij}
 \end{equation}
-incorporating the size of the park in acres and the distance of the park from
-the census tract $i$ in miles. The coefficients $\vect{\lambda}$ can be
-estimated from household surveys, though in the absence of a survey we
+the census tract $i$ in miles. The coefficients $\vect{\beta}$ can be
+are frequently estimated from household surveys, though in the absence of a survey we
 may assert reasonable values.
 
-A key theoretical outcome of random utility choice models is that the
-consumer surplus to individual $i$, or the total weighted value of all
-alternatives in individual $i$'s choice set, can
-be obtained as the logarithm of the sum in the denominator of the choice
-probability equation [@Small1981]:
-\begin{equation}\label{eq:cs}
-C_i = \ln\left({\sum_{p \in J}\exp(V_{ip})}\right)
-\end{equation}
-There are several advantages to such a log-sum defined metric relative to
-buffer-based accessibility metrics more commonly found in the literature. First,
+Note that the gravity formulation is itself a special case of the utility-based
+specification where $\exp(X_j\beta + \beta_d d_{ij}) = X_j f(d_{ij})$ [@Daly1982].
+The distinction between gravity and utility-based specification is meaningful, 
+however. Primarily, it becomes possible to construct accessibility statistics based
+on revealed behavioral preferences rather than calibrated or asserted values. 
+
+Both gravity and utility-based specifications hold several advantages relative to
+isochrone-based accessibility metrics more commonly found in the literature. First,
 all individuals are defined as having some access to all parks, rather than an
 arbitrary cutoff asserted by the researcher.
 This allows for the fact that some people are more or less sensitive to
@@ -244,21 +261,14 @@ not all parks are equal, and that a large park such as Central Park in Manhattan
 may provide health and activity benefits over a much larger area than a smaller
 community square.
 
-Note that this formulation is an extension of gravity-based accessibility
-statistics, in the same way that the gravity-based trip distribution model
-is a specific case of
-a destination-choice model [@Daly1982]. But the extension is meaningful and
-allows us to consider more attributes of the park or the individual beyond size
-and impedance. For example, we can aggregate the number of tweets emanating from
-a park as a measure of the park's attractiveness beyond its size. The
-utility for the choice maker from Equation \ref{eq:v_sd} then becomes
-\begin{equation}\label{eq:v_sdt}
-V_{ij} = size_j\lambda_s + distance_{ij}\lambda_d + tweets_j\lambda_t
-\end{equation}
-
 In spite of its flexibility and basis in choice theory, accessibility measures
-based in log-sums have not received much application in the accessibility
+based in choice maker utility have not received much application in the accessibility
 literature compared with distance-based or even gravity-based measures.
+@Vale2016 also present a descriptive classification of
+active accessibility mechanisms, though these authors curiously dismiss
+utility-based metrics for incorporating randomness. The accessibility
+formula presented in \ref{eq:utility} is the expectation of a random utility process,
+and is not in and of itself random any more than the gravity model.
 @Zhang2011 present a metric with a similar functional form, though the
 authors arrive at it from a motivation other than destination choice theory.
 Log-sums are commonly used, however, in alternatives analyses of transit
