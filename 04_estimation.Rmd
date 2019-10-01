@@ -347,8 +347,7 @@ pa_models <- list("Base"        = base_sdem,
                   "10-min walk" = pa_walk10_sdm)
 ```
 
-```{r screen_pa_models}
-
+```{r screen_pa_models, results = "asis"}
 view_kable(
 htmlreg(pa_models, digits = 4, table = FALSE, single.row = TRUE, 
                    caption.above = TRUE, caption = "Spatial Error Model ",
@@ -365,7 +364,7 @@ obesity_models <- lapply(pa_models, function(model){
 names(obesity_models) <- names(pa_models)
 ```
 
-```{r screen_obesity_models}
+```{r screen_obesity_models, results="asis"}
 view_kable(
   htmlreg(obesity_models, digits = 3, table = FALSE, single.row = TRUE, 
                    caption.above = TRUE, caption = "Spatial Error Model ",
