@@ -173,63 +173,75 @@ Conversely, a city with a smaller overall proportion of greenspace may give all
 of its citizens better access to sufficient greenspace to meet their needs or
 wants for physical activity. Considering access at the neighborhood level within
 a single city may also eliminate some regional or cultural fixed effects
-affecting metropolitan-level analyses. In a study of neighborhoods in New York
-City, @Stark2014 found that a higher proportion of park space in a neighborhood
-was associated with a lower BMI for its residents, and lower park cleanliness
-scores were associated with a higher BMI, suggesting that increasing the supply
-of clean, well-maintained parks could positively impact adult BMI. 
-
+affecting metropolitan-level analyses. 
 
 ## Park Accessibility Measures
 
 Loosely defined, the *accessibility* of an arbitrary place describes the ease
 with which people can accomplish activities there. Accessibility is an abstract
-concept with tempting quantifiability, perhaps explaining the proliferation of
+concept with tempting quantifiability [@Handy1997], perhaps explaining the proliferation of
 calculation mechanisms. @Dong2006 present a helpful mathematical heirarchy of
 common mechanisms, which we follow here. Consider a person residing at
 point $i$ in a city with parks $j \in 1 \ldots J$. An analyst might consider
-point $i$ as "having access" to a park if the distance to the park $d_ij$  is less than some threshold
-$D$,
+point $i$ as "having access" to a park if the distance to the park $d_ij$  within an
+"isochrone," or less than some threshold $D$,
 
-\begin{equation}\ref{eq:isochrone}
+\begin{equation}\label{eq:isochrone}
 A_i = \begin{cases} 
       1 & d_{ij}\leq D\\
       0 & d_{ij} > D
    \end{cases}
 \end{equation}
 
-Variations of this isochrone-based framework are easily derived and relatively common. 
-@ParkScore is a sophisticated application of this approach where $d_{ij}$ is a
+Variations of this isochrone-based framework are easily derived and relatively
+common. 
+@Dias2019 considered road safety perception as an extenuating factor in the
+effective distance to a park.
+ParkScore [@parkscore2019] is a sophisticated application of this approach where $d_{ij}$ is a
 carefully calculated 10-minute network-bound walk, with a demographic analysis of
-areas within and without this threshold. In other applications $D$ might be more variably defined,
-such as "Does a park exist within the census tract?". The indicator function could also be
-modified into the total number of parks or percent of park space within radius $D$ of point $i$.
+areas within and without this threshold. In other applications $D$ might be more
+variably defined, such as the presence or percent of green space within a
+political or statistical boundary [@Mitchell2008].
+The indicator function could also be modified into the total number of parks or
+percent of park space within radius $D$ of point $i$ [@Kascynski2014].
+In a study of neighborhoods in New York
+City, @Stark2014 found that a higher proportion of park space in a neighborhood
+was associated with a lower BMI for its residents, and lower park cleanliness
+scores were associated with a higher BMI, suggesting that increasing the supply
+of clean, well-maintained parks could positively impact adult BMI. 
 
-A somewhat more holistic approach is the so-called "gravity" accessibility
-statistic. In this case the accessibility of a point is the denominator of the 
-gravity formulation of a trip distribution model, 
-
-\begin{equation}\ref{eq:gravity}
+In spite of the flexibility of adapted isochrone techniques, the arbritrary
+definitions necessarily imposed by researchers can inhibit holistic analysis,
+may have been inititially motivated by computational limitations [@Logan2017].
+A somewhat more complete approach is the so-called "gravity" accessibility
+statistic. In this case the accessibility of a point is the denominator of the
+gravity formulation of a trip distribution model,
+\begin{equation}\label{eq:gravity}
 A_i = \sum_{j = 1}^J S_j f(d_{ij})
 \end{equation}
-
 where $S_j$ is the "size" of each park literally (i.e. acres) or abstractly (i.e.
 trip attractions) and $f(d_ij)$ is a monotonically decreasing cost function,
 usually a negative exponential. @Dong2006 note that the isochrone framework is a
 special case of the gravity model where $f(d_{ij})$ is a binary function. 
+@Giles-Corti2005 compare gravity-based accessibility scores with an isochrone
+specification and show that the former are more predictive of walking behavior;
+that is, the attributes of a park matter influence walking more than merely the
+distance to it. @Zhang2011 present a population-weighted gravity-based
+accessibility to parks metric with a national rather than metropolitan scope, 
+though they do not examine its correlation with health outcomes.
 
 A third accessibility mechanism is a utility-based specification, termed as such
 for being derived from random utility choice theory. Consider that an individual
-living at point $i$ is choosing a park for a recreation activity. If we apply the multinomial logit
-model [@McFadden1974], the expected consumer surplus enjoyed by this individual 
-can be shown to be 
+living at point $i$ is choosing a park for a recreation activity. If we apply
+the multinomial logit model [@McFadden1974], the expected consumer surplus
+enjoyed by this individual can be shown to be
 \begin{equation}\label{eq:utility}
 A_i = \ln\left({\sum_{j = 1}^J\exp(V_{ij})}\right) + C
 \end{equation}
 where parks are differentiated from each other by their relative measurable
 *utilities* $V_{ij}$. $C$ is an unknown constant, but the difference in consumer
 surplus between two points $i$ and $k$ can be quantitatively compared as 
-$A_i - A_k$. In principle, $V$ may include any measurable attributes of either
+$A_i - A_k$ [@Bruce1977]. In principle, $V$ may include any measurable attributes of either
 the choice maker or the park, and is typically represented as a linear-in-parameters
 function of destination attributes $X_j$ and the travel cost $d_{ij}$,
 \begin{equation}\label{eq:utility}
@@ -243,47 +255,41 @@ Note that the gravity formulation is itself a special case of the utility-based
 specification where $\exp(X_j\beta + \beta_d d_{ij}) = X_j f(d_{ij})$ [@Daly1982].
 The distinction between gravity and utility-based specification is meaningful, 
 however. Primarily, it becomes possible to construct accessibility statistics based
-on revealed behavioral preferences rather than calibrated or asserted values. 
+on revealed behavioral preferences rather than calibrated or asserted values [@Handy1997].
 
-Both gravity and utility-based specifications hold several advantages relative to
-isochrone-based accessibility metrics more commonly found in the literature. First,
-all individuals are defined as having some access to all parks, rather than an
-arbitrary cutoff asserted by the researcher.
-This allows for the fact that some people are more or less sensitive to
-distances, and that distance is a continuous, non-binary phenomenon.
-It defies reason to assume a person living 1.1 miles
-from a park has functionally different accessibility than someone living at 0.9 miles.
-Second, the random utility formulation
-allows the researcher to include any attribute of the park as part of its utility
-specification; in this case, we consider the size of the park weighted against its
-distance as an element of relative accessibility. This suggests that
-not all parks are equal, and that a large park such as Central Park in Manhattan
-may provide health and activity benefits over a much larger area than a smaller
-community square.
+Both gravity and utility-based specifications hold several advantages relative
+to isochrone-based accessibility metrics more commonly found in the literature.
+First, all individuals are defined as having some access to all parks, rather
+than an arbitrary cutoff asserted by the researcher. This allows for the fact
+that some people are more or less sensitive to distances, and that distance is a
+continuous, non-binary phenomenon. It defies reason to assume a person living
+1.1 miles from a park has functionally different accessibility than someone
+living at 0.9 miles. Second, the random utility formulation allows the
+researcher to include any attribute of the park as part of its utility
+specification. This suggests that not all parks are equal, and that a large park
+such as Central Park in Manhattan may provide health and activity benefits over
+a much larger area than a smaller community square.
 
-In spite of its flexibility and basis in choice theory, accessibility measures
-based in choice maker utility have not received much application in the accessibility
+In spite of its flexibility and basis in choice theory, utility-based
+accessibility measures have not received much application in the accessibility
 literature compared with distance-based or even gravity-based measures.
-@Vale2016 also present a descriptive classification of
-active accessibility mechanisms, though these authors curiously dismiss
-utility-based metrics for incorporating randomness. The accessibility
-formula presented in \ref{eq:utility} is the expectation of a random utility process,
-and is not in and of itself random any more than the gravity model.
-@Zhang2011 present a metric with a similar functional form, though the
-authors arrive at it from a motivation other than destination choice theory.
-Log-sums are commonly used, however, in alternatives analyses of transit
-infrastructure improvements [@DeJong2007]. A reason for this is likely that
-a regional travel demand model is available to the analysts, thus making
-calibrated and multimodal logsums readily available [@Geurs2010].
+@Vale2016 present a descriptive classification of active accessibility techniques, and
+explicitly dismiss utility-based metrics for incorporating randomness. The
+accessibility formula presented in \ref{eq:utility} is the expectation of a
+random utility process, and is not in and of itself random any more than the
+gravity model is random.
+Utility-based accessibility metrics are commonly used, however, in alternatives
+analyses of transit infrastructure improvements [@DeJong2007]. A reason for this
+is likely that a regional travel demand model is available to the analysts, thus
+making calibrated and multimodal logsums readily available [@Geurs2010].
 
 # Empirical Application
 In this section, we develop a model with data for New York City, where
-we compute a holistic logsum-based accessibility to parks measure and model the
-relationship between this measure and physical activity rates, controlling for
-spatial effects and socioeconomic factors. We subsequently model the effect
-of the accessibility metric on obesity rates, accounting for physical activity and
-the other controls. Finally, we model the relationship between a modified logsum
-measure considering geolocated Twitter data and physical activity and obesity rates.
+we compute a set of utility-based accessibility to parks scores for each tract
+and model the relationship between this measure and physical activity rates,
+controlling for spatial effects and socioeconomic factors. We subsequently model
+the effect of the accessibility metric on obesity rates, accounting for physical
+activity and the other controls.
 
 ## Data
 
@@ -325,8 +331,8 @@ presents key descriptive statistics for these data.
 parks <- read_rds(here("data/open_spaces.rds"))
 ```
 
-In a destination choice framework, the tracts represent the ``origins'' and
-``destinations'' are parks and green spaces in New York City.
+In a destination choice framework, the tracts represent the "origins" and
+"destinations" are parks and green spaces in New York City.
 We retrieved a polygons layer of public parks and greenspaces within New York City’s
 municipal boundaries and checked it for accuracy and relevance [@nycparks].
 Upon inspection, we removed several facilities that do not qualify as
@@ -493,7 +499,7 @@ or a linear combination of both.
  y = X\beta + \beta_a A + W X \gamma + u; u = \lambda W u + \varepsilon 
 \end{equation}
 These models are referred as the spatial error model (SEM), the spatial lag of
-$X$ model (SLX), and the spatial Durbin error model (SDEM). @LeSage2014 suggest
+$X$ model (SLX), and the spatial Durbin error model (SDEM). @Pace2008 suggest
 that a Hausman-style test of the estimates of $\beta$ derived from the OLS 
 (Equation \ref{eq:themodel}) and SEM (Equation \ref{eq:SEM}) can identify whether
 the estimates are consistent. If the $\beta$ estimates are dissimilar, both 
@@ -594,6 +600,7 @@ map +
 ## Results
 
 ```{r results}
+slx_vs_sdem <- read_rds(here("data/slx_vs_sdem.rds"))
 pa_models <- read_rds(here("data/pa_models.rds"))
 obesity_models <- read_rds(here("data/obesity_models.rds"))
 ```
