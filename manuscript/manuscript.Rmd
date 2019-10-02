@@ -211,8 +211,8 @@ scores were associated with a higher BMI, suggesting that increasing the supply
 of clean, well-maintained parks could positively impact adult BMI. 
 
 In spite of the flexibility of adapted isochrone techniques, the arbritrary
-definitions necessarily imposed by researchers can inhibit holistic analysis,
-may have been inititially motivated by computational limitations [@Logan2017].
+definitions necessarily imposed by researchers in its application can inhibit
+holistic analysis [@Logan2017].
 A somewhat more complete approach is the so-called "gravity" accessibility
 statistic. In this case the accessibility of a point is the denominator of the
 gravity formulation of a trip distribution model,
@@ -223,12 +223,13 @@ where $S_j$ is the "size" of each park literally (i.e. acres) or abstractly (i.e
 trip attractions) and $f(d_ij)$ is a monotonically decreasing cost function,
 usually a negative exponential. @Dong2006 note that the isochrone framework is a
 special case of the gravity model where $f(d_{ij})$ is a binary function. 
-@Giles-Corti2005 compare gravity-based accessibility scores with an isochrone
-specification and show that the former are more predictive of walking behavior;
-that is, the attributes of a park matter influence walking more than merely the
-distance to it. @Zhang2011 present a population-weighted gravity-based
-accessibility to parks metric with a national rather than metropolitan scope, 
-though they do not examine its correlation with health outcomes.
+@Giles-Corti2005 compare various gravity-based accessibility scores with an
+isochrone specification and show that the former are more predictive of walking
+behavior; that is, the attributes of a park matter influence walking more than
+merely the distance to it. @Zhang2011 present a population-weighted
+gravity-based accessibility to parks metric with a national rather than
+metropolitan scope, though they do not examine its correlation with health
+outcomes.
 
 A third accessibility mechanism is a utility-based specification, termed as such
 for being derived from random utility choice theory. Consider that an individual
@@ -244,12 +245,11 @@ surplus between two points $i$ and $k$ can be quantitatively compared as
 $A_i - A_k$ [@Bruce1977]. In principle, $V$ may include any measurable attributes of either
 the choice maker or the park, and is typically represented as a linear-in-parameters
 function of destination attributes $X_j$ and the travel cost $d_{ij}$,
-\begin{equation}\label{eq:utility}
+\begin{equation}\label{eq:utilityV}
 V_{ij} = X_j\beta + \beta_d * d_{ij}
 \end{equation}
-the census tract $i$ in miles. The coefficients $\vect{\beta}$ can be
-are frequently estimated from household surveys, though in the absence of a survey we
-may assert reasonable values.
+The coefficients $\vect{\beta}$ are frequently estimated from household
+surveys, though in the absence of a survey we may assert reasonable values.
 
 Note that the gravity formulation is itself a special case of the utility-based
 specification where $\exp(X_j\beta + \beta_d d_{ij}) = X_j f(d_{ij})$ [@Daly1982].
@@ -265,10 +265,11 @@ that some people are more or less sensitive to distances, and that distance is a
 continuous, non-binary phenomenon. It defies reason to assume a person living
 1.1 miles from a park has functionally different accessibility than someone
 living at 0.9 miles. Second, the random utility formulation allows the
-researcher to include any attribute of the park as part of its utility
-specification. This suggests that not all parks are equal, and that a large park
-such as Central Park in Manhattan may provide health and activity benefits over
-a much larger area than a smaller community square.
+researcher to include -- in principle -- any attribute of the park as part of
+its utility specification. This suggests that not all parks are equal, and that
+a large park with many amenities such as Central Park in Manhattan may provide
+health and activity benefits over a much larger area than a smaller community
+square.
 
 In spite of its flexibility and basis in choice theory, utility-based
 accessibility measures have not received much application in the accessibility
@@ -331,7 +332,7 @@ presents key descriptive statistics for these data.
 parks <- read_rds(here("data/open_spaces.rds"))
 ```
 
-In a destination choice framework, the tracts represent the "origins" and
+In a destination choice framework, the tracts represent the "origins" and the
 "destinations" are parks and green spaces in New York City.
 We retrieved a polygons layer of public parks and greenspaces within New York City’s
 municipal boundaries and checked it for accuracy and relevance [@nycparks].
@@ -342,9 +343,9 @@ size, as these appear to be predominantly planted medians rather than legitimate
 public green space. We also consolidated individual geographic polygons
 comprising a single facility --- as is the case in Flushing Meadows --- and
 eliminated sub-facilities such as tennis courts or baseball fields included within
-larger park facilities. Instead of these sub-facilities, we created 
-variables for each park indicating the presence of sports courts, playgrounds,
-and trails.
+larger park facilities. Instead of these distinct sub-facilities, we created 
+variables for each containing park indicating the presence of sports courts,
+playgrounds, and trails.
 
 To this dataset of parks and regularized green spaces, we add a polygons layer of
 cemeteries in New York that are open to the public. Cemeteries are important
@@ -445,6 +446,93 @@ bind_rows(tract_summary, park_summary) %>%
 ```
 
 
+## Accessibility 
+\label{subsec:accessibility}
+
+We calculate a set of utility-based accessibility statistics for each tract
+in New York City. The most basic utility specification includes only the
+the park size in acres and the distance from the population-weighted tract centroid
+to the boundary of the park in miles,
+\begin{equation}\label{eq:u_access}
+V_{ij} = \lambda_s * \log(size_j) + \lambda_d * \log(distance_{ij})
+\end{equation}
+The logarithmic transform allows for diminishing marginal utility of distance
+and park size: A 1-mile increase to a trip matters more for a 1-mile trip than a
+10-mile trip. @Macfarlane2019 estimated destination choice 
+parameters for park trips in the Alameda County (Oakland), California using
+this utility specification, obtaining values of $\lambda_s = 0.373$ and 
+$\lambda_d = -1.98$. The ratio of these estimates implies people are willing to
+travel roughly six times further to reach a park twice as large. In the absence 
+of park trip destination choice coefficients in New York City, we apply these
+previous estimates.
+
+The second utility specification is adapted from a park destination choice model
+estimated by @Kinnell2006 in New Jersey. In this study the authors used a revealed
+preference survey to determine which factors of a park and its surrounding environment
+affected its selection. By bringing over common variables, we can create a second
+utility specification as
+\begin{equation}\label{eq:u_multi}
+V_{ij} = \lambda_s * \log(size_j) + \lambda_d * \log(distance_{ij}) + \lambda_t * trails + \\
+  \lambda_{c} * courts + \lambda_p * playgrounds
+\end{equation}
+with $\lambda_t = 0.99$, $\lambda_c = 0.43$, and $\lambda_p = 0.26$. @Kinnell 
+did not transform their size and distance estimates, so we retain the previously 
+estimated and applied values. We assume that the other covariates in the @Kinnell
+model which we do not have available to us (e.g., boat launches, picnic areas) are
+orthogonal to the included parameters and leaving them out will not affect the
+values of the included coefficients.
+
+The final utility specification includes the number of geolocated tweets
+emanating from within the park in September of 2014 in addition to the
+basic specification in Equation \ref{eq:u_access},
+\begin{equation}\label{eq:u_tweets}
+V_{ij} = \lambda_s * \log(size_j) + \lambda_d * \log(distance_{ij}) + \lambda_{tw} * YJ(tweets)
+\end{equation}
+with $YJ(x)$ being a Yeo-Johnson transformation that implements a diminishing
+marginal return similar to $log(x)$, but where $YJ(0) = 0$ [@Yeo2000]. In this
+case we have no external information describing how destination choice to
+parks may be affected by the twitter activity in the park, so we assert a 
+value of $\lambda_{tw} = 0.1$
+
+We then calculate the utility-based accessibility of each tract $A_i$ as defined
+in Equation \ref{eq:utility} under each utility specification. Recall that the 
+total value of the accessibility is relative to an unknown scalar $C$; for this 
+reason we standardize the accessibility values for all tracts within each
+utility specification, 
+\begin{equation}\label{eq:v_logged}
+A_i' = \frac{A_i - \bar{A}}{sd(A)}
+\end{equation}
+
+Figure \ref{fig:map} shows a map of New York City with each tract highlighted
+based on its relative basic utility-based accessibility score (Equation
+\ref{eq:u_access}). The most continuous region of good park access is in upper
+Manhattan and the Bronx, bracketed by Central Park and the Bronx River.
+Conversely, some of the poorest-accessibility areas are in Brooklyn tracts not
+immediately adjacent to Prospect Park. Because the accessibility statistic is
+normalized, the worst values are slightly below $-3$, the best somewhere above
+$3$.
+
+For comparative purposes, we also employ an isochrone analysis using the
+10-minute walk threshold calculated for ParkScore [@parkscore2019]. If the
+population-weighted centroid of a tract is within a 10-minute walk of a green space
+as defined by ParkScore, the tract is considered as having "access" to a park.
+The centroid is necessary as all tracts in New York City have at least *some* 
+intersection with the 10-minute walk buffer; as it is, only 
+`r sum(!tracts$walk_10)` of the `r nrow(tracts)` tract centroids are not located 
+in this buffer.
+
+```{r map, fig.env="figure*", echo=FALSE, message=FALSE, warning=FALSE, fig.height=4, fig.cap="Normalized choice-based park accessibility log-sum values in New York City."}
+library(ggmap)
+map <- ggmap(
+  get_stamenmap(unname(st_bbox(tracts)), 
+                maptype = "toner-lite"), extent = "device")
+map +
+  geom_sf(data = tracts, inherit.aes=FALSE,
+          aes(fill = cut(access_ls, breaks = c(-Inf, -3, -2, -1, 0, 2, 3, Inf))),
+          alpha = 0.8, color = NA) +
+  scale_fill_brewer("Normalized Log-sum", palette = "GnBu")
+```
+
 
 ## Model 
 \label{subsec:model}
@@ -524,8 +612,10 @@ $w_{ij} = 0$ if observations $i$ and $j$ are spatially independent of each other
 and $w_{ij} > 0$ if $i$ and $j$ are spatially related in some way. 
 @Dubin1998 presents details on constructing $W$, but in this study we
 assume that tracts sharing at least one common border point are neighbors of
-each other. The elements of $W$ are then row-standardized so that each observation
-has an equal total influence from all its neighbors.
+each other^[We also considered a distance-discounted weights matrix, which
+produced similar results. This matrix is selected for simplicity.]. The elements
+of $W$ are then row-standardized so that each observation has an equal total
+influence from all its neighbors.
 
 ```{r weights, warning = FALSE}
 # This are developed in 03_logsums.Rmd
@@ -534,68 +624,6 @@ W <- read_rds(here("data/W.rds"))
 trMC <- trW(as(W, "CsparseMatrix"), type="MC")
 ```
 
-
-## Accessibility 
-\label{subsec:accessibility}
-
-Extant destination choice models used in practice typically use travel time in
-minutes as a travel impedance term, and employment by sector as a size term or
-attraction component. Typically such models handle recreational trips together with
-other non-work and non-school trips, and we therefore can find no previously
-estimated coefficients using size terms relevant to park acreage or amenities.
-Given this gap in the literature, we instead assert plausible values for
-$\beta$ to generate the choice-based accessibility statistic used in this study.
-
-The functional form of the accessibility statistic is adapted from
-Equation \ref{eq:v_sd} by log-transforming first the distance (Euclidean, in miles)
-between the park boundaries and population-weighted tract centroids and second the
-park size (in acres).
-\begin{equation}\label{eq:v_logged}
-V_{ij} = \log(size_j)\lambda_s + \log(distance_{ij})\lambda_d
-\end{equation}
-We then calculate the consumer surplus $C$  (log-sum of the exponentiated
-utilities) for each tract and standardize the result,
-\begin{equation}\label{eq:v_logged}
-C_i' = \frac{C_i - \bar{\vect{C}}}{sd(\vect{C})}
-\end{equation}
-
-We initially estimated potential values of the $\lambda$ coefficients by
-applying a limited-memory, box-constrained optimization algorithm
-maximizing the model log-likehood.\footnote{Using the {\texttt nlm} function
-in R [@RCoreTeam2018]} The constraint required that the coefficient on
-size be positive and that on distance negative; all else equal, we assert people
-will prefer to use larger parks and parks that are nearer to their residence. This
-resulted in $\lambda_d = -1.98$  and $\lambda_s = 0.000$. Though the ``most
-likely'' parameter value, in this case it was unsatisfactory for two reasons:
-first, our prior assertion that park size is a valuable attribute of a park, and
-second the observation that with these maximum likelihood values tracts
-bordering on the corners of Central Park were measured with poor overall
-accessibility, an unacceptably unintuitive result. We subsequently adjusted the
-$\lambda_s$ value to $0.3$; the relative ratio of the coefficients implies that
-all else equal, an individual would travel 6.6 times further to access a park
-twice as large.
-
-
-Figure \ref{fig:map} shows a map of New York City with each tract highlighted
-based on its relative accessibility score. The most continuous region of good park
-access is in upper Manhattan and the Bronx, bracketed by Central Park and the
-Bronx River. Conversely, some of the poorest-accessibility areas are in
-Brooklyn tracts not immediately adjacent to Prospect Park. Because the
-accessibility statistic is normalized, the worst values are slightly below $-3$,
-the best somewhere above $3$.
-
-
-```{r map, fig.env="figure*", echo=FALSE, message=FALSE, warning=FALSE, fig.height=4, fig.cap="Normalized choice-based park accessibility log-sum values in New York City."}
-library(ggmap)
-map <- ggmap(
-  get_stamenmap(unname(st_bbox(tracts)), 
-                maptype = "toner-lite"), extent = "device")
-map +
-  geom_sf(data = tracts, inherit.aes=FALSE,
-          aes(fill = cut(access_ls, breaks = c(-Inf, -3, -2, -1, 0, 2, 3, Inf))),
-          alpha = 0.8, color = NA) +
-  scale_fill_brewer("Normalized Log-sum", palette = "GnBu")
-```
 
 ## Results
 
