@@ -521,7 +521,7 @@ intersection with the 10-minute walk buffer; as it is, only
 `r sum(!tracts$walk_10)` of the `r nrow(tracts)` tract centroids are not located 
 within this buffer.
 
-```{r map, fig.env="figure*", echo=FALSE, message=FALSE, warning=FALSE, fig.height=4, fig.cap="Normalized choice-based park accessibility log-sum values in New York City."}
+```{r map, fig.env="figure*", echo=FALSE, message=FALSE, warning=FALSE, fig.height=4, fig.cap="Normalized utility-based park accessibility values in New York City."}
 library(ggmap)
 map <- ggmap(
   get_stamenmap(unname(st_bbox(tracts)), 
@@ -530,7 +530,7 @@ map +
   geom_sf(data = tracts, inherit.aes=FALSE,
           aes(fill = cut(access_ls, breaks = c(-Inf, -3, -2, -1, 0, 2, 3, Inf))),
           alpha = 0.8, color = NA) +
-  scale_fill_brewer("Normalized Log-sum", palette = "GnBu")
+  scale_fill_brewer("Accessibility", palette = "GnBu")
 ```
 
 
@@ -687,7 +687,7 @@ significant and the overal log likelihood of the SDEM is higher than the SLX
 specification.
 
 ```{r slx-sdem, results = "asis"}
-texreg(slx_vs_sdem, single.row = TRUE, ci.force = TRUE, 
+texreg(slx_vs_sdem, single.row = TRUE, ci.force = TRUE,  digits = 4,
        custom.coef.names = c(names_for_terms, "Accessibility", lambda), 
        # Goodness of fit (LM and SP are different)
        custom.gof.rows = list(
@@ -698,61 +698,79 @@ texreg(slx_vs_sdem, single.row = TRUE, ci.force = TRUE,
        include.parameters = F, include.nobs = F,
        use.packages = FALSE, booktabs = TRUE,
        caption = "Comparison of SLX and SDEM Coefficients",
+       label = "tab:slx-sdem",
        caption.above = TRUE)
 ```
 
+The coefficients in the SDEM model are of two general types: the direct effect
+resulting from a tract's own attributes and the indirect effect ($\gamma$)
+resulting from the spatially-weighted attributes of its neighbors. For example, a
+percentage point increase in the share of young adults in a tract increases the
+expected physical activity rate in a tract by 
+`r slx_vs_sdem[[2]]$coefficients["young_adults"]` percentage points, and a
+percentage point increase in the share of young adults
+*in neighboring tracts* increases the expected physical activity rate by an 
+*additional* `r slx_vs_sdem[[2]]$coefficients["lag.young_adults"]` percentage
+points. This opportunity to examine spatial spillovers of attributes is a key 
+benefit of using a spatial model.
 
-We estimated SDM and SEM models regressing the physical activity rate
-against the base covariates (without any accessibility component). A likelihood
-ratio test failed rejected that the SDM is different from the SEM, so we use
-the SDM specification only going forward. Recall that in an SDM the effect of a
-covariate on the dependent variable is *not* the estimated coefficient. As a
-consequence of this Table \ref{tab:pa_models} presents the estimated
-coefficients for the base model with the socioecononomic controls and
-no representation of park accessibility. For the most part the coefficients are
-highly significant and of the expected sign. Tracts with higher shares
-of full-time workers, college-educated adults, young adults, and high-income
-households all show a greater share of individuals engaging in regular physical
-activity. Conversely, tracts with greater population density and a greater
-share of single adults, children, seniors, minorities of all types, and low
-income households all have lower modeled rates of physical activity.
+For the most part the direct coefficients are highly significant and of the
+expected sign. Tracts with higher shares of full-time workers, college-educated
+adults, young adults, and high-income households all show a greater share of
+individuals engaging in regular physical activity. Conversely, tracts with
+greater population density and a greater share of single adults, children,
+seniors, minorities, and low income households all have lower modeled expected
+rates of physical activity. The indirect coefficients are less clearly significant,
+with only density, median tract income, some age groups, and some minority groups
+showing an indirect effect.
 
-To this base model we add a measure of park accessibility considered in two
-ways: a logsum-based statistic as described earlier and a more typical quarter-mile
-binary access buffer. The estimated coefficients for these models are also
-given in Table \ref{tab:pa_models}. In both accessibility specifications,
-the access measure is positively correlated with physical activity rates; all else
-equal, people in tracts with higher accessibility to parks have higher estimated
-rates of physical activity. Though the estimated coefficient on the quarter-mile
-buffer appears to have a larger absolute value than the logsum-based statistic,
-this masks a key difference in the specification worth further comment.
-The logsum allows for variation in access unavailable in the buffer-based method.
-In our dataset almost every tract
-(`r round(sum(tracts$access_025) / nrow(tracts) * 100, 0)`%) is within
-a quarter-mile of *some* kind of park, but this park may not be large enough
-to support physical activities all individuals would like to participate in.
-Because tracts with only adequate park access are grouped with tracts having
-excellent park access, the overall effect is comparatively unclear. The logsum-based
-coefficient, on the other hand, suggests going from the least-accessible ($-3.0$)
-to the most-accessible ($3.0$) tract implies roughly a $1.1$ percentage point
-rise in estimated physical activity rates.
+Table \ref{tab:pa-models} present the estimated spatial lag and accessibility
+coefficients for three models using different specifications of the utility
+equation, as well as the ten-minute walk buffer calculated by ParkScore. 
+Note that the model called "Size and Distance" is precisely the model
+labeled "SDEM" in Table \ref{tab:slx-sdm}. The controllling covariates are
+suppressed for clarity but do not change substantially across the four specifications.
+Complete model estimates are available from the authors. Each of the three
+utility-based specifications is significant at the $\alpha = 0.05$ level or lower,
+and is of the hypothesized directionality. That is, residents living in tracts 
+with increased utility-based accessiblity to green spaces show a significantly
+higher physical activity participation rate. Taking the rough mean of the three
+model rates, moving from the least-accessible tract ($A_i = -3$) to the
+most-accessible tract ($A_i = 3$) is expected to raise the physical activity rate
+by `r 6 * .2` percentage points. With the understanding of the full 95\% confidence
+interval, we could suggest that the true effect of excellent versus poor park access
+is anywhere between `r 6 * .05` and `r 6 * .35` percentage points.
 
-```{r effectsplot, results = "asis"}
-texreg(pa_models[c("Base", "Logsum", "10-min walk")], digits = 4,
+The 10-minute walk buffer is considerably less useful at isolating the effects
+of park "access" on physical activity rates. As so few tracts are located
+outside of the buffer, the standard error of the estimated effect is large and implies
+an effect on activity rates anywhere from a loss of `r 6 * .37` percentage points
+to a gain of `r 6 * 1.5`.
+
+
+```{r pa-models, results = "asis"}
+texreg(pa_models[c(2:5)], digits = 4, ci.force = TRUE,
        booktabs = TRUE, use.packages = FALSE, 
-       caption = "SEM Coefficients Predicting Physical Activity Rates",
-       caption.above = TRUE,
-       custom.note = "%stars. Standard errors in parentheses.")
+       custom.model.names = c("Size and Distance", "Twitter", "Amenities", "ParkScore"),
+       custom.coef.map = list(
+         "lambda" = "$\\lambda$: spatial correlation", 
+         "access_ls" = "Size and Distance", 
+         "multi_ls" = "Amenities", 
+         "tweets_ls" = "Twitter Activity", 
+         "walk_10TRUE" = "10-minute walk"),
+       caption = "Estimated Effect of Accessibility on Physical Activity Rates",
+       label = "tab:pa-models",
+       caption.above = TRUE, include.aic = F, include.lr = F,
+       custom.note = "%stars 95\\% confidence interval in brackets.")
 ```
-\end{table*}
-
-
 
 
 We now consider the impacts of a model where the dependent variable is
 the *obesity* rate, and physical activity becomes an independent covariate
-alongside the controlling variables and the accessibility metric.
-Table \ref{tab:obese_models} again presents the base model without
+alongside the controlling variables and the accessibility metrics.
+Table \ref{tab:obesity-models} presents estimates of the effect of all three
+utility-based accessibility measures as well as the 10-minute walk buffer. 
+without
 any accessiblity measure, and models with accessibility captured through a
 logsum and through a 1/4 mile buffer. As in the
 physical activity models, the coefficients are typically significant and
@@ -768,74 +786,23 @@ percentage point.
 
 
 
-```{r obesemodelchart, results="asis"}
-texreg(obesity_models, digits = 4, 
+```{r obesity-models, results="asis"}
+screenreg(obesity_models[c(2:5)], digits = 4, ci.force = TRUE, 
        booktabs = TRUE, use.packages = FALSE, 
-       caption = "SEM Coefficients Predicting Obesity Rates",
-       caption.above = TRUE,
-       custom.note = "%stars. Standard errors in parentheses.")
+       custom.model.names = c("Size and Distance", "Twitter", "Amenities", "ParkScore"),
+       custom.coef.map = list(
+         "physact" = "Physical Activity", 
+         "lag.physact" = "$\\gamma$: Physical Activity",
+         "lambda" = "$\\lambda$: spatial correlation", 
+         "access_ls" = "Size and Distance", 
+         "multi_ls" = "Amenities", 
+         "tweets_ls" = "Twitter Activity", 
+         "walk_10TRUE" = "10-minute walk"),
+       caption = "Estimated Effect of Accessibility on Physical Activity Rates",
+       label = "tab:obesity-models",
+       caption.above = TRUE, include.aic = F, include.lr = F,
+       custom.note = "%stars 95\\% confidence interval in brackets.")
 ```
-
-\subsection{Additional Amenities}
-
-As discussed when presenting the choice-based accessibility metric above,
-a key benefit it offers is the natural way in which park amenities beyond simply size
-can be accommodated. For example, the number of tweets emanating from a park
-might be seen as a measure of the park's popularity, or a proxy for its use. It
-may be construed that parks with high popularity or use contain other amenities
-that encourage residents to use the park space, raising physical activity rates
-and lowering obesity rates beyond what would be expected with the park's size
-and proximity alone. It is reasonable to question whether park size and Twitter
-activity are highly correlated, and thus would result in a double-counting of
-park size in the accessibility statistic. In our data the number of tweets is
-positively but only loosely correlated  with park
-size ($\\rho = $),
-indicating that the Twitter data in fact could provide new information or proxy
-for the desired amenities.
-
-To test this hypothesis, we can use the twitter data described earlier and
-suggested in Equation \ref{eq:v_sdt}. In this application, we again
-log-transform all the components of utility:
-\begin{equation}\label{eq:v_logsdt}
-V_{ij} = \log(size_j)\lambda_s + \log(distance_{ij})\lambda_d + g(tweets_j)\lambda_t
-\end{equation}
-where $g(x)$ is a Yeo-Johnson transformation to preserve cases where $log(0)$
-would be otherwise undefined \citep{Yeo2000}. As before, there is little
-information by which to determine the values of $\lambda$ in this utility
-specification; we use the previous values with the addition of $\lambda_t =
-0.1$. The ratio between the utility coefficients implies residents would travel
-almost twenty times as far or use a park three times smaller if it had twice the
-Twitter activity, all else equal.
-
-Figure \ref{fig:tweets_map} shows the percent change in the normalized log
-sum statistic after including the twitter information. There is not a recognizable
-overarching pattern to the changes, though tracts immediately surrounding
-Prospect Park and Central Park gain even more relative accessibility, and tracts
-in midtown Manhattan, Queens, and southern Bronx tend to lose some.
-
-```{r tweets_map, eval = FALSE, echo=FALSE, message=FALSE, warning=FALSE, fig.height=4, fig.cap="Percent change in relative accessibility to parks when accounting for Twitter activity."}
-map +
-  geom_sf(data = tracts %>%
-            mutate(diff = tweets_ls - access_ls,
-                   pct_diff = diff / access_ls * 100),
-          inherit.aes=FALSE,
-          aes(fill = cut(pct_diff, quantile(pct_diff,
-                                            probs = seq(0, 1, by = 0.1)))),
-          alpha = 0.8, color = NA) +
-  scale_fill_brewer("Percent Change", palette = "PiYG")
-```
-
-
-Table \ref{tab:tweets_coefs} presents the estimated coefficients relating
-accessibility to obesity and physical activity rates, with and without the
-inclusion of Twitter data. In both cases, including twitter information in
-the accessibility statistic tempers the strength of the relationship with the
-dependent variable and modestly widens the standard error without substantively
-affecting the significance of the test statistics or the interpretation.
-From this limited example, we cannot say whether Twitter activity enhances the
-ability of parks to increase physical activity rates or lower obesity rates,
-though further investigation of this and other park amenities would certainly
-be warranted.
 
 
 # Limitations and Future Research Direction
