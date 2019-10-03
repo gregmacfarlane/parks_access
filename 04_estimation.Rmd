@@ -283,7 +283,7 @@ Let's look at the tidied dataframes instead.
 ```{r visual_compare}
 lapply(slx_vs_sdem, tidy) %>%
   bind_rows(.id = "model") %>%
-  dwplot() + scale_x_continuous(limits = c(-0.5, 0.5))
+  dwplot() + scale_x_continuous(limits = c(-0.5, 0.6))
 lapply(slx_vs_sdem, tidy) %>%
   bind_rows(.id = "model") %>%
   dwplot() 

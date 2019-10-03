@@ -72,7 +72,7 @@ library(texreg)
 library(here)
 
 options(tigris_use_cache = TRUE)
-opts_chunk$set(cache=TRUE, message = FALSE, echo = FALSE, warning = FALSE)
+opts_chunk$set(cache=FALSE, message = FALSE, echo = FALSE, warning = FALSE)
 library(leaflet)
 
 knit_hooks$set(inline = function(x) {
@@ -519,7 +519,7 @@ as defined by ParkScore, the tract is considered as having "access" to a park.
 The centroid is necessary as all tracts in New York City have at least *some* 
 intersection with the 10-minute walk buffer; as it is, only 
 `r sum(!tracts$walk_10)` of the `r nrow(tracts)` tract centroids are not located 
-in this buffer.
+within this buffer.
 
 ```{r map, fig.env="figure*", echo=FALSE, message=FALSE, warning=FALSE, fig.height=4, fig.cap="Normalized choice-based park accessibility log-sum values in New York City."}
 library(ggmap)
@@ -556,7 +556,7 @@ variable $x$ are spatially dependent on other elements,
  x = \rho W x + \varepsilon
 \end{equation}
 with the strength of dependence an estimated parameter $\rho$, the structure of 
-dependence governed by the asserted matrix $W$ (details of $W$ follow below),
+spatial dependence governed by the asserted matrix $W$ (details of $W$ follow below),
 and some random uncorrelated residual $\varepsilon$. A collection of models is
 available to represent spatial autodependence in the model residuals, the 
 independent variables, and the dependent variable.
@@ -633,6 +633,7 @@ pa_models <- read_rds(here("data/pa_models.rds"))
 obesity_models <- read_rds(here("data/obesity_models.rds"))
 ```
 
+
 ```{r termnames}
 base_termnames <- c(
   "(Intercept)", "log(Density)", "log(Income)", "Fulltime", "College-educated",  "Single Adults",
@@ -641,12 +642,65 @@ base_termnames <- c(
 )
 
 names_for_terms <- c(
-  base_termnames, str_c("$\\gamma$: ", base_termnames[-1]),
-  "$\\lambda$: spatial correlation"
+  base_termnames, str_c("$\\gamma$: ", base_termnames[-1])
 )
 
+lambda <- "$\\lambda$: spatial correlation"
 access_terms <- c("Logsum", "Tweets",  "Attributes", "10-min walk")
 ```
+
+```{r slx_hausman}
+slx_hausman <- function(slx, sdem) {
+  b1 <- slx$coefficients
+  b2 <- sdem$coefficients
+  db <- b1 - b2
+  
+  V1 <- vcov(slx)[names(b1), names(b1) ]
+  V2 <- vcov(sdem)[names(b2), names(b2) ]
+  dV <- V2 - V1
+  
+  tibble(
+    Hstat = t(db) %*% MASS::ginv(dV) %*% db, 
+    "p-value" = pchisq(Hstat, df = Matrix::rankMatrix(dV), lower.tail = FALSE)
+  )
+}
+
+slx_sdem_htest <- slx_hausman(slx_vs_sdem[[1]], slx_vs_sdem[[2]])
+```
+
+To determine which spatial effects specification was appropriate, we estimated
+SLX and SDEM models of physical activity participation rates as a function of
+tract covariates and  accessibility. These two models are presented in Table 
+\ref{tab:slx-sdem}. With only a few exceptions, the SLX and SDEM coefficient
+estimates for corresponding covariates lie within the 95\% confidence intervals
+of the other model. A Hausman-style test [@LeSage2008] on the coefficients 
+assumes a null hypothesis that the coefficients are equivalent; this test 
+produces $p$-value of only $`r slx_sdem_htest[2]`$. Though this statistic is
+technically beneath a common hypothesis test threshold of $\alpha = 0.05$, we
+fail to reject the null hypothesis that the coefficients are equivalent, as 
+the differences are not practically different from each other. The consequences
+of rejecting the null hypothesis in this case would be to suggest a model with 
+spatial dependence of the dependent variable; as stated above, we feel that such
+a relationship is unreasonable. As a consequence of these analyses, we adopt the
+SDEM specification moving forward as the spatial lag of the errors is 
+significant and the overal log likelihood of the SDEM is higher than the SLX 
+specification.
+
+```{r slx-sdem, results = "asis"}
+texreg(slx_vs_sdem, single.row = TRUE, ci.force = TRUE, 
+       custom.coef.names = c(names_for_terms, "Accessibility", lambda), 
+       # Goodness of fit (LM and SP are different)
+       custom.gof.rows = list(
+         "Log Likelihood" = lapply(slx_vs_sdem, logLik) %>% unlist(),
+         "Num. Obs." = lapply(slx_vs_sdem, function(s) length(s$residuals))
+       ),
+       include.rsquared = F, include.adjrs = F, include.aic = F, include.loglik = F,
+       include.parameters = F, include.nobs = F,
+       use.packages = FALSE, booktabs = TRUE,
+       caption = "Comparison of SLX and SDEM Coefficients",
+       caption.above = TRUE)
+```
+
 
 We estimated SDM and SEM models regressing the physical activity rate
 against the base covariates (without any accessibility component). A likelihood
