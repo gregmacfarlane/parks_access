@@ -271,7 +271,7 @@ slx_hausman <- function(slx, sdem) {
   
   tibble(
     Hstat = t(db) %*% MASS::ginv(dV) %*% db, 
-    "p-value" = pchisq(Hstat, df = Matrix::rankMatrix(dV))
+    "p-value" = pchisq(Hstat, df = Matrix::rankMatrix(dV), lower.tail = FALSE)
   )
 }
 slx_hausman(access_slx_wc, access_sdem_wc)
