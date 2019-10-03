@@ -299,7 +299,7 @@ contiglagged_vars <- tracts_access %>%
   st_set_geometry(NULL) %>%
   as_tibble() %>%
   transmute_at(
-    vars(density, income, fulltime, college, single, youth, young_adults, seniors, black, asian, hispanic, other),
+    vars(density, income, fulltime, college, single, youth, young_adults, seniors, black, asian, hispanic, other, physact),
     ~lag.listw(Wcontig, .)
   ) %>%
   mutate(geoid = tracts_access$geoid) %>%
@@ -371,7 +371,7 @@ htmlreg(pa_models, digits = 4, table = FALSE, single.row = TRUE,
 
 ```{r obesity_models}
 obesity_models <- lapply(pa_models, function(model){
-  update(update(model, obesity ~ . + physact))
+  update(update(model, obesity ~ . + physact + lag.physact))
 })
 
 names(obesity_models) <- names(pa_models)
