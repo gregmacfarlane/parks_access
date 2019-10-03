@@ -312,13 +312,26 @@ contiglagged_tracts <- tracts_access %>% left_join(contiglagged_vars, by = "geoi
 This is a good model. Access is significant, the direct effects are significant
 and mostly in the correct sign, lagged variables are also significant. 
 
-```{r physact_sdem}
-access_sdem_wc <- errorsarlm(update(base_formula, physact ~ . + 
-                                      log(lag.density) + log(lag.income) + 
-                                      lag.fulltime + lag.college + lag.single + lag.youth + 
-                                      lag.young_adults + lag.seniors + lag.black + lag.asian + 
-                                      lag.hispanic + lag.other + access_ls),
-                             data = contiglagged_tracts, listw = Wcontig, zero.policy = TRUE)
+```{r nolag_access}
+access_slx_wc <- lm(update(
+  base_formula, physact ~ . +  log(lag.density) + log(lag.income) + 
+    lag.fulltime + lag.college + lag.single + lag.youth +  lag.young_adults + 
+    lag.seniors + lag.black + lag.asian + lag.hispanic + lag.other + access_ls),
+  data = contiglagged_tracts)
+
+access_sdem_wc <- errorsarlm(update(
+  base_formula, physact ~ . +  log(lag.density) + log(lag.income) + 
+    lag.fulltime + lag.college + lag.single + lag.youth +  lag.young_adults + 
+    lag.seniors + lag.black + lag.asian + lag.hispanic + lag.other + access_ls), 
+  data = contiglagged_tracts, listw = Wcontig, zero.policy = TRUE)
+```
+
+
+```{r nolag_access_tests}
+slx_hausman(access_slx_wc, access_sdem_wc)
+slx1_vs_sdem1 <- list("SLX" = access_slx_wc, "SDEM" = access_sdem_wc)
+
+screenreg(slx1_vs_sdem1, ci.force = TRUE)
 ```
 
 
@@ -374,7 +387,7 @@ view_kable(
 
 
 ```{r models}
-write_rds(slx_vs_sdem, "data/slx_vs_sdem.rds")
+write_rds(slx1_vs_sdem1, "data/slx_vs_sdem.rds")
 write_rds(pa_models, "data/pa_models.rds")
 write_rds(obesity_models, "data/obesity_models.rds")
 ```
