@@ -12,3 +12,7 @@ navbar:
       href: 03_logsums.html
     - text: "Model Estimation"
       href: 04_estimation.html
+output:
+  html_document:
+    theme: cosmo
+    highlight: textmate

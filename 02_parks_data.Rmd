@@ -215,7 +215,7 @@ open_spaces <- open_spaces %>%
 
 
 Now we write out the data for the future.
-```{r write}
+```{r writefiles}
 write_rds(open_spaces, "data/open_spaces.rds")
 geojsonio::geojson_write(open_spaces, file = "data/open_spaces.geojson")
 ```
