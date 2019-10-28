@@ -458,7 +458,7 @@ and park size: A 1-mile increase to a trip matters more for a 1-mile trip than a
 10-mile trip. @Macfarlane2019 estimated destination choice 
 parameters for park trips in the Alameda County (Oakland), California using
 this utility specification, obtaining values of $\lambda_s = 0.373$ and 
-$\lambda_d = -1.98$. The ratio of these estimates implies people are willing to
+$\lambda_d = -1.76$. The ratio of these estimates implies people are willing to
 travel roughly six times further to reach a park twice as large. In the absence 
 of park trip destination choice coefficients in New York City, we adopt these
 previous estimates.
