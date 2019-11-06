@@ -1,0 +1,75 @@
+---
+output:
+  html_document:
+    keep_md: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = F)
+library(here)
+library(tidyverse)
+library(spdep)
+library(knitr)
+library(kableExtra)
+library(texreg)
+```
+
+## Appendix
+
+In this appendix we present the complete estimation results for the models 
+relating different definitions of access to physical activity (in Table
+\ref{tab:pa-fullmodels}) and to obesity (in Table \ref{tab:ob-fullmodels}). In
+each case we also present a base model with no accessibility statistics for
+comparison.
+
+```{r}
+pa_models <- read_rds(here("data/pa_models.rds"))
+obesity_models <- read_rds(here("data/obesity_models.rds"))
+```
+
+```{r}
+base_termnames <- c(
+  "(Intercept)", "log(Density)", "log(Income)", "Fulltime", "College-educated",  "Single Adults",
+  "Youth (0-17)", "Young adults (18-34)", "Seniors (65+)", "Black population share",
+  "Asian population share", "Hispanic population share", "Other Minorities"
+)
+
+names_for_terms <- c(
+  base_termnames, str_c("$\\gamma$: ", base_termnames[-1])
+)
+
+lambda <- "$\\lambda$: spatial correlation"
+access_terms <- c("Size and Distance", "Tweets",  "Attributes", "10-min walk")
+
+ob_names <- c(base_termnames, "Physical Activity Rate")
+ob_names <- c(
+  ob_names, str_c("$\\gamma$: ", ob_names[-1])
+)
+
+```
+
+
+```{r pa-fullmodels, results = "asis"}
+texreg(pa_models, digits = 4, ci.force = TRUE,
+       booktabs = TRUE, use.packages = FALSE, 
+       custom.coef.names = c(names_for_terms, lambda, access_terms),
+       custom.model.names = c("No Access", access_terms),
+       caption = "Estimated Effect of Accessibility on Physical Activity Rates",
+       label = "tab:pa-fullmodels",
+       caption.above = TRUE, include.aic = F, include.lr = F,
+       scalebox = 0.7,
+       custom.note = "%stars 95\\% confidence interval in brackets.")
+```
+
+
+
+```{r ob-fullmodels, results="asis"}
+texreg(obesity_models, digits = 4, ci.force = TRUE,
+       booktabs = TRUE, use.packages = FALSE, 
+       custom.coef.names = c(ob_names, lambda, access_terms),
+       custom.model.names = c("No Access", "Size and Distance", "Twitter", "Amenities", "10-Minute Walk"),
+       caption = "Estimated Effect of Accessibility on Physical Activity Rates",
+       label = "tab:ob-fullmodels",
+       caption.above = TRUE, include.aic = F, include.lr = F, scalebox = 0.7,
+       custom.note = "%stars 95\\% confidence interval in brackets.")
+```

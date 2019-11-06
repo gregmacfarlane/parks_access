@@ -54,6 +54,7 @@ output:
   rticles::elsevier_article:
     includes: 
       in_header: preamble.tex
+      after_body: appendix.md
 csl: elsevier-harvard.csl
 bibliography: library.bib
 ---
