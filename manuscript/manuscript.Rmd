@@ -24,28 +24,7 @@ address:
   - code: Georgia Institute of Technology
     address: School of Civil and Environmental Engineering, Georgia Institute of Technology, 755 Atlantic Drive, Atlanta, GA, 30332
 abstract: >
-  Recent research has underscored the potential for public green spaces to
-  influence individual and societal health outcomes, but empirical measurements
-  of such influences have yielded mixed results to date, with particular
-  disagreement surrounding how access to parks ought to be defined while
-  controlling for alternate explanations. In this paper we apply a comprehensive
-  measure of park accessibility drawn from random utility choice theory, which
-  avoids arbitrary assertions of proximity while incorporating potentially
-  numerous amenities and attributes of both the parks and the population. We
-  apply this utility-based accessibility measure to correlate Census tract-level
-  obesity and physical activity rate estimates from the Centers for Disease
-  Control and Prevention's 500 Cities project with tract-level American
-  Community Survey socioeconomic data in New York City, paired with geographic
-  open space data from New York City. Controlling for the
-  socioeconomic variables and spatially correlated error terms, we show a
-  positive and significant relationship between park access and physical
-  activity rates. The data also suggest a negative relationship between park
-  access and obesity rates, beyond what is expected through physical activity
-  and socioeconomics.
-  In doing so, this research contributes a more
-  comprehensive modeling approach for measuring the impact of park access on
-  health, and may improve our understanding of the role  parks and access to
-  them can serve in furthering public health objectives.
+  Recent research has underscored the potential for public green spaces to influence individual and societal health outcomes, but empirical measurements of such influences have yielded mixed results to date, with particular disagreement surrounding how access to parks ought to be defined while controlling for alternate explanations. In this paper we apply a comprehensive measure of park accessibility drawn from random utility choice theory, which avoids arbitrary assertions of proximity while incorporating potentially numerous amenities and attributes of both the parks and the population. We apply this utility-based accessibility measure to correlate Census tract-level obesity and physical activity rate estimates from the Centers for Disease Control and Prevention's 500 Cities project with tract-level American Community Survey socioeconomic data in New York City, paired with geographic open space data from New York City. Controlling for the socioeconomic variables and spatially correlated error terms, we show a positive and significant relationship between park access and physical activity rates. The data also suggest a negative relationship between park access and obesity rates, beyond what is expected through physical activity and socioeconomics. In doing so, this research contributes a more comprehensive modeling approach for measuring the impact of park access on health, and may improve our understanding of the role  parks and access to them can serve in furthering public health objectives.
 author_summary: >
   Greg Macfarlane is an assistant professor of Civil Engineering at Brigham
   Young University in Provo, Utah.
@@ -135,7 +114,7 @@ opportunities for future research.
 \label{sec:litreview}
 
 The large majority of extant research on the topic of park access and public health
-outcomes has been involved comparing metropolitan regions against each other. For example,
+outcomes has been involved with comparing metropolitan regions against each other. For example,
 @West2012 used park data from
 the Trust for Public Land’s 2010 "City Park Facts" and public health data from the
 Behavioral Risk Factor Surveillance System (BRFSS) to examine the relationship
@@ -192,7 +171,7 @@ Variations of this isochrone-based framework are easily derived and relatively
 common. 
 ParkScore [@parkscore2019] is a sophisticated application of this approach where $D$ is a
 carefully calculated 10-minute network-bound walk, paired with a demographic analysis of
-areas within and without this threshold. In other applications $D$ might be more
+areas within and outside of this threshold. In other applications $D$ might be more
 variably defined, such as the presence or percent of green space within a
 political or statistical boundary [@Mitchell2008; @Stark2014] or within a specific distance
 threshold [@Kaczynski2014]. It is also possible to attenuate an isochrone with 
@@ -272,7 +251,7 @@ accessibility measures have not received much application in the accessibility
 literature compared with distance-based or even gravity-based measures.
 @Vale2016 present a descriptive classification of active accessibility techniques, and
 explicitly dismiss utility-based metrics for incorporating randomness. The
-accessibility formula presented in \ref{eq:utility} is the expectation of a
+accessibility formula presented in Equation \ref{eq:utility} is the expectation of a
 random utility process, and is not in and of itself random any more than the
 gravity model is random.
 Utility-based accessibility metrics are commonly used, however, in alternatives
@@ -348,8 +327,8 @@ cemeteries in New York that are open to the public. Cemeteries are important
 green spaces that can be used for many types of physical activity. These
 operations leave us with `r nrow(parks)` distinct green spaces; for simplicity 
 we will refer to both parks and cemeteries as "parks" going forward. 
-For each park and 
-we calculate the size of the park in acres. Using a Twitter application
+For each park, 
+we calculate the size of the park in acres. Finally, using a Twitter application
 programming interface (API) implemented with the Python package Tweepy,  we also
 collected and stored tweets containing geotags of precise geographic coordinates
 located within the boundaries of the parks; from this information,
@@ -457,15 +436,18 @@ V_{ij} = \lambda_s * \log(size_j) + \lambda_d * \log(distance_{ij})
 The logarithmic transform allows for diminishing marginal utility of distance
 and park size: A 1-mile increase to a trip matters more for a 1-mile trip than a
 10-mile trip. @Macfarlane2019 estimated destination choice 
-parameters for park trips in the Alameda County (Oakland), California using
-this utility specification, obtaining values of $\lambda_s = 0.373$ and 
+parameters for park trips in the Alameda County (Oakland), California by applying
+this utility specification to passively collected mobile device data, obtaining values of $\lambda_s = 0.373$ and 
 $\lambda_d = -1.76$. The ratio of these estimates implies people are willing to
-travel roughly six times further to reach a park twice as large. In the absence 
-of park trip destination choice coefficients in New York City, we adopt these
-previous estimates.
+travel roughly six times further to reach a park twice as large. We do not have
+access to the necessary data to repeat the @Macfarlane2019 methodology in New
+York is cost-prohibitive, and the public parks datasets in Alameda County are
+not sufficiently detailed to perform the present accessibility analysis there.
+In the absence of park trip destination choice coefficients in New York City, we
+adopt these previous estimates.
 
 @Kinnell2006 surveyed park users in New Jersey and applied a multinomial logit
-model to determine which factors influenced its perceived utility as a park
+model to determine which factors influence a park's perceived utility as a park
 trip destination. By transferring estimates of common variables between our
 data and this survey-based model, we can create a second utility specification
 as
@@ -482,9 +464,10 @@ values of the included coefficients.
 
 The third utility specification includes the number of geolocated tweets
 emanating from within the park in September of 2014 in addition to the
-basic specification in Equation \ref{eq:u_access},
+amenities in Equation \ref{eq:u_multi},
 \begin{equation}\label{eq:u_tweets}
-V_{ij} = \lambda_s * \log(size_j) + \lambda_d * \log(distance_{ij}) + \lambda_{tw} * YJ(tweets)
+V_{ij} = \lambda_s * \log(size_j) + \lambda_d * \log(distance_{ij}) + \lambda_t * trails + \\
+  \lambda_{c} * courts + \lambda_p * playgrounds + \lambda_{tw} * YJ(tweets)
 \end{equation}
 with $YJ(x)$ being a Yeo-Johnson transformation that implements a diminishing
 marginal return similar to $log(x)$, but where $YJ(0) = 0$ [@Yeo2000]. In this
@@ -548,7 +531,7 @@ spatial econometrics is not warranted here; the reader is directed to
 @LeSage2009 as well as @LeSage2014.
 Suffice it to say that the presence of spatial data generating processes can
 negatively affect econometric interpretation in a variety of ways. Each of these
-process relies on spatial autoregression, where elements of some random
+processes rely on spatial autoregression, where elements of some random
 variable $x$ are spatially dependent on other elements, 
 \begin{equation}\label{eq:autoregression}
  x = \rho W x + \varepsilon
@@ -730,7 +713,7 @@ equation, as well as the ten-minute walk buffer calculated by ParkScore.
 Note that the model called "Size and Distance" is precisely the model
 labeled "SDEM" in Table \ref{tab:slx-sdem}. The controlling covariates are
 suppressed for clarity but do not change meaningfully across the four specifications.
-Complete model estimates are available from the authors. Each of the three
+Complete model estimates are available in the Appendix. Each of the three
 utility-based specifications is significant at the $\alpha = 0.05$ level or lower,
 and is of the hypothesized directionality. That is, residents living in tracts 
 with increased utility-based accessiblity to green spaces show a significantly
@@ -770,7 +753,7 @@ the *obesity* rate in a tract, and physical activity becomes an independent cova
 alongside the controlling variables and the accessibility metrics.
 Table \ref{tab:obesity-models} presents estimates of the effect of all three
 utility-based accessibility measures as well as the 10-minute walk buffer. 
-As before, the estimates of the other variables are available from the authors.
+As before, the estimates of the other variables are available in the Appendix.
 The correlation between physical activity rates and obesity is clear; for every
 percentage point increase in physical activity rate, the expected obesity rate
 drops by $0.43$ percentage points in all four accessiblity specifications.
@@ -802,7 +785,7 @@ texreg(obesity_models[c(2:5)], digits = 4, ci.force = TRUE,
          "multi_ls" = "Amenities", 
          "tweets_ls" = "Twitter Activity", 
          "walk_10TRUE" = "10-minute walk"),
-       caption = "Estimated Effect of Accessibility on Physical Activity Rates",
+       caption = "Estimated Effect of Accessibility on Obesity Rates",
        label = "tab:obesity-models",
        caption.above = TRUE, include.aic = F, include.lr = F,
        custom.note = "%stars 95\\% confidence interval in brackets.")
@@ -916,7 +899,7 @@ benefit the health of the community the park serves.
 
 ## Acknowledgements
 This project was funded by the Speedwell Foundation. We are grateful to Rachel
-Samuels for helping to assemble the geolocated Twitter data.
+Samuels and Neda Madi for helping to assemble the geolocated Twitter data.
 
 
 
