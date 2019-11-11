@@ -2,40 +2,39 @@
 title: >
   Modeling the impacts of park access on health outcomes: a utility-based 
   accessibility approach
+runninghead: Macfarlane \emph{et al}.
 author:
   - name: Gregory Macfarlane
-    email: gregmacfarlane@byu.edu
-    affiliation: Brigham Young University
-    corresponding: gregmacfarlane@byu.edu
+    num: 1
   - name: Nico Boyd
-    email:
-    affiliation: Fehr and Peers 
+    num: 2
   - name: John E. Taylor
-    email: jetaylor@gatech.edu
-    affiliation: Georgia Institute of Technology
+    num: 3
   - name: Kari Watkins
-    email: kariwatkins@gatech.edu
-    affiliation: Georgia Institute of Technology
+    num: 3
 address:
-  - code: Brigham Young University
-    address: Civil and Environmental Engineering Department, Brigham Young University 430 Engineering Building, Provo, UT, 84602
-  - code: Fehr and Peers
-    address: Los Angeles, California
-  - code: Georgia Institute of Technology
-    address: School of Civil and Environmental Engineering, Georgia Institute of Technology, 755 Atlantic Drive, Atlanta, GA, 30332
+  - code: 1
+    address: Civil and Environmental Engineering Department, Brigham Young University 
+  - code: 2
+    address: Fehr and Peers, Los Angeles, California
+  - code: 3
+    address: School of Civil and Environmental Engineering, Georgia Institute of Technology
+corrauth: "Gregory Macfarlane, 430 Engineering Building, Provo UT 84663"
+email: gregmacfarlane@gmail.com
 abstract: >
   Recent research has underscored the potential for public green spaces to influence individual and societal health outcomes, but empirical measurements of such influences have yielded mixed results to date, with particular disagreement surrounding how access to parks ought to be defined while controlling for alternate explanations. In this paper we apply a comprehensive measure of park accessibility drawn from random utility choice theory, which avoids arbitrary assertions of proximity while incorporating potentially numerous amenities and attributes of both the parks and the population. We apply this utility-based accessibility measure to correlate Census tract-level obesity and physical activity rate estimates from the Centers for Disease Control and Prevention's 500 Cities project with tract-level American Community Survey socioeconomic data in New York City, paired with geographic open space data from New York City. Controlling for the socioeconomic variables and spatially correlated error terms, we show a positive and significant relationship between park access and physical activity rates. The data also suggest a negative relationship between park access and obesity rates, beyond what is expected through physical activity and socioeconomics. In doing so, this research contributes a more comprehensive modeling approach for measuring the impact of park access on health, and may improve our understanding of the role  parks and access to them can serve in furthering public health objectives.
-author_summary: >
-  Greg Macfarlane is an assistant professor of Civil Engineering at Brigham
-  Young University in Provo, Utah.
-
+keywords: Accessibility; Green Space
+classoption:
+  - shortAfour
 output: 
-  rticles::elsevier_article:
+  rticles::sage_article:
+    keep_md: yes
+    keep_tex: yes
     includes: 
       in_header: preamble.tex
       after_body: appendix.md
-csl: elsevier-harvard.csl
 bibliography: library.bib
+bibliographystyle: sageh.bst
 ---
 
 ```{r setup, cache = FALSE, echo = FALSE, message = FALSE, warning = FALSE}
@@ -452,8 +451,10 @@ trip destination. By transferring estimates of common variables between our
 data and this survey-based model, we can create a second utility specification
 as
 \begin{equation}\label{eq:u_multi}
-V_{ij} = \lambda_s * \log(size_j) + \lambda_d * \log(distance_{ij}) + \lambda_t * trails + \\
-  \lambda_{c} * courts + \lambda_p * playgrounds
+\begin{split}
+V_{ij} & = \lambda_s * \log(size_j) + \lambda_d * \log(distance_{ij}) + \\ 
+  & \quad \lambda_t * trails + \lambda_{c} * courts + \lambda_p * playgrounds
+\end{split}
 \end{equation}
 with $\lambda_t = 0.99$, $\lambda_c = 0.43$, and $\lambda_p = 0.26$. Kinnell et al.\
 did not transform their size and distance estimates, so we retain the previously 
@@ -464,10 +465,12 @@ values of the included coefficients.
 
 The third utility specification includes the number of geolocated tweets
 emanating from within the park in September of 2014 in addition to the
-amenities in Equation \ref{eq:u_multi},
+size and distance terms in Equation \ref{eq:u_access},
 \begin{equation}\label{eq:u_tweets}
-V_{ij} = \lambda_s * \log(size_j) + \lambda_d * \log(distance_{ij}) + \lambda_t * trails + \\
-  \lambda_{c} * courts + \lambda_p * playgrounds + \lambda_{tw} * YJ(tweets)
+\begin{split}
+V_{ij} &= \lambda_s * \log(size_j) + \lambda_d * \log(distance_{ij}) + \\ 
+  &\quad \lambda_{tw} * YJ(tweets)
+\end{split}
 \end{equation}
 with $YJ(x)$ being a Yeo-Johnson transformation that implements a diminishing
 marginal return similar to $log(x)$, but where $YJ(0) = 0$ [@Yeo2000]. In this
@@ -485,7 +488,7 @@ A_i' = \frac{A_i - \bar{A}}{sd(A)}
 \end{equation}
 
 Figure \ref{fig:map} shows a map of New York City with each tract highlighted
-based on its relative basic utility-based accessibility score (Equation
+based on its relative size and distance utility-based accessibility score (Equation
 \ref{eq:u_access}). The most continuous region of good park access is in upper
 Manhattan and the Bronx, bracketed by Central Park and the Bronx River.
 Conversely, some of the poorest-accessibility areas are in Brooklyn tracts not
@@ -668,6 +671,9 @@ SDEM specification moving forward as the spatial lag of the errors is
 significant and the overal log likelihood of the SDEM is higher than the SLX 
 specification.
 
+\begin{table*}
+\caption{Comparison of SLX and SDEM Coefficients}
+\label{tab:slx-sdem}
 ```{r slx-sdem, results = "asis"}
 texreg(slx_vs_sdem, single.row = TRUE, ci.force = TRUE,  digits = 4,
        custom.coef.names = c(names_for_terms, "Accessibility", lambda), 
@@ -680,10 +686,11 @@ texreg(slx_vs_sdem, single.row = TRUE, ci.force = TRUE,  digits = 4,
        include.parameters = F, include.nobs = F,
        use.packages = FALSE, booktabs = TRUE,
        caption = "Comparison of SLX and SDEM Coefficients",
-       label = "tab:slx-sdem",
+       label = "tab:slx-sdem",table = FALSE,
        custom.note = "%stars $y = $ tract-level physical activity rate.",
        caption.above = TRUE)
 ```
+\end{table*}
 
 The coefficients in the SDEM model are of two general types: the direct effect
 resulting from a tract's own attributes and the indirect effect ($\gamma$)
@@ -730,7 +737,9 @@ outside of the buffer, the standard error of the estimated effect is large and i
 an effect on activity rates anywhere from a loss of `r 6 * .37` percentage points
 to a gain of `r 6 * 1.5`.
 
-
+\begin{table*}
+\caption{Estimated Effect of Accessibility on Physical Activity Rates}
+\label{tab:pa-models}
 ```{r pa-models, results = "asis"}
 texreg(pa_models[c(2:5)], digits = 4, ci.force = TRUE,
        booktabs = TRUE, use.packages = FALSE, 
@@ -742,11 +751,11 @@ texreg(pa_models[c(2:5)], digits = 4, ci.force = TRUE,
          "tweets_ls" = "Twitter Activity", 
          "walk_10TRUE" = "10-minute walk"),
        caption = "Estimated Effect of Accessibility on Physical Activity Rates",
-       label = "tab:pa-models",
+       label = "tab:pa-models", table = FALSE,
        caption.above = TRUE, include.aic = F, include.lr = F,
        custom.note = "%stars 95\\% confidence interval in brackets.")
 ```
-
+\end{table*}
 
 We now consider the impacts of a model where the dependent variable is
 the *obesity* rate in a tract, and physical activity becomes an independent covariate
@@ -773,6 +782,9 @@ points higher than tracts with poor park accessibility. This range of values
 suggests that accessibility to parks may have obesity-reducing effects beyond
 the effect of accessibility on physical activity rates worth further study.
 
+\begin{table*}
+\caption{Estimated Effect of Accessibility on Obesity Rates}
+\label{tab:obesity-models}
 ```{r obesity-models, results="asis"}
 texreg(obesity_models[c(2:5)], digits = 4, ci.force = TRUE, 
        booktabs = TRUE, use.packages = FALSE, 
@@ -786,11 +798,11 @@ texreg(obesity_models[c(2:5)], digits = 4, ci.force = TRUE,
          "tweets_ls" = "Twitter Activity", 
          "walk_10TRUE" = "10-minute walk"),
        caption = "Estimated Effect of Accessibility on Obesity Rates",
-       label = "tab:obesity-models",
+       label = "tab:obesity-models", table = FALSE,
        caption.above = TRUE, include.aic = F, include.lr = F,
        custom.note = "%stars 95\\% confidence interval in brackets.")
 ```
-
+\end{table*}
 
 # Limitations and Future Research Direction
 
@@ -897,9 +909,10 @@ This will in turn enable planners to consider how multiple attributes
 of a park --- from its location to its size to its amenities and beyond ---
 benefit the health of the community the park serves.
 
-## Acknowledgements
+\begin{acks}
 This project was funded by the Speedwell Foundation. We are grateful to Rachel
 Samuels and Neda Madi for helping to assemble the geolocated Twitter data.
+\end{acks}
 
 
 
