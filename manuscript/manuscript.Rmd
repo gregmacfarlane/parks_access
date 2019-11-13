@@ -193,7 +193,7 @@ special case of the gravity model where $f(d_{ij})$ is a binary function and
 $S_j = 1$.
 @Giles-Corti2005 compare various gravity-based accessibility scores with an
 isochrone specification and show that the former are more predictive of walking
-behavior; that is, the attributes of a park matter influence walking more than
+behavior; that is, the attributes of a park influence walking more than
 merely the distance to it. @Zhang2011 develop a population-weighted,
 gravity-based accessibility to parks metric with a national scope, though they
 do not examine its correlation with health outcomes.
@@ -427,7 +427,7 @@ bind_rows(tract_summary, park_summary) %>%
 
 We calculate a set of utility-based accessibility statistics for each tract
 in New York City. The most basic utility specification includes only the
-the park size in acres and the distance from the population-weighted tract centroid
+park size in acres and the distance from the population-weighted tract centroid
 to the boundary of the park in miles,
 \begin{equation}\label{eq:u_access}
 V_{ij} = \lambda_s * \log(size_j) + \lambda_d * \log(distance_{ij})
@@ -435,12 +435,12 @@ V_{ij} = \lambda_s * \log(size_j) + \lambda_d * \log(distance_{ij})
 The logarithmic transform allows for diminishing marginal utility of distance
 and park size: A 1-mile increase to a trip matters more for a 1-mile trip than a
 10-mile trip. @Macfarlane2019 estimated destination choice 
-parameters for park trips in the Alameda County (Oakland), California by applying
+parameters for park trips in Alameda County (Oakland), California by applying
 this utility specification to passively collected mobile device data, obtaining values of $\lambda_s = 0.373$ and 
 $\lambda_d = -1.76$. The ratio of these estimates implies people are willing to
 travel roughly six times further to reach a park twice as large. We do not have
 access to the necessary data to repeat the @Macfarlane2019 methodology in New
-York is cost-prohibitive, and the public parks datasets in Alameda County are
+York, and the public parks datasets in Alameda County are
 not sufficiently detailed to perform the present accessibility analysis there.
 In the absence of park trip destination choice coefficients in New York City, we
 adopt these previous estimates.
@@ -714,7 +714,7 @@ rates of physical activity. The indirect coefficients are less clearly significa
 with only density, median tract income, some age groups, and some minority groups
 showing an indirect effect.
 
-Table \ref{tab:pa-models} present the estimated spatial lag and accessibility
+Table \ref{tab:pa-models} presents the estimated spatial lag and accessibility
 coefficients for three models using different specifications of the utility
 equation, as well as the ten-minute walk buffer calculated by ParkScore. 
 Note that the model called "Size and Distance" is precisely the model
@@ -725,7 +725,8 @@ utility-based specifications is significant at the $\alpha = 0.05$ level or lowe
 and is of the hypothesized directionality. That is, residents living in tracts 
 with increased utility-based accessiblity to green spaces show a significantly
 higher physical activity participation rate. Taking the rough mean of the three
-estimated utility-based coefficient, moving from the least-accessible tract ($A_i = -3$) to the
+estimated utility-based coefficients, moving from the least-accessible tract
+($A_i = -3$) to the
 most-accessible tract ($A_i = 3$) is expected to raise the physical activity rate
 by `r 6 * .2` percentage points. With the understanding of the full 95\% confidence
 interval, we could suggest that the true effect of excellent versus poor park access
