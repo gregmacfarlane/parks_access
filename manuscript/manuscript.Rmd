@@ -66,7 +66,7 @@ knit_hooks$set(inline = function(x) {
 
 The United States and other developed nations face an epidemic of obesity and
 chronic diseases, including cardiovascular diseases, chronic respiratory
-diseases, diabetes, stroke, joint and bone diseases, and cancer. These diseseases
+diseases, diabetes, stroke, joint and bone diseases, and cancer. These diseases
 can severely limit the lifespan of affected individuals [@WHO2014], with 
 substantial financial costs for treatment borne both privately and socially
 [@Finkelstein2009]. Though a moderate amount of regular physical activity
@@ -85,7 +85,7 @@ environmental conditions, housing, employment and community influences''[-@Duhl1
 In this new paradigm, resources provided via civil infrastructure --- in
 particular parks and other public green spaces --- play a crucial role in
 promoting and sustaining public health [@Bedimo-Rung2005; @Wells2007; @Coutts2008].
-After all, it does little to lecture individuals on the importance of exercise
+After all, it does little to educate individuals on the importance of exercise
 if their community is built in such a way that such exercise is expensive,
 unenjoyable, or unsafe.
 
@@ -93,14 +93,14 @@ In spite of the potential for green spaces to influence public health outcomes
 and numerous studies attempting to empirically estimate the strength of these
 outcomes, evidence to date has been mixed. A major challenge researchers have
 faced is a proliferation of techniques for measuring access to green spaces, of
-which many are plausible but lack robust theoretical basis. In this
+which many are plausible but lack robust theoretical bases. In this
 paper, we apply a holistic and flexible measurement for park accessibility
 based in activity location choice theory. This utility-based accessibility measure
 compares the continuous distance to all parks in the region, weighted against
 the sizes of each park and its other assorted amenities.
 
 We apply this measurement to study the link between park accessibility and
-attractiveness and Census tract-level aggregate physical activity participation
+attractiveness and census tract-level aggregate physical activity participation
 and obesity rates in New York City, controlling for spatially correlated
 unobserved effects, spatial spillovers of covariates, and tract-level
 socioeconomic characteristics. We also demonstrate how the utility-based
@@ -113,8 +113,8 @@ opportunities for future research.
 \label{sec:litreview}
 
 The large majority of extant research on the topic of park access and public health
-outcomes has been involved with comparing metropolitan regions against each other. For example,
-@West2012 used park data from
+outcomes has been focused on comparing metropolitan regions against each other.
+For example, @West2012 used park data from
 the Trust for Public Land’s 2010 "City Park Facts" and public health data from the
 Behavioral Risk Factor Surveillance System (BRFSS) to examine the relationship
 between the density of park land and physical activity and obesity rates for 67
@@ -144,7 +144,7 @@ cities with large amounts of total greenspace may nevertheless unequally
 distribute this space throughout the city, leading to areas with poor access.
 Conversely, a city with a smaller overall proportion of greenspace may give all
 of its citizens better access to sufficient greenspace to meet their needs or
-wants for physical activity. Considering access at the neighborhood level within
+desires for physical activity. Considering access at the neighborhood level within
 a single city may also eliminate some regional or cultural fixed effects
 affecting metropolitan-level analyses. 
 
@@ -456,12 +456,12 @@ V_{ij} & = \lambda_s * \log(size_j) + \lambda_d * \log(distance_{ij}) + \\
   & \quad \lambda_t * trails + \lambda_{c} * courts + \lambda_p * playgrounds
 \end{split}
 \end{equation}
-with $\lambda_t = 0.99$, $\lambda_c = 0.43$, and $\lambda_p = 0.26$. Kinnell et al.\
-did not transform their size and distance estimates, so we retain the previously 
-estimated and applied values. We assume that the other covariates in the 
-model which we do not have available to us (e.g., boat launches, picnic areas) are
-orthogonal to the included parameters and leaving them out will not affect the
-values of the included coefficients.
+with $\lambda_t = 0.99$, $\lambda_c = 0.43$, and $\lambda_p = 0.26$. Kinnell et
+al. did not transform their size and distance estimates, so we retain the
+previously estimated and applied values. We assume that the other covariates in
+the model which we do not have available to us (e.g., boat launches, picnic
+areas) are orthogonal to the included parameters and leaving them out will not
+affect the values of the included coefficients.
 
 The third utility specification includes the number of geolocated tweets
 emanating from within the park in September of 2014 in addition to the
