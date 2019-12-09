@@ -146,7 +146,8 @@ trim to only the data values we want to keep.
 ```{r cdc500}
 cdc_urls <- list(
   "physact" = "https://chronicdata.cdc.gov/resource/axqz-rkkp.json?stateabbr=NY",
-  "obesity" = "https://chronicdata.cdc.gov/resource/bjvu-3y7d.json?stateabbr=NY"
+  "obesity" = "https://chronicdata.cdc.gov/resource/bjvu-3y7d.json?stateabbr=NY",
+  "mhealth" = "https://chronicdata.cdc.gov/resource/i2ek-k3pa.json?stateabbr=NY"
 )
 
 cdc500 <- lapply(cdc_urls, function(url){
