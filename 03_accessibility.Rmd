@@ -5,11 +5,12 @@ date: "6/7/2019"
 output: html_document
 ---
 
-```{r setup}
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(cache = TRUE)
 library(tidyverse)
 library(sf)
 library(spdep)
+library(spatialreg)
 library(leaflet)
 library(lubridate)
 library(VGAM)
