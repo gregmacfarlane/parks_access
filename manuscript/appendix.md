@@ -1,5 +1,12 @@
-\appendix
-\section{Appendix}
+---
+output:
+  pdf_document:
+    keep_md: yes
+---
+
+
+
+## Appendix
 
 In this appendix we present the complete estimation results for the models 
 relating different definitions of access to physical activity (in Table
@@ -13,8 +20,8 @@ comparison.
 
 
 
-\begin{table*}
-\caption{Estimated Effects of Accessibility and Controls on Physical Activity Rates}
+\begin{table}
+\caption{Estimated Effect of Accessibility on Physical Activity Rates}
 \begin{center}
 \scalebox{0.7}{
 \begin{tabular}{l c c c c c}
@@ -91,13 +98,13 @@ Log Likelihood                      & $-4790.3792$           & $-4786.9274$     
 }
 \label{tab:pa-fullmodels}
 \end{center}
-\end{table*}
+\end{table}
 
 
 
 
-\begin{table*}
-\caption{Estimated Effects of Accessibility and Controls on Obesity Rates}
+\begin{table}
+\caption{Estimated Effect of Accessibility on Physical Activity Rates}
 \begin{center}
 \scalebox{0.7}{
 \begin{tabular}{l c c c c c}
@@ -178,4 +185,4 @@ Log Likelihood                      & $-3196.4885$          & $-3194.8851$      
 }
 \label{tab:ob-fullmodels}
 \end{center}
-\end{table*}
+\end{table}

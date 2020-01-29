@@ -1,0 +1,299 @@
+\begin{thebibliography}{45}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\providecommand{\urlprefix}{URL }
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{DOI:\discretionary{}{}{}#1}\else
+  \providecommand{\doi}{DOI:\discretionary{}{}{}\begingroup
+  \urlstyle{rm}\Url}\fi
+
+\bibitem[{Amrhein et~al.(2019)Amrhein, Greenland and McShane}]{Amrhein2019}
+Amrhein V, Greenland S and McShane B (2019) {Scientists rise up against
+  statistical significance}.
+
+\bibitem[{Bancroft et~al.(2015)Bancroft, Joshi, Rundle, Hutson, Chong, Weiss,
+  Genkinger, Neckerman and Lovasi}]{Bancroft2015}
+Bancroft C, Joshi S, Rundle A, Hutson M, Chong C, Weiss CC, Genkinger J,
+  Neckerman K and Lovasi G (2015) {Association of proximity and density of
+  parks and objectively measured physical activity in the United States: A
+  systematic review}.
+\newblock \emph{Social Science {\&} Medicine} 138: 22--30.
+\newblock \doi{10.1016/j.socscimed.2015.05.034}.
+
+\bibitem[{Bedimo-Rung et~al.(2005)Bedimo-Rung, Mowen and
+  Cohen}]{Bedimo-Rung2005}
+Bedimo-Rung AL, Mowen AJ and Cohen DA (2005) {The significance of parks to
+  physical activity and public health}.
+\newblock \emph{American Journal of Preventive Medicine} 28(2): 159--168.
+\newblock \doi{10.1016/j.amepre.2004.10.024}.
+
+\bibitem[{Bruce(1977)}]{Bruce1977}
+Bruce N (1977) {A Note on Consumer's Surplus, the Divisia Index, and the
+  Measurement of Welfare Changes}.
+\newblock \emph{Econometrica} 45(4): 1033.
+\newblock \doi{10.2307/1912692}.
+
+\bibitem[{{Centers for Disease Control and Prevention}(2009)}]{CDC2009}
+{Centers for Disease Control and Prevention} (2009) {CDC - Healthy Places -
+  Physical Activity}.
+\newblock
+  \urlprefix\url{https://www.cdc.gov/healthyplaces/healthtopics/physactivity.htm}.
+
+\bibitem[{{Centers for Disease Control and Prevention}(2016)}]{CDC5002016}
+{Centers for Disease Control and Prevention} (2016) {500 Cities Project: Local
+  data for better health}.
+\newblock \urlprefix\url{https://www.cdc.gov/500cities/}.
+
+\bibitem[{{City of New York}(2018)}]{nycparks}
+{City of New York} (2018) {NYC Open Data – Open Space (Parks)}.
+\newblock
+  \urlprefix\url{https://data.cityofnewyork.us/Recreation/Open-Space-Parks-/g84h-jbjm}.
+
+\bibitem[{Coutts(2008)}]{Coutts2008}
+Coutts C (2008) {Greenway Accessibility and Physical-Activity Behavior}.
+\newblock \emph{Environment and Planning B: Planning and Design} 35(3):
+  552--563.
+\newblock \doi{10.1068/b3406}.
+
+\bibitem[{Daly(1982)}]{Daly1982}
+Daly A (1982) {Estimating choice models containing attraction variables}.
+\newblock \emph{Transportation Research Part B: Methodological} 16(1): 5--15.
+\newblock \doi{10.1016/0191-2615(82)90037-6}.
+
+\bibitem[{de~Jong et~al.(2007)de~Jong, Daly, Pieters and van~der
+  Hoorn}]{DeJong2007}
+de~Jong G, Daly A, Pieters M and van~der Hoorn T (2007) {The logsum as an
+  evaluation measure: Review of the literature and new results}.
+\newblock \emph{Transportation Research Part A: Policy and Practice} 41(9):
+  874--889.
+\newblock \doi{10.1016/J.TRA.2006.10.002}.
+
+\bibitem[{Dias et~al.(2019)Dias, Gaya, Brand, Pizarro, Fochesatto, Mendes,
+  Mota, {Maia Santos} and Gaya}]{Dias2019}
+Dias A, Gaya A, Brand C, Pizarro A, Fochesatto C, Mendes T, Mota J, {Maia
+  Santos} M and Gaya A (2019) {Distance from home to the nearest park and the
+  use of the parks for physical activity: the mediator role of road safety
+  perception in adolescents}.
+\newblock \emph{Public Health} 168: 9--16.
+\newblock \doi{10.1016/J.PUHE.2018.11.021}.
+
+\bibitem[{Dong et~al.(2006)Dong, Ben-Akiva, Bowman and Walker}]{Dong2006}
+Dong X, Ben-Akiva ME, Bowman JL and Walker JL (2006) {Moving from trip-based to
+  activity-based measures of accessibility}.
+\newblock \emph{Transportation Research Part A: Policy and Practice} 40(2):
+  163--180.
+\newblock \doi{10.1016/J.TRA.2005.05.002}.
+
+\bibitem[{Dubin(1998)}]{Dubin1998}
+Dubin RA (1998) {Spatial autocorrelation: a primer}.
+\newblock \emph{Journal of Housing Economics} 7(4): 304--327.
+\newblock \doi{10.1006/jhec.1998.0236}.
+
+\bibitem[{Duhl and Sanchez(1999)}]{Duhl1999}
+Duhl LJ and Sanchez AK (1999) {Healthy Cities and the City Planning Process: a
+  background document on links between health and urban planning}.
+\newblock Technical report, World Health Organization, Copenhagen.
+\newblock
+  \urlprefix\url{https://apps.who.int/iris/bitstream/handle/10665/108252/E67843.pdf?sequence=1{\&}isAllowed=y}.
+
+\bibitem[{Durstine et~al.(2013)Durstine, Gordon, Wang and Luo}]{Durstine2013}
+Durstine JL, Gordon B, Wang Z and Luo X (2013) {Chronic disease and the link to
+  physical activity}.
+\newblock \emph{Journal of Sport and Health Science} 2(1): 3--11.
+\newblock \doi{10.1016/J.JSHS.2012.07.009}.
+
+\bibitem[{Finkelstein et~al.(2009)Finkelstein, Trogdon, Cohen and
+  Dietz}]{Finkelstein2009}
+Finkelstein EA, Trogdon JG, Cohen JW and Dietz W (2009) {Annual Medical
+  Spending Attributable To Obesity: Payer-And Service-Specific Estimates}.
+\newblock \emph{Health Affairs} 28(Supplement 1): w822--w831.
+\newblock \doi{10.1377/hlthaff.28.5.w822}.
+
+\bibitem[{Geurs et~al.(2010)Geurs, Zondag, de~Jong and de~Bok}]{Geurs2010}
+Geurs K, Zondag B, de~Jong G and de~Bok M (2010) {Accessibility appraisal of
+  land-use/transport policy strategies: More than just adding up travel-time
+  savings}.
+\newblock \emph{Transportation Research Part D: Transport and Environment}
+  15(7): 382--393.
+\newblock \doi{10.1016/J.TRD.2010.04.006}.
+
+\bibitem[{Gibbons et~al.(2018)Gibbons, Barton and Brault}]{Gibbons2018}
+Gibbons J, Barton M and Brault E (2018) {Evaluating gentrification's relation
+  to neighborhood and city health}.
+\newblock \emph{PLOS ONE} 13(11): e0207432.
+\newblock \doi{10.1371/journal.pone.0207432}.
+
+\bibitem[{Giles-Corti et~al.(2005)Giles-Corti, Broomhall, Knuiman, Collins,
+  Douglas, Ng, Lange and Donovan}]{Giles-Corti2005}
+Giles-Corti B, Broomhall MH, Knuiman M, Collins C, Douglas K, Ng K, Lange A and
+  Donovan RJ (2005) {Increasing walking: How Important Is Distance To,
+  Attractiveness, and Size of Public Open Space?}
+\newblock \emph{American Journal of Preventive Medicine} 28(2): 169--176.
+\newblock \doi{10.1016/j.amepre.2004.10.018}.
+
+\bibitem[{Handy and Niemeier(1997)}]{Handy1997}
+Handy SL and Niemeier DA (1997) {Measuring Accessibility: An Exploration of
+  Issues and Alternatives}.
+\newblock \emph{Environment and Planning A} 29(7): 1175--1194.
+\newblock \doi{10.1068/a291175}.
+
+\bibitem[{Kaczynski et~al.(2014)Kaczynski, Besenyi, Stanis, Koohsari, Oestman,
+  Bergstrom, Potwarka and Reis}]{Kaczynski2014}
+Kaczynski AT, Besenyi GM, Stanis SAW, Koohsari MJ, Oestman KB, Bergstrom R,
+  Potwarka LR and Reis RS (2014) {Are park proximity and park features related
+  to park use and park-based physical activity among adults? Variations by
+  multiple socio-demographic characteristics}.
+\newblock \emph{International Journal of Behavioral Nutrition and Physical
+  Activity} 11(1): 146.
+\newblock \doi{10.1186/s12966-014-0146-4}.
+
+\bibitem[{Kaczynski et~al.(2016)Kaczynski, Schipperijn, Hipp, Besenyi, {Wilhelm
+  Stanis}, Hughey and Wilcox}]{Kaczynski2016}
+Kaczynski AT, Schipperijn J, Hipp JA, Besenyi GM, {Wilhelm Stanis} SA, Hughey
+  SM and Wilcox S (2016) {ParkIndex: Development of a standardized metric of
+  park access for research and planning}.
+\newblock \emph{Preventive Medicine} 87: 110--114.
+\newblock \doi{10.1016/J.YPMED.2016.02.012}.
+
+\bibitem[{Kinnell et~al.(2006)Kinnell, Bingham, Mohamed, Desvousges, Kiler,
+  Hastings and Kuhns}]{Kinnell2006}
+Kinnell JC, Bingham MF, Mohamed AF, Desvousges WH, Kiler TB, Hastings EK and
+  Kuhns KT (2006) {Estimating Site Choice Decisions for Urban Recreators}.
+\newblock \emph{Land Economics} 82(2): 257--272.
+\newblock \doi{10.3368/le.82.2.257}.
+
+\bibitem[{Larson et~al.(2016)Larson, Jennings and Cloutier}]{Larson2016}
+Larson LR, Jennings V and Cloutier SA (2016) {Public Parks and Wellbeing in
+  Urban Areas of the United States}.
+\newblock \emph{PLOS ONE} 11(4): e0153211.
+\newblock \doi{10.1371/journal.pone.0153211}.
+
+\bibitem[{LeSage and Pace(2009)}]{LeSage2009}
+LeSage JP and Pace RK (2009) \emph{{Introduction to Spatial Econometrics}}.
+\newblock Chapman and Hall/CRC.
+
+\bibitem[{LeSage and Pace(2014)}]{LeSage2014}
+LeSage JP and Pace RK (2014) {Interpreting Spatial Econometric Models}.
+\newblock In: Fischer M and Nijkamp P (eds.) \emph{Handbook of Regional
+  Science}. Berlin, Heidelberg: Springer Berlin Heidelberg, pp. 1535--1552.
+\newblock \doi{10.1007/978-3-642-23430-9_91}.
+\newblock
+  \urlprefix\url{http://link.springer.com/10.1007/978-3-642-23430-9{\_}91}.
+
+\bibitem[{Logan et~al.(2019)Logan, Williams, Nisbet, Liberman, Zuo and
+  Guikema}]{Logan2017}
+Logan T, Williams T, Nisbet A, Liberman K, Zuo C and Guikema S (2019)
+  {Evaluating urban accessibility: leveraging open-source data and analytics to
+  overcome existing limitations}.
+\newblock \emph{Environment and Planning B: Urban Analytics and City Science}
+  46(5): 897--913.
+\newblock \doi{10.1177/2399808317736528}.
+
+\bibitem[{Macfarlane and Tapia(2020)}]{Macfarlane2019}
+Macfarlane GS and Tapia T (2020) {Developing a Park Activity Location Choice
+  Model from Passive Origin-Destination Data Tables}.
+\newblock In: \emph{Transportation Research Board Annual Meeting}.
+
+\bibitem[{McFadden(1974)}]{McFadden1974}
+McFadden DL (1974) {Conditional Logit Analysis of Qualitative Choice Behavior}.
+\newblock In: Zarembka P (ed.) \emph{Frontiers in Econometrics}. New York:
+  Academic Press, pp. 105--142.
+
+\bibitem[{Mitchell and Popham(2008)}]{Mitchell2008}
+Mitchell R and Popham F (2008) {Effect of exposure to natural environment on
+  health inequalities: an observational population study}.
+\newblock \emph{The Lancet} 372(9650): 1655--1660.
+\newblock \doi{10.1016/S0140-6736(08)61689-X}.
+
+\bibitem[{Pace and LeSage(2008)}]{Pace2008}
+Pace RK and LeSage JP (2008) {A spatial Hausman test}.
+\newblock \emph{Economics Letters} 101(3): 282--284.
+\newblock \doi{10.1016/j.econlet.2008.09.003}.
+
+\bibitem[{Richardson et~al.(2012)Richardson, Mitchell, Hartig, de~Vries,
+  Astell-Burt and Frumkin}]{Richardson2012}
+Richardson EA, Mitchell R, Hartig T, de~Vries S, Astell-Burt T and Frumkin H
+  (2012) {Green cities and health: a question of scale?}
+\newblock \emph{Journal of Epidemiology and Community Health} 66(2): 160 LP --
+  165.
+\newblock \doi{10.1136/jech.2011.137240}.
+
+\bibitem[{Stark et~al.(2014)Stark, Neckerman, Lovasi, Quinn, Weiss, Bader,
+  Konty, Harris and Rundle}]{Stark2014}
+Stark JH, Neckerman K, Lovasi GS, Quinn J, Weiss CC, Bader MD, Konty K, Harris
+  TG and Rundle A (2014) {The impact of neighborhood park access and quality on
+  body mass index among adults in New York City}.
+\newblock \emph{Preventive Medicine} 64: 63--68.
+\newblock \doi{10.1016/J.YPMED.2014.03.026}.
+
+\bibitem[{{Trust for Public Land}(2019)}]{parkscore2019}
+{Trust for Public Land} (2019) {2019 ParkScore Index}.
+\newblock \urlprefix\url{https://www.tpl.org/parkscore}.
+
+\bibitem[{Vale et~al.(2016)Vale, Saraiva and Pereira}]{Vale2016}
+Vale DS, Saraiva M and Pereira M (2016) {Active accessibility}.
+\newblock \emph{Journal of Transport and Land Use} 9(1): 209--235.
+
+\bibitem[{Walker(2019)}]{Walker2019}
+Walker K (2019) \emph{{tidycensus: Load US Census Boundary and Attribute Data
+  as 'tidyverse' and 'sf'-Ready Data Frames}}.
+\newblock \urlprefix\url{https://cran.r-project.org/package=tidycensus}.
+
+\bibitem[{Wang and Taylor(2016)}]{Wang2016}
+Wang Q and Taylor JE (2016) {Process Map for Urban-Human Mobility and Civil
+  Infrastructure Data Collection Using Geosocial Networking Platforms}.
+\newblock \emph{Journal of Computing in Civil Engineering} 30(2): 04015004.
+\newblock \doi{10.1061/(ASCE)CP.1943-5487.0000469}.
+
+\bibitem[{Wang et~al.(2018)Wang, Holt, Xu, Zhang, Dooley, Lu and
+  Croft}]{Wang2018}
+Wang Y, Holt JB, Xu F, Zhang X, Dooley DP, Lu H and Croft JB (2018) {Using 3
+  Health Surveys to Compare Multilevel Models for Small Area Estimation for
+  Chronic Diseases and Health Behaviors}.
+\newblock \emph{Preventing Chronic Disease} 15: 180313.
+\newblock \doi{10.5888/pcd15.180313}.
+
+\bibitem[{Wang et~al.(2017)Wang, Holt, Zhang, Lu, Shah, Dooley, Matthews and
+  Croft}]{Wang2017}
+Wang Y, Holt JB, Zhang X, Lu H, Shah SN, Dooley DP, Matthews KA and Croft JB
+  (2017) {Comparison of Methods for Estimating Prevalence of Chronic Diseases
+  and Health Behaviors for Small Geographic Areas: Boston Validation Study,
+  2013}.
+\newblock \emph{Preventing Chronic Disease} 14: 170281.
+\newblock \doi{10.5888/pcd14.170281}.
+
+\bibitem[{Wells et~al.(2007)Wells, Ashdown, Davies, Cowett and
+  Yang}]{Wells2007}
+Wells NM, Ashdown SP, Davies EHS, Cowett FD and Yang Y (2007) {Environment,
+  Design, and Obesity}.
+\newblock \emph{Environment and Behavior} 39(1): 6--33.
+\newblock \doi{10.1177/0013916506295570}.
+
+\bibitem[{West et~al.(2012)West, Shores and Mudd}]{West2012}
+West ST, Shores KA and Mudd LM (2012) {Association of Available Parkland,
+  Physical Activity, and Overweight in America's Largest Cities}.
+\newblock \emph{Journal of Public Health Management and Practice} 18(5):
+  423--430.
+\newblock \doi{10.1097/PHH.0b013e318238ea27}.
+
+\bibitem[{Wolf(2008)}]{Wolf2008}
+Wolf KL (2008) {City trees, nature and physical activity: A research review}.
+\newblock \emph{Arborist News} 17(1): 22--24.
+
+\bibitem[{{World Health Organization}(2014)}]{WHO2014}
+{World Health Organization} (2014) {Noncommunicable diseases country profiles
+  2014}.
+\newblock Technical report, World Health Organization.
+
+\bibitem[{Yeo and Johnson(2000)}]{Yeo2000}
+Yeo IK and Johnson RA (2000) {A New Family of Power Transformations to Improve
+  Normality or Symmetry}.
+\newblock \emph{Biometrika} 87(4): 954--959.
+
+\bibitem[{Zhang et~al.(2011)Zhang, Lu and Holt}]{Zhang2011}
+Zhang X, Lu H and Holt JB (2011) {Modeling spatial accessibility to parks: a
+  national study}.
+\newblock \emph{International Journal of Health Geographics} 10(1): 31.
+\newblock \doi{10.1186/1476-072X-10-31}.
+
+\end{thebibliography}
