@@ -1,0 +1,111 @@
+---
+title: "Park Access and Mental Health"
+author: "Greg Macfarlane | Civil and Environmental Engineering"
+date: "12/12/2019"
+output: 
+  ioslides_presentation:
+    widescreen: true
+---
+
+
+```{r setup, include=FALSE, cache = FALSE}
+knitr::opts_chunk$set(echo = FALSE, cache = TRUE)
+library(tidyverse)
+library(leaflet)
+library(sf)
+library(spatialreg)
+library(spdep)
+library(VGAM)
+library(here)
+```
+
+## Accessibility{.pause}
+
+ - How close is my destination?
+ - How many destinations can I get to?
+ - What is the quality of the destinations I can access?
+
+## Utility-based Accessibility
+Choice theory: the total value of a choice set is
+$$A_i = \ln\left(\sum_{j\in J}\exp(U_{ij})\right), \quad U_{ij} = \beta_s size_j + \beta_d distance_{ij} + \ldots$$
+
+Where:
+
+  - $U_{ij}$ is the *utility* of person $i$ choosing option $j$
+  - $\beta$ represents preferences for an attribute
+  - Any attributes can be included
+
+
+# Mental Health and Parks in New York City
+
+## CDC 500 Cities
+
+  - Derived from the Behavioral Risk Factor Surveillance System (BRFSS)
+  - Synthetic data / modeled with margin of error
+  - Includes tract-level estimates of obesity rates, physical activity rates, etc. including mental health
+  
+<blockquote>
+Respondents aged ≥18 years who report 14 or more days during the past 30 days
+during which their mental health was not good.
+</blockquote>
+
+## Mental Health in NYC
+```{r loadtracts, echo = FALSE}
+tracts <- read_rds(here("data/tracts_access.rds")) %>%
+  st_transform(4326)
+tracts$mhealth <- read_rds(here("data/tracts.rds")) %>% pull(mhealth)
+```
+
+```{r mhealth-map, echo = FALSE, fig.width=10}
+pal <- colorBin("viridis", n = 10, domain = tracts$mhealth)
+leaflet(tracts) %>%
+  addProviderTiles(providers$Esri.WorldGrayCanvas) %>%
+  addPolygons(stroke = 0.5, color = ~pal(mhealth), fillOpacity = 0.6) %>%
+  addLegend(pal = pal, values = ~mhealth)
+```
+
+## Park Access Data
+
+Estimated values of utility from cellular phone data and from pre-existing
+surveys of park use
+
+## Park Access in NYC
+
+```{r access_map, echo = FALSE, fig.width=10}
+# this interactive map is much easier to create and explore
+pal <- colorBin("GnBu", c(tracts$access_ls, tracts$multi_ls), n = 5)
+leaflet(tracts) %>%
+  addProviderTiles(providers$Esri.WorldGrayCanvas) %>%
+  addPolygons(group = "Kinner", color = ~ pal(multi_ls),
+              label = ~as.character(round(multi_ls, 2))) %>%
+  addLegend(pal = pal, values = ~multi_ls, title = "Access Score")
+```
+
+## Preliminary Econometric Model
+
+```{r mhealth_models, echo = FALSE, results = "asis", warning = FALSE}
+mhealth_models <- read_rds(here("presentations/mentalhealth/models.rds"))
+texreg::htmlreg(mhealth_models, digits = 4, single.row = TRUE,
+                custom.coef.map = list(
+                  "yj(density)" = "log(Density)",
+                  "yj(income)"  = "log(Income)",
+                  "physact" = "Physical Activity Rate",
+                  "multi_ls" = "Access to Parks"
+                ), include.aic = FALSE, include.nobs = FALSE,
+                doctype = FALSE, caption = "", star.symbol = "\\*",
+                custom.note = "%stars Standard errors in parentheses.")
+```
+
+Model also includes educational attainment, age categories, ethnic group
+categories, and spatial spillovers.
+
+## Next Steps
+
+Get more detailed cellular phone, transportation, and land use data
+
+  - Parks including amenities
+  - Churches
+  - Recreation centers
+  - Mental health providers
+
+Better mental health / suicide risk data?
