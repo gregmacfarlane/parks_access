@@ -512,9 +512,9 @@ map <- ggmap(
                 maptype = "toner-lite"), extent = "device")
 map +
   geom_sf(data = tracts, inherit.aes=FALSE,
-          aes(fill = cut(access_ls, breaks = c(-Inf, -3, -2, -1, 0, 2, 3, Inf))),
-          alpha = 0.8, color = NA) +
-  scale_fill_brewer("Accessibility", palette = "GnBu")
+          aes(fill = cut(access_ls, breaks = c(-Inf, -3, -2, -1, 0, 1, 2, 3, Inf))),
+          alpha = 0.9, color = NA) +
+  scale_fill_brewer("Accessibility", palette = "RdYlBu")
 ```
 
 
