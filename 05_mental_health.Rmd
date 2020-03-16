@@ -1,0 +1,209 @@
+---
+title: "Mental Health Analysis"
+author: "Greg Macfarlane"
+date: "12/6/2019"
+output: html_document
+---
+```{r setup, include=FALSE, cache=FALSE}
+knitr::opts_chunk$set(cache = TRUE)
+library(tidyverse)
+library(leaflet)
+library(sf)
+library(spatialreg)
+library(spdep)
+library(VGAM)
+```
+
+
+In this document, I explore whether the park accessibility scores we have
+estimated previously are also correlated with mental health in the way that they
+suggest a correlation with obesity.
+
+## Mental Health Data
+The CDC's *500 Cities* project contains modeled health outcome, prevention, and 
+risk factor data at the census tract level for the 500 largest cities in the
+United States. The modeled health outcomes include arthritis, asthma, diabetes, 
+heart disease, etc. including mental health. This outcome is defined as:
+
+> Respondents aged ≥18 years who report 14 or more days during the past 30 days
+during which their mental health was not good.
+
+The data are derived from the Behavioral Risk Factor Surveillance System (BRFSS)
+surveys, which are then modeled to project estimates at small-scales. 
+We obtained mental health data for tracts in New York City.
+
+```{r loadtracts}
+tracts <- read_rds("data/tracts_access.rds") %>%
+  st_transform(4326)
+tracts$mhealth <- read_rds("data/tracts.rds") %>% pull(mhealth)
+```
+
+
+The median population-weighted tract seems to have about 12% of people reporting 
+poor mental health.
+
+```{r mhealth-hist}
+ggplot(tracts, aes(x = mhealth, weight = population)) +
+  geom_histogram() + theme_bw() + 
+  xlab("% in tract reporting 14 of last 30 days with poor mental health") + 
+  ylab("Population-weighted tracts")
+```
+
+The places with the worst mental health appear to be concentrated in the Bronx
+and in Brooklyn, and the best in Manhattan's upper east side. At first glance,
+This would suggest it is heavily correlated with income. 
+
+```{r mhealth-map}
+pal <- colorBin("viridis", n = 10, domain = tracts$mhealth)
+leaflet(tracts) %>%
+  addProviderTiles(providers$Esri.WorldGrayCanvas) %>%
+  addPolygons(stroke = 0.5, color = ~pal(mhealth), fillOpacity = 0.6) %>%
+  addLegend(pal = pal, values = ~mhealth)
+```
+
+
+## Accessibility
+
+We can also calculate a utility-based accessibility score for each tract to the
+parks in the region. This score includes the number of parks, the size of them,
+whether the parks have trails, playgrounds, and ball fields / courts, and the
+euclidean distance to the park from the population-weighted tract centroid.
+
+```{r access_map}
+# this interactive map is much easier to create and explore
+pal <- colorBin("viridis", c(tracts$access_ls, tracts$multi_ls), n = 5)
+leaflet(tracts) %>%
+  addProviderTiles(providers$Esri.WorldGrayCanvas) %>%
+  addPolygons(group = "Kinner", color = ~ pal(multi_ls),
+              label = ~as.character(round(multi_ls, 2)), 
+              stroke = FALSE, fillOpacity = 0.7) %>%
+  addLegend(position = "topleft", pal = pal, values = ~multi_ls, title = "Access Score")
+```
+
+## Spatial model
+We now estimate a SDEM model where mental health is a response to tract income,
+ethnic makeup, age, and other factors. The SDEM model considers spatial spillovers
+in the error term and in the independent variables but not in the depdendent variable,
+
+$$ y = X\beta + WX\gamma + u, u = \lambda W u + \varepsilon$$
+
+```{r W}
+W <- read_rds("data/W.rds")
+models <- read_rds("data/obesity_models.rds")
+
+contiglagged_vars <- tracts %>%
+  st_set_geometry(NULL) %>%
+  as_tibble() %>%
+  transmute_at(
+    vars(density, income, fulltime, college, single, youth, young_adults, seniors, black, asian, hispanic, other, physact),
+    ~lag.listw(W, ., zero.policy = TRUE)
+  ) %>%
+  mutate(geoid = tracts$geoid) %>%
+  dplyr::select(geoid, everything())
+
+names(contiglagged_vars)[-1] <- str_c("lag.", names(contiglagged_vars)[-1])
+lagged_tracts <- tracts %>% left_join(contiglagged_vars, by = "geoid")
+```
+
+
+```{r models}
+yj <- function(x) VGAM::yeo.johnson(x, lambda = 0)
+mhealth_base <- spatialreg::errorsarlm(
+  mhealth ~ yj(density) + yj(income)  + fulltime + college + single + 
+    youth + young_adults + seniors + black + asian + hispanic + 
+    other +  yj(lag.density) + yj(lag.income) + lag.fulltime + 
+    lag.college + lag.single + lag.youth + lag.young_adults + 
+    lag.seniors + lag.black + lag.asian + lag.hispanic + lag.other + 
+    physact,
+  data = lagged_tracts, listw = W, zero.policy = TRUE)
+mhealth_accs <- update(mhealth_base, formula = . ~ . + multi_ls)
+mhealth_models <- list(base = mhealth_base, access = mhealth_accs)
+```
+
+
+```{r show_models}
+texreg::htmlreg(mhealth_models, digits = 5)
+```
+
+
+```{r tidied}
+tidy.sarlm <- function(x){
+  s <- summary(x)
+  df <- length(s$residuals) - length(s$coefficients) - 1
+  tibble(
+    term = gsub("[\\(\\)]", "\\.", rownames(s$Coef)),
+    estimate = s$Coef[,1],
+    std.error = s$Coef[,2],
+    statistic = estimate / std.error,
+    p.value = 2*(pt(abs(statistic), Inf, lower.tail = FALSE))
+  )
+}
+
+tidied <- lapply(mhealth_models, broom::tidy) %>%
+  bind_rows(.id = "model") 
+
+```
+
+The model results are suggestive ($p$ value = 
+`r filter(tidied, term == "multi_ls") %>% pull(p.value)`). This is the same
+outcome we found for the obesity models. But it is worth noting that physical
+activity rates are highly correlated with mental health, and access to parks
+*is* a strong predictor of physical activity.
+
+```{r dwplot}
+weird <- scales::trans_new("signed_log",
+                           transform=function(x) sign(x)*sqrt(abs(x)),
+                           inverse=function(x) sign(x)*(abs(x)^2))
+tidied %>%
+  filter(term != ".Intercept.") %>%
+  dotwhisker::dw_plot() + 
+  theme_bw() + 
+  scale_x_continuous(trans = weird)
+```
+
+### Utah Analysis
+
+```{r}
+tibble("Age" = c("18-25", "26-49", "50+"), "Serious MI" = c(7.5, 5.6, 2.7),
+       "Any MI" = c(25.8, 22.2, 13.8)) %>%
+  mutate(`Any MI` = `Any MI` - `Serious MI`) %>%
+  gather("Type of Mental Illness", "Percent", -Age) %>%
+  ggplot(aes(x = Age, y = Percent, fill = Malady)) +
+  geom_bar(stat = "identity")
+```
+
+
+Get 500 cities mental health data for Utah County
+
+```{r}
+cdc_urls <- list(
+  "mhealth" = "https://chronicdata.cdc.gov/resource/i2ek-k3pa.json?stateabbr=UT"
+)
+
+
+cdc500 <- lapply(cdc_urls, function(url){
+  read.socrata(url, app_token = Sys.getenv("CDC_KEY"),
+               stringsAsFactors = FALSE) %>%
+    tbl_df() %>%
+    filter(tractfips %in% acs$geoid) %>%
+    transmute( geoid = tractfips, value = as.numeric(data_value ), year = year)
+}) %>%
+  bind_rows(.id = "measure") 
+```
+
+Get block groups
+```{r}
+bg <- tigris::block_groups("Utah", "Utah", class = "sf") %>%
+  mutate(tract = substr(GEOID, 1, 11)) %>%
+  left_join(cdc500, by = c("tract" = "geoid"))
+```
+
+map
+
+```{r}
+pal <- colorNumeric(palette = "magma", bg$value)
+leaflet(bg) %>% addProviderTiles(providers$Esri.WorldGrayCanvas) %>% 
+  addPolygons(color = ~pal(value))
+```
+
+

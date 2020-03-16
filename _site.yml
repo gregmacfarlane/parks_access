@@ -1,4 +1,5 @@
 name: "Parks Access"
+output_dir: "docs"
 navbar:
   title: "Parks Access"
   left:
@@ -12,6 +13,9 @@ navbar:
       href: 03_logsums.html
     - text: "Model Estimation"
       href: 04_estimation.html
+    - text: "Mental Health"
+      href: 05_mental_health.Rmd
+exclude: ["poster", "data", "manuscript", "parks_access"]
 output:
   html_document:
     theme: cosmo
