@@ -213,13 +213,13 @@ $A_i - A_k$ [@Bruce1977]. In principle, $V$ may include any measurable attribute
 the choice maker or the park, and is typically represented as a linear-in-parameters
 function of destination attributes $X_j$ and the travel cost $d_{ij}$,
 \begin{equation}\label{eq:utilityV}
-V_{ij} = X_j\beta + \beta_d * d_{ij}
+V_{ij} = X_j\boldsymbol{\beta} + \beta_d * d_{ij}
 \end{equation}
-The coefficients $\vect{\beta}$ are frequently estimated from household
+The coefficients $\boldsymbol{\beta}$ are frequently estimated from household
 surveys, though in the absence of a survey we may assert reasonable values.
 
 Note that the gravity formulation is itself a special case of the utility-based
-specification where $\exp(X_j\beta + \beta_d d_{ij}) = X_j f(d_{ij})$
+specification where $\exp(X_j\boldsymbol{\beta} + \beta_d d_{ij}) = X_j f(d_{ij})$
 [@Daly1982]. The distinction between gravity and utility-based specification is
 meaningful, however. Primarily, it becomes possible to construct accessibility
 statistics based on revealed behavioral preferences rather than calibrated or
@@ -484,7 +484,8 @@ total value of the accessibility is relative to an unknown scalar $C$; for this
 reason we standardize the accessibility values for all tracts within each
 utility specification, 
 \begin{equation}\label{eq:v_logged}
-A_i' = \frac{A_i - \bar{A}}{sd(A)}
+A_i' = \frac{A_i - \bar{\boldsymbol{A}}}
+            {\sigma_{\boldsymbol{A}}}
 \end{equation}
 
 Figure \ref{fig:map} shows a map of New York City with each tract highlighted
@@ -525,7 +526,7 @@ We predict either the physical activity or the obesity rate ($y$) in a census
 tract as a linear function of the tract's sociodemographic characteristics $X$
 and accessibility to parks $A$,
 \begin{equation}\label{eq:themodel}
- y = X\beta + \beta_{a}A + \varepsilon
+ \boldsymbol{y} = X\boldsymbol{\beta} + \beta_{a}\boldsymbol{A} + \boldsymbol{\varepsilon}
 \end{equation}
 
 As the observations are related to each other spatially, it is likely that this
@@ -537,7 +538,7 @@ negatively affect econometric interpretation in a variety of ways. Each of these
 processes rely on spatial autoregression, where elements of some random
 variable $x$ are spatially dependent on other elements, 
 \begin{equation}\label{eq:autoregression}
- x = \rho W x + \varepsilon
+ \boldsymbol{x} = \rho W \boldsymbol{x} + \boldsymbol{\varepsilon}
 \end{equation}
 with the strength of dependence an estimated parameter $\rho$, the structure of 
 spatial dependence governed by the asserted matrix $W$ (details of $W$ follow below),
@@ -554,28 +555,28 @@ That is, a particular individual decides whether or not to participate in
 physical activity independently of whether his or her neighbors
 participate in physical activity. This does not mean that we think it impossible that
 the socioeconomic variables of neighboring tracts do not play a role. Mathematically, we assert that the autodependence
-relationship on the dependent variable $y = \rho W y + \ldots$ has 
+relationship on the dependent variable $\boldsymbol{y} = \rho W \boldsymbol{y} + \ldots$ has 
 $\rho = 0$ in the current case.
 
 With this relationship ruled out, it remains a possibility that the 
 model residuals are spatially dependent,
 \begin{equation}\label{eq:SEM}
- y = X\beta + \beta_a A + u; u = \lambda W u + \varepsilon
+ \boldsymbol{y} = X\boldsymbol{\beta} + \beta_a \boldsymbol{A} + \boldsymbol{u}; \boldsymbol{u} = \lambda W \boldsymbol{u} + \boldsymbol{\varepsilon}
 \end{equation}
 that the outcome is partially dependent on the socioeconomic variables in *neighboring*
 tracts,
 \begin{equation}\label{eq:SLX}
- y = X\beta + \beta_a A + W X \gamma + \varepsilon
+ \boldsymbol{y} = X\boldsymbol{\beta} + \beta_a \boldsymbol{A} + W X \boldsymbol{\gamma} + \boldsymbol{\varepsilon}
 \end{equation}
 or a linear combination of both.
 \begin{equation}\label{eq:SDEM}
- y = X\beta + \beta_a A + W X \gamma + u; u = \lambda W u + \varepsilon 
+ \boldsymbol{y} = X\boldsymbol{\beta} + \beta_a \boldsymbol{A} + W X \boldsymbol{\gamma} + \boldsymbol{u}; \boldsymbol{u} = \lambda W \boldsymbol{u} + \boldsymbol{\varepsilon}
 \end{equation}
 These models are referred as the spatial error model (SEM), the spatial lag of
 $X$ model (SLX), and the spatial Durbin error model (SDEM). @Pace2008 suggest
-that a Hausman-style test of the estimates of $\beta$ derived from the OLS 
+that a Hausman-style test of the estimates of $\boldsymbol{\beta}$ derived from the OLS 
 (Equation \ref{eq:themodel}) and SEM (Equation \ref{eq:SEM}) can identify whether
-the estimates are consistent. If the $\beta$ estimates are dissimilar, both 
+the estimates are consistent. If the $\boldsymbol{\beta}$ estimates are dissimilar, both 
 specifications are inappropriate as they contain untreated omitted variables.
 Similarly, if the SLX and SDEM estimates are dissimilar it is an indication of 
 missing variables in that specification. On the other hand if the estimates of
@@ -693,7 +694,7 @@ texreg(slx_vs_sdem, single.row = TRUE, ci.force = TRUE,  digits = 4,
 \end{table*}
 
 The coefficients in the SDEM model are of two general types: the direct effect
-resulting from a tract's own attributes and the indirect effect ($\gamma$)
+resulting from a tract's own attributes and the indirect effect ($\boldsymbol{\gamma}$)
 resulting from the spatially-weighted attributes of its neighbors. For example, a
 percentage point increase in the share of young adults in a tract increases the
 expected physical activity rate in a tract by 
