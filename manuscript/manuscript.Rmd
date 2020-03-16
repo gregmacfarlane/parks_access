@@ -32,7 +32,7 @@ output:
     keep_tex: yes
     includes: 
       in_header: preamble.tex
-      after_body: appendix.md
+      after_body: appendix.tex
 bibliography: library.bib
 bibliographystyle: sageh.bst
 ---
