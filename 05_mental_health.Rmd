@@ -71,12 +71,13 @@ euclidean distance to the park from the population-weighted tract centroid.
 
 ```{r access_map}
 # this interactive map is much easier to create and explore
-pal <- colorBin("GnBu", c(tracts$access_ls, tracts$multi_ls), n = 5)
+pal <- colorBin("viridis", c(tracts$access_ls, tracts$multi_ls), n = 5)
 leaflet(tracts) %>%
   addProviderTiles(providers$Esri.WorldGrayCanvas) %>%
   addPolygons(group = "Kinner", color = ~ pal(multi_ls),
-              label = ~as.character(round(multi_ls, 2))) %>%
-  addLegend(pal = pal, values = ~multi_ls, title = "Access Score")
+              label = ~as.character(round(multi_ls, 2)), 
+              stroke = FALSE, fillOpacity = 0.7) %>%
+  addLegend(position = "topleft", pal = pal, values = ~multi_ls, title = "Access Score")
 ```
 
 ## Spatial model
@@ -160,5 +161,49 @@ tidied %>%
   scale_x_continuous(trans = weird)
 ```
 
-Let's look at some residuals
+### Utah Analysis
+
+```{r}
+tibble("Age" = c("18-25", "26-49", "50+"), "Serious MI" = c(7.5, 5.6, 2.7),
+       "Any MI" = c(25.8, 22.2, 13.8)) %>%
+  mutate(`Any MI` = `Any MI` - `Serious MI`) %>%
+  gather("Type of Mental Illness", "Percent", -Age) %>%
+  ggplot(aes(x = Age, y = Percent, fill = Malady)) +
+  geom_bar(stat = "identity")
+```
+
+
+Get 500 cities mental health data for Utah County
+
+```{r}
+cdc_urls <- list(
+  "mhealth" = "https://chronicdata.cdc.gov/resource/i2ek-k3pa.json?stateabbr=UT"
+)
+
+
+cdc500 <- lapply(cdc_urls, function(url){
+  read.socrata(url, app_token = Sys.getenv("CDC_KEY"),
+               stringsAsFactors = FALSE) %>%
+    tbl_df() %>%
+    filter(tractfips %in% acs$geoid) %>%
+    transmute( geoid = tractfips, value = as.numeric(data_value ), year = year)
+}) %>%
+  bind_rows(.id = "measure") 
+```
+
+Get block groups
+```{r}
+bg <- tigris::block_groups("Utah", "Utah", class = "sf") %>%
+  mutate(tract = substr(GEOID, 1, 11)) %>%
+  left_join(cdc500, by = c("tract" = "geoid"))
+```
+
+map
+
+```{r}
+pal <- colorNumeric(palette = "magma", bg$value)
+leaflet(bg) %>% addProviderTiles(providers$Esri.WorldGrayCanvas) %>% 
+  addPolygons(color = ~pal(value))
+```
+
 
