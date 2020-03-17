@@ -4,13 +4,6 @@ _site/
 .Rproj.user/
 *_cache/
 *_files/
-data/slx_vs_sdem.rds
-data/obesity_models.rds
-data/pa_models.rds
-data/tracts.geojson
-data/tracts_access.rds
-data/open_spaces.rds
-data/open_spaces.geojson
 
 *.bbl
 *.blg
