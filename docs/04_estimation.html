@@ -1,0 +1,2315 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Greg Macfarlane" />
+
+
+<title>Model</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Parks Access</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="01_health_data.html">Health Data</a>
+</li>
+<li>
+  <a href="02_parks_data.html">Parks Data</a>
+</li>
+<li>
+  <a href="03_logsums.html">Logsum Specifications</a>
+</li>
+<li>
+  <a href="04_estimation.html">Model Estimation</a>
+</li>
+<li>
+  <a href="05_mental_health.Rmd">Mental Health</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Model</h1>
+<h4 class="author">Greg Macfarlane</h4>
+<h4 class="date">6/17/2019</h4>
+
+</div>
+
+
+<pre class="r"><code>knitr::opts_chunk$set(cache = TRUE)
+library(tidyverse)
+library(broom)
+library(sf)
+library(spdep)
+library(spatialreg)
+library(texreg)</code></pre>
+<pre><code>## Version:  1.36.24
+## Date:     2019-04-07
+## Author:   Philip Leifeld (University of Essex)
+## 
+## Please cite the JSS article in your publications -- see citation(&quot;texreg&quot;).</code></pre>
+<pre><code>## 
+## Attaching package: &#39;texreg&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:tidyr&#39;:
+## 
+##     extract</code></pre>
+<pre class="r"><code>library(here)</code></pre>
+<pre><code>## here() starts at /Users/gregmacfarlane/projects/parks_access</code></pre>
+<pre><code>## 
+## Attaching package: &#39;here&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:lubridate&#39;:
+## 
+##     here</code></pre>
+<pre class="r"><code>library(dotwhisker)
+
+view_kable &lt;- function(x){
+  if(isTRUE(getOption(&#39;knitr.in.progress&#39;))){
+    x
+  } else {
+    tab &lt;- paste(capture.output(x))
+    tf &lt;- tempfile(fileext = &quot;.html&quot;)
+    writeLines(tab, tf)
+    viewer &lt;- getOption(&quot;viewer&quot;)
+    viewer(tf)
+  }
+}</code></pre>
+<p>In this document we attempt to determine the correct spatial weights matrix and spatial spillovers specification. There are a few different questions we need to answer in this analysis:</p>
+<ul>
+<li>What is the most likely <span class="math inline">\(W\)</span>?</li>
+<li>What is the econometrically “correct” specification of the model?</li>
+<li>Does this change depending on which matrix we end up using?</li>
+<li>Does this change depending on the dependent variable?</li>
+</ul>
+<div id="spatial-weights-matrix" class="section level2">
+<h2>Spatial Weights Matrix</h2>
+<p>A spatial econometric model represents the connections and spillovers between regions with a matrix <span class="math inline">\(W\)</span>. There are a few different ways to represent this matrix, but we will consider the simplest. First, let’s load the shapefile of the regions with the accessibility logsums attached.</p>
+<pre class="r"><code>tracts_access &lt;- read_rds(&quot;data/tracts_access.rds&quot;)</code></pre>
+<div id="inverse-distance-weights" class="section level3">
+<h3>Inverse distance weights</h3>
+<p>My Atlanta house price study considered that houses within 1.8 miles of each other were “neighbors,” with the strength of the relationship decaying with the inverse of the distance between them. We can build the same matrix using the population-weighted centroid of the tract as the observation point.</p>
+<pre class="r"><code>pop_weighted_centroids &lt;- read_rds(&quot;data/pop_weighted_centroids.rds&quot;)
+
+# determine which tracts are neighbors of each other. Need to be less than
+# 1.8 miles away from the centroids
+tracts.dnn &lt;- dnearneigh(pop_weighted_centroids, 0, 1.8 * 5280)
+# calculate the inverse distance to use as a weight on the neighbor connection
+tract_dists &lt;- nbdists(tracts.dnn, as(pop_weighted_centroids, &quot;Spatial&quot;))
+
+tract_dists.inv &lt;- lapply(tract_dists, function(x) 1 / x)
+# get the spatial weights matrix and its trace to use in any impact analyses
+Winv &lt;- nb2listw(neighbours = tracts.dnn, glist = tract_dists.inv,
+                 zero.policy = TRUE, style = &quot;W&quot;)</code></pre>
+<pre><code>## Warning in nb2listw(neighbours = tracts.dnn, glist = tract_dists.inv,
+## zero.policy = TRUE, : zero sum general weights</code></pre>
+<pre class="r"><code>print(Winv, zero.policy = TRUE)</code></pre>
+<pre><code>## Characteristics of weights list object:
+## Neighbour list object:
+## Number of regions: 2102 
+## Number of nonzero links: 187248 
+## Percentage nonzero weights: 4.23791 
+## Average number of links: 89.08088 
+## 1 region with no links:
+## 1867
+## 
+## Weights style: W 
+## Weights constants summary:
+##      n      nn   S0       S1       S2
+## W 2101 4414201 2101 99.96877 8440.518</code></pre>
+</div>
+<div id="contiguity-weights" class="section level3">
+<h3>Contiguity weights</h3>
+<p>Other investigations will often use a contiguity matrix where adjacent or bordering regions are considered neighbors.</p>
+<pre class="r"><code>tracts.adj &lt;- poly2nb(tracts_access)
+Wcontig &lt;- nb2listw(tracts.adj, style = &quot;W&quot;, zero.policy = TRUE)
+print(Wcontig, zero.policy = TRUE)</code></pre>
+<pre><code>## Characteristics of weights list object:
+## Neighbour list object:
+## Number of regions: 2102 
+## Number of nonzero links: 12612 
+## Percentage nonzero weights: 0.2854424 
+## Average number of links: 6 
+## 3 regions with no links:
+## 327 1867 1910
+## 
+## Weights style: W 
+## Weights constants summary:
+##      n      nn   S0       S1       S2
+## W 2099 4405801 2099 735.1355 8574.358</code></pre>
+</div>
+</div>
+<div id="spatial-econometric-selection" class="section level2">
+<h2>Spatial Econometric Selection</h2>
+<p>There is some uncertainty over which model we should use for interpretation. Part of the issue is that there is both an econometric / statistical approach as well as a intuition / behavioral understanding approach.</p>
+<p>In the intutive approach, it is easy to understand why physical activity and obesity rates may be correlated in space. Individuals in neighboring tracts are likely to share cultural and experiential attributes that influence physical activity rates, and obesity. They eat at the same restaurants, attend the same schools, etc. This suggests that a model with correlated error components (the SEM), <span class="math display">\[y = X\beta + u; u = \lambda W u + \epsilon\]</span> is most applicable. It is less understandable why a dependency spillover (like the SAR), <span class="math display">\[y = \rho W y + X\beta + \epsilon\]</span> is warranted. This would imply that individuals in tract <span class="math inline">\(i\)</span> are obese <em>because</em> individuals in tract <span class="math inline">\(j\)</span> are obese. It may be more likely that attributes of neighboring zones affect the outcome variable, as in the SLX model, <span class="math display">\[y = X\beta + \gamma W X + \epsilon\]</span> and the SDEM model, <span class="math display">\[y = X\beta + \gamma W X + u; u = \lambda W u + \epsilon\]</span> This kind of model suggests that the socioeconomic attributes of surrounding zones can affect the physical activity rates or obesity in the target zone, but that the outcome of a particular obesity rate is locally determined.</p>
+<p>The final model is the SDM, a complete linear combination of the SAR and SEM, <span class="math display">\[y = \rho W y + X\beta + \gamma W X + \epsilon\]</span> This would imply that obesity is a function of socioeconomic factors in the local and neighboring zones, <em>and</em> the obesity in those neighboring zones. This seems to be a stretch.</p>
+<p>But here’s where the econometric argument comes in. If the true DGP is an SEM and you use an OLS model to predict it, the coefficients will be unbiased but with incorrectly small standard errors, affecting hypothesis tests. If the true DGP is SDM but you use an OLS or SEM model, you have a missing variable and your estimates are inconsistent. Thus it is possible to test for whether the correct specification has been achieved independently of the rationale inherent in the model specification.</p>
+<div id="ols-vs-sem" class="section level3">
+<h3>OLS vs SEM</h3>
+<p>The base formula includes all of the tract-level covariates.</p>
+<pre class="r"><code>base_formula &lt;- formula(
+  ~ log(density) + log(income) +
+    fulltime + college + single +
+    youth + young_adults + seniors + # need to leave out a category for collinearity
+    black + asian + hispanic + other)</code></pre>
+<p>Let’s begin by estimating the OLS and SEM versions of the physical activity model as a function of the socioeconomic attributes (X) and the accesibility.</p>
+<p><span class="math display">\[PhysAct = X\beta + \beta_{access}*access + u; u = \lambda W u + \epsilon\]</span> We will consider both spatial weights matrices.</p>
+<pre class="r"><code>access_ols &lt;- lm(update(base_formula, physact ~ . + access_ls), data = tracts_access)
+access_sem_wd &lt;- errorsarlm(update(base_formula, physact ~ . + access_ls),
+                            data = tracts_access, listw = Winv, zero.policy = TRUE)
+access_sem_wc &lt;- errorsarlm(update(base_formula, physact ~ . + access_ls),
+                            data = tracts_access, listw = Wcontig, zero.policy = TRUE)
+
+ols_vs_sem &lt;- list(&quot;OLS&quot; = access_ols, &quot;SEM dist&quot; = access_sem_wd, 
+                   &quot;SEM cont&quot; = access_sem_wd)</code></pre>
+<p>In this case the null hypothesis is that both models (the OLS and SEM) are equally good representations of the underlying DGP (or at least provide consistent estimates of <span class="math inline">\(\beta\)</span>). This suggests a Hausman-style test of the equality of the parameter coefficients, <span class="math display">\[H = (\beta_1 - \beta_2)^T (\Sigma_2 - \Sigma_1)^{-1} (\beta_1 - \beta_2)\]</span> where the null hypothesis is that <span class="math inline">\(\beta_{OLS} = \beta_{SEM}\)</span></p>
+<pre class="r"><code>sp_hausman &lt;- function(ols, sem) {
+  b1 &lt;- ols$coefficients
+  b2 &lt;- sem$coefficients
+  db &lt;- b1 - b2
+  
+  V1 &lt;- vcov(ols)
+  V2 &lt;- vcov(sem)[rownames(V1), colnames(V1)]
+  dV &lt;- V2 - V1
+  
+  tibble(
+    Hstat = t(db) %*% MASS::ginv(dV) %*% db, 
+    &quot;p-value&quot; = pchisq(Hstat, df = Matrix::rankMatrix(dV))
+  )
+}
+
+sp_hausman(access_ols, access_sem_wd)</code></pre>
+<pre><code>## # A tibble: 1 x 2
+##   Hstat[,1] `p-value`[,1]
+##       &lt;dbl&gt;         &lt;dbl&gt;
+## 1     1276.             1</code></pre>
+<pre class="r"><code>sp_hausman(access_ols, access_sem_wc)</code></pre>
+<pre><code>## # A tibble: 1 x 2
+##   Hstat[,1] `p-value`[,1]
+##       &lt;dbl&gt;         &lt;dbl&gt;
+## 1      781.             1</code></pre>
+<p>In both cases, we reject the null hypothesis that the coefficient estimates are the same and conclude that the true DGP is not likely OLS or SEM. Still, it’s worth considering just how far apart the estimates are.</p>
+<pre class="r"><code>tidy.sarlm &lt;- function(x){
+  s &lt;- summary(x)
+  df &lt;- length(s$residuals) - length(s$coefficients) - 1
+  tibble(
+    term = gsub(&quot;[\\(\\)]&quot;, &quot;\\.&quot;, rownames(s$Coef)),
+    estimate = s$Coef[,1],
+    std.error = s$Coef[,2],
+    statistic = estimate / std.error,
+    p.value = 2*(pt(abs(statistic), Inf, lower.tail = FALSE))
+  )
+}
+lapply(ols_vs_sem, tidy) %&gt;%
+  bind_rows(.id = &quot;model&quot;) %&gt;%
+  dwplot() + scale_x_continuous(limits = c(-0.3, 1))</code></pre>
+<p><img src="04_estimation_files/figure-html/tidy.sarlm-1.png" width="672" /></p>
+<p>In the plot above <code>log(income)</code> is considerably larger than other variables but the estimates from the three models for that coefficient are similar. That said, the only estimates that differ significantly between the OLS and SEM model are - <code>log(density)</code>: in the case of the SEM models the coefficient is not a significant predictor. - <code>college</code>: in the SEM models the coefficient takes a different sign with physical activity <em>increasing</em> with college education. - <code>access_ls</code>: this is our variable of interest.</p>
+<p>I’m curious what happens when we remove density from the base model.</p>
+<pre class="r"><code># take log(density) out of the bare access model
+nodensity &lt;- lapply(ols_vs_sem, function(model) {
+  update(model, . ~ . - log(density))
+})
+lapply(nodensity, tidy) %&gt;%
+  bind_rows(.id = &quot;model&quot;) %&gt;%
+  dwplot() + scale_x_continuous(limits = c(-0.3, 1))</code></pre>
+<p><img src="04_estimation_files/figure-html/nodensity-1.png" width="672" /></p>
+<p>Basically the same thing. It’s worth looking at whether the same thing is happening in the obesity model.</p>
+<pre class="r"><code>obesity_sem &lt;- lapply(ols_vs_sem, function(model) {
+  update(model, obesity ~ . + physact)
+})
+lapply(obesity_sem, tidy) %&gt;%
+  bind_rows(.id = &quot;model&quot;) %&gt;%
+  dwplot() </code></pre>
+<p><img src="04_estimation_files/figure-html/obesity_sem-1.png" width="672" /></p>
+<p>Yup. Okay, given that, the question is whether adding lagged variables <span class="math inline">\(\gamma W X\)</span> to the model will resolve the discrepancy.</p>
+</div>
+<div id="slx-vs-sdem" class="section level3">
+<h3>SLX vs SDEM</h3>
+<p>The same basic logic applies to the SLX and SDEM models; if there is no dependence relationship among the <span class="math inline">\(y\)</span> variables, then the SLX and SDEM will have unbiased estimates of <span class="math inline">\(\beta\)</span> and <span class="math inline">\(\gamma\)</span>.</p>
+<pre class="r"><code>access_slx_wd &lt;- lmSLX(update(base_formula, physact ~ . + access_ls), 
+                       data = tracts_access, listw = Winv, zero.policy = TRUE)
+access_slx_wc &lt;- lmSLX(update(base_formula, physact ~ . + access_ls), 
+                       data = tracts_access, listw = Wcontig, zero.policy = TRUE)
+access_sdem_wd &lt;- errorsarlm(update(base_formula, physact ~ . + access_ls),
+                            data = tracts_access, listw = Winv, zero.policy = TRUE,
+                            Durbin = TRUE)
+access_sdem_wc &lt;- errorsarlm(update(base_formula, physact ~ . + access_ls),
+                            data = tracts_access, listw = Wcontig, zero.policy = TRUE, 
+                            Durbin = TRUE)
+slx_vs_sdem &lt;- list(
+  &quot;Dist SLX&quot; = access_slx_wd, 
+  &quot;Dist SDEM&quot; = access_sdem_wd, 
+  &quot;Contig SDEM&quot; = access_sdem_wc,
+  &quot;Contig SLX&quot; = access_slx_wc
+)</code></pre>
+<p>As before, we can try a Hausman-style test, but in this case the covariance matrix appears poorly defined and we therefore get a negative test statistic.</p>
+<pre class="r"><code>slx_hausman &lt;- function(slx, sdem) {
+  b1 &lt;- slx$coefficients
+  b2 &lt;- sdem$coefficients
+  db &lt;- b1 - b2
+  
+  V1 &lt;- vcov(slx)
+  V2 &lt;- vcov(sdem)[names(b2), names(b2) ]
+  dV &lt;- V2 - V1
+  
+  tibble(
+    Hstat = t(db) %*% MASS::ginv(dV) %*% db, 
+    &quot;p-value&quot; = pchisq(Hstat, df = Matrix::rankMatrix(dV), lower.tail = FALSE)
+  )
+}
+slx_hausman(access_slx_wc, access_sdem_wc)</code></pre>
+<pre><code>## # A tibble: 1 x 2
+##   Hstat[,1] `p-value`[,1]
+##       &lt;dbl&gt;         &lt;dbl&gt;
+## 1      28.6         0.380</code></pre>
+<pre class="r"><code>slx_hausman(access_slx_wd, access_sdem_wd)</code></pre>
+<pre><code>## # A tibble: 1 x 2
+##   Hstat[,1] `p-value`[,1]
+##       &lt;dbl&gt;         &lt;dbl&gt;
+## 1      41.3        0.0384</code></pre>
+<p>Let’s look at the tidied dataframes instead.</p>
+<pre class="r"><code>lapply(slx_vs_sdem, tidy) %&gt;%
+  bind_rows(.id = &quot;model&quot;) %&gt;%
+  dwplot() + scale_x_continuous(limits = c(-0.5, 0.6))</code></pre>
+<p><img src="04_estimation_files/figure-html/visual_compare-1.png" width="672" /></p>
+<pre class="r"><code>lapply(slx_vs_sdem, tidy) %&gt;%
+  bind_rows(.id = &quot;model&quot;) %&gt;%
+  dwplot() </code></pre>
+<p><img src="04_estimation_files/figure-html/visual_compare-2.png" width="672" /></p>
+<p>Hey! This looks good! The direct effects are basically the same in all four models, with some disagreement in some lagged regressors. Unfortunately for this study, the access logsum variable is not directly significant. But this does point to a potential way forwards: what if we don’t lag that variable?</p>
+<pre class="r"><code>contiglagged_vars &lt;- tracts_access %&gt;%
+  st_set_geometry(NULL) %&gt;%
+  as_tibble() %&gt;%
+  transmute_at(
+    vars(density, income, fulltime, college, single, youth, young_adults, seniors, black, asian, hispanic, other, physact),
+    ~lag.listw(Wcontig, .)
+  ) %&gt;%
+  mutate(geoid = tracts_access$geoid) %&gt;%
+  dplyr::select(geoid, everything())</code></pre>
+<pre><code>## Warning in lag.listw(Wcontig, .): NAs in lagged values
+
+## Warning in lag.listw(Wcontig, .): NAs in lagged values
+
+## Warning in lag.listw(Wcontig, .): NAs in lagged values
+
+## Warning in lag.listw(Wcontig, .): NAs in lagged values
+
+## Warning in lag.listw(Wcontig, .): NAs in lagged values
+
+## Warning in lag.listw(Wcontig, .): NAs in lagged values
+
+## Warning in lag.listw(Wcontig, .): NAs in lagged values
+
+## Warning in lag.listw(Wcontig, .): NAs in lagged values
+
+## Warning in lag.listw(Wcontig, .): NAs in lagged values
+
+## Warning in lag.listw(Wcontig, .): NAs in lagged values
+
+## Warning in lag.listw(Wcontig, .): NAs in lagged values
+
+## Warning in lag.listw(Wcontig, .): NAs in lagged values
+
+## Warning in lag.listw(Wcontig, .): NAs in lagged values</code></pre>
+<pre class="r"><code>names(contiglagged_vars)[-1] &lt;- str_c(&quot;lag.&quot;, names(contiglagged_vars)[-1])
+contiglagged_tracts &lt;- tracts_access %&gt;% left_join(contiglagged_vars, by = &quot;geoid&quot;)</code></pre>
+<p>This is a good model. Access is significant, the direct effects are significant and mostly in the correct sign, lagged variables are also significant.</p>
+<pre class="r"><code>access_slx_wc &lt;- lm(update(
+  base_formula, physact ~ . +  log(lag.density) + log(lag.income) + 
+    lag.fulltime + lag.college + lag.single + lag.youth +  lag.young_adults + 
+    lag.seniors + lag.black + lag.asian + lag.hispanic + lag.other + access_ls),
+  data = contiglagged_tracts)
+
+access_sdem_wc &lt;- errorsarlm(update(
+  base_formula, physact ~ . +  log(lag.density) + log(lag.income) + 
+    lag.fulltime + lag.college + lag.single + lag.youth +  lag.young_adults + 
+    lag.seniors + lag.black + lag.asian + lag.hispanic + lag.other + access_ls), 
+  data = contiglagged_tracts, listw = Wcontig, zero.policy = TRUE)</code></pre>
+<pre class="r"><code>slx_hausman(access_slx_wc, access_sdem_wc)</code></pre>
+<pre><code>## # A tibble: 1 x 2
+##   Hstat[,1] `p-value`[,1]
+##       &lt;dbl&gt;         &lt;dbl&gt;
+## 1      173.      1.31e-23</code></pre>
+<pre class="r"><code>slx1_vs_sdem1 &lt;- list(&quot;SLX&quot; = access_slx_wc, &quot;SDEM&quot; = access_sdem_wc)
+
+screenreg(slx1_vs_sdem1, ci.force = TRUE)</code></pre>
+<pre><code>## 
+## =====================================================
+##                      SLX              SDEM           
+## -----------------------------------------------------
+## (Intercept)           -15.85 *          -24.98 *     
+##                      [-26.87; -4.82]  [-41.89; -8.06]
+## log(density)            0.05              0.18 *     
+##                      [ -0.13;  0.23]  [  0.04;  0.32]
+## log(income)             5.82 *            6.00 *     
+##                      [  5.30;  6.34]  [  5.57;  6.42]
+## fulltime                0.12 *            0.13 *     
+##                      [  0.09;  0.14]  [  0.11;  0.15]
+## college                 0.00              0.01       
+##                      [ -0.03;  0.03]  [ -0.02;  0.03]
+## single                 -0.04 *           -0.04 *     
+##                      [ -0.06; -0.02]  [ -0.05; -0.02]
+## youth                  -0.15 *           -0.13 *     
+##                      [ -0.18; -0.12]  [ -0.16; -0.10]
+## young_adults            0.03 *            0.03 *     
+##                      [  0.00;  0.05]  [  0.01;  0.05]
+## seniors                 0.01              0.04 *     
+##                      [ -0.02;  0.05]  [  0.01;  0.07]
+## black                  -0.05 *           -0.05 *     
+##                      [ -0.06; -0.03]  [ -0.06; -0.04]
+## asian                  -0.07 *           -0.08 *     
+##                      [ -0.08; -0.05]  [ -0.09; -0.07]
+## hispanic               -0.10 *           -0.10 *     
+##                      [ -0.11; -0.09]  [ -0.11; -0.09]
+## other                   0.04              0.00       
+##                      [ -0.06;  0.14]  [ -0.08;  0.09]
+## log(lag.density)        1.26 *            1.10 *     
+##                      [  0.94;  1.58]  [  0.72;  1.48]
+## log(lag.income)         2.39 *            1.97 *     
+##                      [  1.55;  3.24]  [  0.95;  3.00]
+## lag.fulltime           -0.14 *           -0.04       
+##                      [ -0.18; -0.10]  [ -0.09;  0.01]
+## lag.college            -0.13 *           -0.07 *     
+##                      [ -0.18; -0.08]  [ -0.13; -0.01]
+## lag.single             -0.05 *           -0.01       
+##                      [ -0.08; -0.01]  [ -0.05;  0.03]
+## lag.youth              -0.10 *           -0.01       
+##                      [ -0.16; -0.04]  [ -0.08;  0.06]
+## lag.young_adults        0.12 *            0.08 *     
+##                      [  0.08;  0.16]  [  0.03;  0.13]
+## lag.seniors             0.01              0.06       
+##                      [ -0.05;  0.07]  [ -0.01;  0.13]
+## lag.black               0.01              0.00       
+##                      [ -0.01;  0.02]  [ -0.02;  0.02]
+## lag.asian              -0.07 *           -0.04 *     
+##                      [ -0.08; -0.05]  [ -0.06; -0.02]
+## lag.hispanic           -0.01             -0.00       
+##                      [ -0.02;  0.01]  [ -0.02;  0.02]
+## lag.other               0.19              0.07       
+##                      [ -0.05;  0.42]  [ -0.18;  0.33]
+## access_ls               0.52 *            0.16 *     
+##                      [  0.40;  0.64]  [  0.03;  0.29]
+## lambda                                    0.69 *     
+##                                       [  0.65;  0.73]
+## -----------------------------------------------------
+## R^2                     0.90                         
+## Adj. R^2                0.90                         
+## Num. obs.            2099              2099          
+## Parameters                               28          
+## Log Likelihood                        -4435.39       
+## AIC (Linear model)                     9718.74       
+## AIC (Spatial model)                    8926.77       
+## LR test: statistic                      793.96       
+## LR test: p-value                          0.00       
+## =====================================================
+## * 0 outside the confidence interval.</code></pre>
+</div>
+</div>
+<div id="physical-activity-models" class="section level2">
+<h2>Physical activity models</h2>
+<p>Now to estimate the other models we are considering in the analysis.</p>
+<pre class="r"><code>base_sdem &lt;- update(access_sdem_wc, formula = . ~ . - access_ls,
+                    data = contiglagged_tracts, listw = Wcontig, zero.policy = TRUE)
+
+# estimate models
+pa_access_sdm &lt;- access_sdem_wc
+pa_tweets_sdm  &lt;- update(base_sdem, .~ . + tweets_ls)
+pa_multi_sdm   &lt;- update(base_sdem, .~ . + multi_ls)
+pa_walk10_sdm  &lt;- update(base_sdem, .~ . + walk_10)</code></pre>
+<p>Now we can add all four access measures to the formula one after the other.</p>
+<pre class="r"><code>pa_models &lt;- list(&quot;Base&quot;        = base_sdem,
+                  &quot;Logsum&quot;      = pa_access_sdm,
+                  &quot;Tweets&quot;      = pa_tweets_sdm,
+                  &quot;Attributes&quot;  = pa_multi_sdm,
+                  &quot;10-min walk&quot; = pa_walk10_sdm)</code></pre>
+<pre class="r"><code>view_kable(
+htmlreg(pa_models, digits = 4, table = FALSE, single.row = TRUE, 
+                   caption.above = TRUE, caption = &quot;Spatial Error Model &quot;,
+          stars = c(0.001, 0.01, 0.05, 0.1) )
+)</code></pre>
+&lt;!DOCTYPE HTML PUBLIC “-//W3C//DTD HTML 4.01 Transitional//EN” “<a href="http://www.w3.org/TR/html4/loose.dtd" class="uri">http://www.w3.org/TR/html4/loose.dtd</a>”&gt;
+<table cellspacing="0" align="center" style="border: none;">
+<caption align="top" style="margin-bottom:0.3em;">
+Spatial Error Model
+</caption>
+<tr>
+<th style="text-align: left; border-top: 2px solid black; border-bottom: 1px solid black; padding-right: 12px;">
+<b></b>
+</th>
+<th style="text-align: left; border-top: 2px solid black; border-bottom: 1px solid black; padding-right: 12px;">
+<b>Base</b>
+</th>
+<th style="text-align: left; border-top: 2px solid black; border-bottom: 1px solid black; padding-right: 12px;">
+<b>Logsum</b>
+</th>
+<th style="text-align: left; border-top: 2px solid black; border-bottom: 1px solid black; padding-right: 12px;">
+<b>Tweets</b>
+</th>
+<th style="text-align: left; border-top: 2px solid black; border-bottom: 1px solid black; padding-right: 12px;">
+<b>Attributes</b>
+</th>
+<th style="text-align: left; border-top: 2px solid black; border-bottom: 1px solid black; padding-right: 12px;">
+<b>10-min walk</b>
+</th>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+(Intercept)
+</td>
+<td style="padding-right: 12px; border: none;">
+-24.5190 (8.7122)<sup style="vertical-align: 0px;">**</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-24.9755 (8.6324)<sup style="vertical-align: 0px;">**</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-24.5288 (8.6180)<sup style="vertical-align: 0px;">**</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-25.0214 (8.6479)<sup style="vertical-align: 0px;">**</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-24.7176 (8.7101)<sup style="vertical-align: 0px;">**</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+log(density)
+</td>
+<td style="padding-right: 12px; border: none;">
+0.1740 (0.0710)<sup style="vertical-align: 0px;">*</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.1775 (0.0710)<sup style="vertical-align: 0px;">*</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.1761 (0.0709)<sup style="vertical-align: 0px;">*</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.1764 (0.0710)<sup style="vertical-align: 0px;">*</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.1686 (0.0711)<sup style="vertical-align: 0px;">*</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+log(income)
+</td>
+<td style="padding-right: 12px; border: none;">
+5.9786 (0.2167)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+5.9985 (0.2163)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+5.9929 (0.2161)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+5.9966 (0.2164)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+5.9767 (0.2165)<sup style="vertical-align: 0px;">***</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+fulltime
+</td>
+<td style="padding-right: 12px; border: none;">
+0.1283 (0.0095)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.1275 (0.0094)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.1274 (0.0094)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.1275 (0.0094)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.1285 (0.0095)<sup style="vertical-align: 0px;">***</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+college
+</td>
+<td style="padding-right: 12px; border: none;">
+0.0075 (0.0120)
+</td>
+<td style="padding-right: 12px; border: none;">
+0.0076 (0.0119)
+</td>
+<td style="padding-right: 12px; border: none;">
+0.0078 (0.0119)
+</td>
+<td style="padding-right: 12px; border: none;">
+0.0073 (0.0119)
+</td>
+<td style="padding-right: 12px; border: none;">
+0.0083 (0.0120)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+single
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.0363 (0.0084)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.0362 (0.0084)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.0364 (0.0084)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.0361 (0.0084)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.0366 (0.0084)<sup style="vertical-align: 0px;">***</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+youth
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.1306 (0.0136)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.1310 (0.0135)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.1313 (0.0135)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.1309 (0.0135)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.1311 (0.0136)<sup style="vertical-align: 0px;">***</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+young_adults
+</td>
+<td style="padding-right: 12px; border: none;">
+0.0283 (0.0103)<sup style="vertical-align: 0px;">**</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.0295 (0.0103)<sup style="vertical-align: 0px;">**</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.0295 (0.0103)<sup style="vertical-align: 0px;">**</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.0294 (0.0103)<sup style="vertical-align: 0px;">**</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.0281 (0.0103)<sup style="vertical-align: 0px;">**</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+seniors
+</td>
+<td style="padding-right: 12px; border: none;">
+0.0430 (0.0140)<sup style="vertical-align: 0px;">**</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.0403 (0.0140)<sup style="vertical-align: 0px;">**</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.0397 (0.0140)<sup style="vertical-align: 0px;">**</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.0408 (0.0140)<sup style="vertical-align: 0px;">**</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.0427 (0.0140)<sup style="vertical-align: 0px;">**</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+black
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.0499 (0.0045)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.0499 (0.0045)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.0498 (0.0045)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.0498 (0.0045)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.0497 (0.0045)<sup style="vertical-align: 0px;">***</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+asian
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.0772 (0.0054)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.0767 (0.0054)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.0767 (0.0054)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.0768 (0.0054)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.0774 (0.0054)<sup style="vertical-align: 0px;">***</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+hispanic
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.1021 (0.0047)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.1025 (0.0046)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.1025 (0.0046)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.1025 (0.0047)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.1020 (0.0046)<sup style="vertical-align: 0px;">***</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+other
+</td>
+<td style="padding-right: 12px; border: none;">
+0.0006 (0.0453)
+</td>
+<td style="padding-right: 12px; border: none;">
+0.0037 (0.0452)
+</td>
+<td style="padding-right: 12px; border: none;">
+0.0036 (0.0452)
+</td>
+<td style="padding-right: 12px; border: none;">
+0.0038 (0.0452)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.0005 (0.0453)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+log(lag.density)
+</td>
+<td style="padding-right: 12px; border: none;">
+1.1105 (0.1969)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+1.0985 (0.1954)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+1.0902 (0.1954)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+1.1036 (0.1956)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+1.0928 (0.1972)<sup style="vertical-align: 0px;">***</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+log(lag.income)
+</td>
+<td style="padding-right: 12px; border: none;">
+1.9269 (0.5284)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+1.9742 (0.5244)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+1.9565 (0.5236)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+1.9651 (0.5250)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+1.9189 (0.5282)<sup style="vertical-align: 0px;">***</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+lag.fulltime
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.0360 (0.0242)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.0397 (0.0241)<sup style="vertical-align: 0px;">·</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.0402 (0.0241)<sup style="vertical-align: 0px;">·</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.0388 (0.0241)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.0363 (0.0242)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+lag.college
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.0707 (0.0306)<sup style="vertical-align: 0px;">*</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.0710 (0.0304)<sup style="vertical-align: 0px;">*</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.0703 (0.0303)<sup style="vertical-align: 0px;">*</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.0720 (0.0304)<sup style="vertical-align: 0px;">*</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.0731 (0.0306)<sup style="vertical-align: 0px;">*</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+lag.single
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.0081 (0.0217)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.0082 (0.0215)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.0088 (0.0215)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.0074 (0.0215)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.0076 (0.0217)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+lag.youth
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.0111 (0.0355)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.0108 (0.0352)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.0113 (0.0352)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.0097 (0.0353)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.0120 (0.0355)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+lag.young_adults
+</td>
+<td style="padding-right: 12px; border: none;">
+0.0806 (0.0260)<sup style="vertical-align: 0px;">**</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.0842 (0.0259)<sup style="vertical-align: 0px;">**</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.0843 (0.0258)<sup style="vertical-align: 0px;">**</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.0847 (0.0259)<sup style="vertical-align: 0px;">**</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.0801 (0.0260)<sup style="vertical-align: 0px;">**</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+lag.seniors
+</td>
+<td style="padding-right: 12px; border: none;">
+0.0625 (0.0355)<sup style="vertical-align: 0px;">·</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.0590 (0.0353)<sup style="vertical-align: 0px;">·</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.0572 (0.0353)
+</td>
+<td style="padding-right: 12px; border: none;">
+0.0605 (0.0353)<sup style="vertical-align: 0px;">·</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.0623 (0.0355)<sup style="vertical-align: 0px;">·</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+lag.black
+</td>
+<td style="padding-right: 12px; border: none;">
+0.0006 (0.0083)
+</td>
+<td style="padding-right: 12px; border: none;">
+0.0010 (0.0082)
+</td>
+<td style="padding-right: 12px; border: none;">
+0.0012 (0.0082)
+</td>
+<td style="padding-right: 12px; border: none;">
+0.0008 (0.0082)
+</td>
+<td style="padding-right: 12px; border: none;">
+0.0006 (0.0083)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+lag.asian
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.0410 (0.0095)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.0397 (0.0095)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.0395 (0.0095)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.0400 (0.0095)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.0409 (0.0095)<sup style="vertical-align: 0px;">***</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+lag.hispanic
+</td>
+<td style="padding-right: 12px; border: none;">
+0.0009 (0.0088)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.0010 (0.0088)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.0012 (0.0088)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.0009 (0.0088)
+</td>
+<td style="padding-right: 12px; border: none;">
+0.0008 (0.0088)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+lag.other
+</td>
+<td style="padding-right: 12px; border: none;">
+0.0656 (0.1318)
+</td>
+<td style="padding-right: 12px; border: none;">
+0.0726 (0.1312)
+</td>
+<td style="padding-right: 12px; border: none;">
+0.0715 (0.1311)
+</td>
+<td style="padding-right: 12px; border: none;">
+0.0718 (0.1313)
+</td>
+<td style="padding-right: 12px; border: none;">
+0.0716 (0.1318)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+lambda
+</td>
+<td style="padding-right: 12px; border: none;">
+0.6985 (0.0196)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.6905 (0.0200)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.6896 (0.0200)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.6917 (0.0199)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.6987 (0.0196)<sup style="vertical-align: 0px;">***</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+access_ls
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+0.1596 (0.0678)<sup style="vertical-align: 0px;">*</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+tweets_ls
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+0.1776 (0.0703)<sup style="vertical-align: 0px;">*</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+multi_ls
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+0.1434 (0.0696)<sup style="vertical-align: 0px;">*</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+walk_10TRUE
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+0.5865 (0.3899)
+</td>
+</tr>
+<tr>
+<td style="border-top: 1px solid black;">
+Num. obs.
+</td>
+<td style="border-top: 1px solid black;">
+2099
+</td>
+<td style="border-top: 1px solid black;">
+2099
+</td>
+<td style="border-top: 1px solid black;">
+2099
+</td>
+<td style="border-top: 1px solid black;">
+2099
+</td>
+<td style="border-top: 1px solid black;">
+2099
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+Parameters
+</td>
+<td style="padding-right: 12px; border: none;">
+27
+</td>
+<td style="padding-right: 12px; border: none;">
+28
+</td>
+<td style="padding-right: 12px; border: none;">
+28
+</td>
+<td style="padding-right: 12px; border: none;">
+28
+</td>
+<td style="padding-right: 12px; border: none;">
+28
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+Log Likelihood
+</td>
+<td style="padding-right: 12px; border: none;">
+-4438.0569
+</td>
+<td style="padding-right: 12px; border: none;">
+-4435.3869
+</td>
+<td style="padding-right: 12px; border: none;">
+-4434.9873
+</td>
+<td style="padding-right: 12px; border: none;">
+-4436.0034
+</td>
+<td style="padding-right: 12px; border: none;">
+-4436.9264
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+AIC (Linear model)
+</td>
+<td style="padding-right: 12px; border: none;">
+9790.6289
+</td>
+<td style="padding-right: 12px; border: none;">
+9718.7359
+</td>
+<td style="padding-right: 12px; border: none;">
+9715.7145
+</td>
+<td style="padding-right: 12px; border: none;">
+9725.9698
+</td>
+<td style="padding-right: 12px; border: none;">
+9790.6837
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+AIC (Spatial model)
+</td>
+<td style="padding-right: 12px; border: none;">
+8930.1138
+</td>
+<td style="padding-right: 12px; border: none;">
+8926.7738
+</td>
+<td style="padding-right: 12px; border: none;">
+8925.9746
+</td>
+<td style="padding-right: 12px; border: none;">
+8928.0069
+</td>
+<td style="padding-right: 12px; border: none;">
+8929.8528
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+LR test: statistic
+</td>
+<td style="padding-right: 12px; border: none;">
+862.5151
+</td>
+<td style="padding-right: 12px; border: none;">
+793.9621
+</td>
+<td style="padding-right: 12px; border: none;">
+791.7399
+</td>
+<td style="padding-right: 12px; border: none;">
+799.9629
+</td>
+<td style="padding-right: 12px; border: none;">
+862.8310
+</td>
+</tr>
+<tr>
+<td style="border-bottom: 2px solid black;">
+LR test: p-value
+</td>
+<td style="border-bottom: 2px solid black;">
+0.0000
+</td>
+<td style="border-bottom: 2px solid black;">
+0.0000
+</td>
+<td style="border-bottom: 2px solid black;">
+0.0000
+</td>
+<td style="border-bottom: 2px solid black;">
+0.0000
+</td>
+<td style="border-bottom: 2px solid black;">
+0.0000
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;" colspan="7">
+<span style="font-size:0.8em"><sup style="vertical-align: 0px;"><em><strong></sup>p &lt; 0.001; <sup style="vertical-align: 0px;"></strong></sup>p &lt; 0.01; <sup style="vertical-align: 0px;"></em></sup>p &lt; 0.05; <sup style="vertical-align: 0px;">·</sup>p &lt; 0.1</span>
+</td>
+</tr>
+</table>
+<pre class="r"><code>obesity_models &lt;- lapply(pa_models, function(model){
+  update(update(model, obesity ~ . + physact + lag.physact))
+})
+
+names(obesity_models) &lt;- names(pa_models)</code></pre>
+<pre class="r"><code>view_kable(
+  htmlreg(obesity_models, digits = 3, table = FALSE, single.row = TRUE, 
+                   caption.above = TRUE, caption = &quot;Spatial Error Model &quot;,
+          stars = c(0.001, 0.01, 0.05, 0.1) )
+)</code></pre>
+&lt;!DOCTYPE HTML PUBLIC “-//W3C//DTD HTML 4.01 Transitional//EN” “<a href="http://www.w3.org/TR/html4/loose.dtd" class="uri">http://www.w3.org/TR/html4/loose.dtd</a>”&gt;
+<table cellspacing="0" align="center" style="border: none;">
+<caption align="top" style="margin-bottom:0.3em;">
+Spatial Error Model
+</caption>
+<tr>
+<th style="text-align: left; border-top: 2px solid black; border-bottom: 1px solid black; padding-right: 12px;">
+<b></b>
+</th>
+<th style="text-align: left; border-top: 2px solid black; border-bottom: 1px solid black; padding-right: 12px;">
+<b>Base</b>
+</th>
+<th style="text-align: left; border-top: 2px solid black; border-bottom: 1px solid black; padding-right: 12px;">
+<b>Logsum</b>
+</th>
+<th style="text-align: left; border-top: 2px solid black; border-bottom: 1px solid black; padding-right: 12px;">
+<b>Tweets</b>
+</th>
+<th style="text-align: left; border-top: 2px solid black; border-bottom: 1px solid black; padding-right: 12px;">
+<b>Attributes</b>
+</th>
+<th style="text-align: left; border-top: 2px solid black; border-bottom: 1px solid black; padding-right: 12px;">
+<b>10-min walk</b>
+</th>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+(Intercept)
+</td>
+<td style="padding-right: 12px; border: none;">
+71.654 (5.377)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+71.813 (5.374)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+71.748 (5.372)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+71.824 (5.376)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+71.718 (5.374)<sup style="vertical-align: 0px;">***</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+log(density)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.029 (0.038)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.031 (0.038)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.031 (0.038)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.031 (0.038)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.027 (0.038)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+log(income)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.485 (0.141)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.492 (0.141)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.492 (0.141)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.492 (0.141)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.486 (0.141)<sup style="vertical-align: 0px;">***</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+fulltime
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.014 (0.005)<sup style="vertical-align: 0px;">*</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.014 (0.005)<sup style="vertical-align: 0px;">*</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.014 (0.005)<sup style="vertical-align: 0px;">*</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.014 (0.005)<sup style="vertical-align: 0px;">*</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.014 (0.005)<sup style="vertical-align: 0px;">*</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+college
+</td>
+<td style="padding-right: 12px; border: none;">
+0.034 (0.007)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.034 (0.007)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.034 (0.007)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.034 (0.007)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.034 (0.007)<sup style="vertical-align: 0px;">***</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+single
+</td>
+<td style="padding-right: 12px; border: none;">
+0.001 (0.005)
+</td>
+<td style="padding-right: 12px; border: none;">
+0.001 (0.005)
+</td>
+<td style="padding-right: 12px; border: none;">
+0.001 (0.005)
+</td>
+<td style="padding-right: 12px; border: none;">
+0.001 (0.005)
+</td>
+<td style="padding-right: 12px; border: none;">
+0.001 (0.005)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+youth
+</td>
+<td style="padding-right: 12px; border: none;">
+0.005 (0.008)
+</td>
+<td style="padding-right: 12px; border: none;">
+0.005 (0.008)
+</td>
+<td style="padding-right: 12px; border: none;">
+0.005 (0.008)
+</td>
+<td style="padding-right: 12px; border: none;">
+0.005 (0.008)
+</td>
+<td style="padding-right: 12px; border: none;">
+0.005 (0.008)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+young_adults
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.009 (0.006)<sup style="vertical-align: 0px;">·</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.010 (0.006)<sup style="vertical-align: 0px;">·</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.010 (0.006)<sup style="vertical-align: 0px;">·</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.010 (0.006)<sup style="vertical-align: 0px;">·</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.009 (0.006)<sup style="vertical-align: 0px;">·</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+seniors
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.083 (0.008)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.082 (0.008)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.082 (0.008)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.082 (0.008)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.082 (0.008)<sup style="vertical-align: 0px;">***</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+black
+</td>
+<td style="padding-right: 12px; border: none;">
+0.046 (0.002)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.046 (0.002)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.046 (0.002)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.046 (0.002)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.046 (0.002)<sup style="vertical-align: 0px;">***</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+asian
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.101 (0.003)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.101 (0.003)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.101 (0.003)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.101 (0.003)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.101 (0.003)<sup style="vertical-align: 0px;">***</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+hispanic
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.006 (0.003)<sup style="vertical-align: 0px;">*</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.006 (0.003)<sup style="vertical-align: 0px;">*</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.006 (0.003)<sup style="vertical-align: 0px;">*</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.006 (0.003)<sup style="vertical-align: 0px;">*</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.006 (0.003)<sup style="vertical-align: 0px;">*</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+other
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.064 (0.025)<sup style="vertical-align: 0px;">**</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.065 (0.025)<sup style="vertical-align: 0px;">**</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.065 (0.025)<sup style="vertical-align: 0px;">**</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.065 (0.025)<sup style="vertical-align: 0px;">**</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.064 (0.025)<sup style="vertical-align: 0px;">*</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+log(lag.density)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.554 (0.121)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.557 (0.120)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.556 (0.120)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.557 (0.121)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.545 (0.121)<sup style="vertical-align: 0px;">***</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+log(lag.income)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.086 (0.362)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.106 (0.363)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.106 (0.363)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.105 (0.363)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.078 (0.362)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+lag.fulltime
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.012 (0.015)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.011 (0.015)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.011 (0.015)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.012 (0.015)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.012 (0.015)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+lag.college
+</td>
+<td style="padding-right: 12px; border: none;">
+0.070 (0.019)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.070 (0.019)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.070 (0.019)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.070 (0.019)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.071 (0.019)<sup style="vertical-align: 0px;">***</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+lag.single
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.011 (0.013)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.011 (0.013)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.011 (0.013)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.012 (0.013)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.012 (0.013)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+lag.youth
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.033 (0.021)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.033 (0.021)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.033 (0.021)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.033 (0.021)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.033 (0.021)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+lag.young_adults
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.024 (0.016)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.025 (0.016)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.025 (0.016)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.025 (0.016)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.024 (0.016)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+lag.seniors
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.022 (0.021)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.022 (0.021)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.021 (0.021)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.022 (0.021)
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.022 (0.021)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+lag.black
+</td>
+<td style="padding-right: 12px; border: none;">
+0.019 (0.005)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.019 (0.005)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.019 (0.005)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.019 (0.005)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.018 (0.005)<sup style="vertical-align: 0px;">***</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+lag.asian
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.046 (0.007)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.046 (0.007)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.046 (0.007)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.046 (0.007)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.046 (0.007)<sup style="vertical-align: 0px;">***</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+lag.hispanic
+</td>
+<td style="padding-right: 12px; border: none;">
+0.026 (0.007)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.026 (0.007)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.026 (0.007)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.026 (0.007)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.026 (0.007)<sup style="vertical-align: 0px;">***</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+lag.other
+</td>
+<td style="padding-right: 12px; border: none;">
+0.079 (0.074)
+</td>
+<td style="padding-right: 12px; border: none;">
+0.079 (0.074)
+</td>
+<td style="padding-right: 12px; border: none;">
+0.079 (0.074)
+</td>
+<td style="padding-right: 12px; border: none;">
+0.079 (0.074)
+</td>
+<td style="padding-right: 12px; border: none;">
+0.077 (0.074)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+physact
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.481 (0.012)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.480 (0.012)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.480 (0.012)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.480 (0.012)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.480 (0.012)<sup style="vertical-align: 0px;">***</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+lag.physact
+</td>
+<td style="padding-right: 12px; border: none;">
+0.018 (0.029)
+</td>
+<td style="padding-right: 12px; border: none;">
+0.020 (0.029)
+</td>
+<td style="padding-right: 12px; border: none;">
+0.020 (0.029)
+</td>
+<td style="padding-right: 12px; border: none;">
+0.020 (0.029)
+</td>
+<td style="padding-right: 12px; border: none;">
+0.017 (0.029)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+lambda
+</td>
+<td style="padding-right: 12px; border: none;">
+0.836 (0.013)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.836 (0.013)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.836 (0.013)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.836 (0.013)<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.836 (0.013)<sup style="vertical-align: 0px;">***</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+access_ls
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.039 (0.037)
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+tweets_ls
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.042 (0.039)
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+multi_ls
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.041 (0.038)
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+walk_10TRUE
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.263 (0.197)
+</td>
+</tr>
+<tr>
+<td style="border-top: 1px solid black;">
+Num. obs.
+</td>
+<td style="border-top: 1px solid black;">
+2099
+</td>
+<td style="border-top: 1px solid black;">
+2099
+</td>
+<td style="border-top: 1px solid black;">
+2099
+</td>
+<td style="border-top: 1px solid black;">
+2099
+</td>
+<td style="border-top: 1px solid black;">
+2099
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+Parameters
+</td>
+<td style="padding-right: 12px; border: none;">
+29
+</td>
+<td style="padding-right: 12px; border: none;">
+30
+</td>
+<td style="padding-right: 12px; border: none;">
+30
+</td>
+<td style="padding-right: 12px; border: none;">
+30
+</td>
+<td style="padding-right: 12px; border: none;">
+30
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+Log Likelihood
+</td>
+<td style="padding-right: 12px; border: none;">
+-3114.393
+</td>
+<td style="padding-right: 12px; border: none;">
+-3113.845
+</td>
+<td style="padding-right: 12px; border: none;">
+-3113.806
+</td>
+<td style="padding-right: 12px; border: none;">
+-3113.814
+</td>
+<td style="padding-right: 12px; border: none;">
+-3113.503
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+AIC (Linear model)
+</td>
+<td style="padding-right: 12px; border: none;">
+8120.925
+</td>
+<td style="padding-right: 12px; border: none;">
+8111.530
+</td>
+<td style="padding-right: 12px; border: none;">
+8114.568
+</td>
+<td style="padding-right: 12px; border: none;">
+8121.215
+</td>
+<td style="padding-right: 12px; border: none;">
+8110.946
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+AIC (Spatial model)
+</td>
+<td style="padding-right: 12px; border: none;">
+6286.786
+</td>
+<td style="padding-right: 12px; border: none;">
+6287.690
+</td>
+<td style="padding-right: 12px; border: none;">
+6287.612
+</td>
+<td style="padding-right: 12px; border: none;">
+6287.627
+</td>
+<td style="padding-right: 12px; border: none;">
+6287.006
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+LR test: statistic
+</td>
+<td style="padding-right: 12px; border: none;">
+1836.138
+</td>
+<td style="padding-right: 12px; border: none;">
+1825.840
+</td>
+<td style="padding-right: 12px; border: none;">
+1828.955
+</td>
+<td style="padding-right: 12px; border: none;">
+1835.588
+</td>
+<td style="padding-right: 12px; border: none;">
+1825.940
+</td>
+</tr>
+<tr>
+<td style="border-bottom: 2px solid black;">
+LR test: p-value
+</td>
+<td style="border-bottom: 2px solid black;">
+0.000
+</td>
+<td style="border-bottom: 2px solid black;">
+0.000
+</td>
+<td style="border-bottom: 2px solid black;">
+0.000
+</td>
+<td style="border-bottom: 2px solid black;">
+0.000
+</td>
+<td style="border-bottom: 2px solid black;">
+0.000
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;" colspan="7">
+<span style="font-size:0.8em"><sup style="vertical-align: 0px;"><em><strong></sup>p &lt; 0.001; <sup style="vertical-align: 0px;"></strong></sup>p &lt; 0.01; <sup style="vertical-align: 0px;"></em></sup>p &lt; 0.05; <sup style="vertical-align: 0px;">·</sup>p &lt; 0.1</span>
+</td>
+</tr>
+</table>
+<pre class="r"><code>write_rds(slx1_vs_sdem1, &quot;data/slx_vs_sdem.rds&quot;)
+write_rds(pa_models, &quot;data/pa_models.rds&quot;)
+write_rds(obesity_models, &quot;data/obesity_models.rds&quot;)</code></pre>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

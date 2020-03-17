@@ -15,7 +15,7 @@ navbar:
       href: 04_estimation.html
     - text: "Mental Health"
       href: 05_mental_health.Rmd
-exclude: ["poster", "data", "manuscript", "parks_access"]
+exclude: ["poster", "data", "manuscript", "parks_access", "presentations", "R"]
 output:
   html_document:
     theme: cosmo
