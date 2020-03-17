@@ -24,7 +24,9 @@ comparison.
 
 ```{r}
 pa_models <- read_rds(here("data/pa_models.rds"))
+pa_models$Tweets <- NULL
 obesity_models <- read_rds(here("data/obesity_models.rds"))
+obesity_models$Tweets <- NULL
 ```
 
 ```{r}
@@ -39,7 +41,7 @@ names_for_terms <- c(
 )
 
 lambda <- "$\\lambda$: spatial correlation"
-access_terms <- c("Size and Distance", "Tweets",  "Attributes", "10-min walk")
+access_terms <- c("Size and Distance", "Attributes", "10-min walk")
 
 ob_names <- c(base_termnames, "Physical Activity Rate")
 ob_names <- c(
@@ -48,28 +50,33 @@ ob_names <- c(
 
 ```
 
-
+\begin{table*}
+  \caption{\label{tab:pa-fullmodels} Estimated Effect of Accessibility on Physical Activity Rates}
+  \begin{center}
+  \scalebox{0.7}{
 ```{r pa-fullmodels, results = "asis"}
 texreg(pa_models, digits = 4, ci.force = TRUE,
        booktabs = TRUE, use.packages = FALSE, 
        custom.coef.names = c(names_for_terms, lambda, access_terms),
-       custom.model.names = c("No Access", access_terms),
-       caption = "Estimated Effect of Accessibility on Physical Activity Rates",
-       label = "tab:pa-fullmodels",
+       custom.model.names = c("No Access", access_terms), table = F,
        caption.above = TRUE, include.aic = F, include.lr = F,
-       scalebox = 0.7,
        custom.note = "%stars 95\\% confidence interval in brackets.")
 ```
+}\end{center}
+\end{table*}
 
 
-
+\begin{table*}
+  \caption{\label{tab:ob-fullmodels} Estimated Effect of Accessibility on Obesity Rates}
+  \begin{center}
+  \scalebox{0.7}{
 ```{r ob-fullmodels, results="asis"}
 texreg(obesity_models, digits = 4, ci.force = TRUE,
        booktabs = TRUE, use.packages = FALSE, 
        custom.coef.names = c(ob_names, lambda, access_terms),
-       custom.model.names = c("No Access", "Size and Distance", "Twitter", "Amenities", "10-Minute Walk"),
-       caption = "Estimated Effect of Accessibility on Physical Activity Rates",
-       label = "tab:ob-fullmodels",
-       caption.above = TRUE, include.aic = F, include.lr = F, scalebox = 0.7,
+       custom.model.names = c("No Access", access_terms), table = F,
+       caption.above = TRUE, include.aic = F, include.lr = F, 
        custom.note = "%stars 95\\% confidence interval in brackets.")
 ```
+}\end{center}
+\end{table*}
