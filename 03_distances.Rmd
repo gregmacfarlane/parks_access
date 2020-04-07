@@ -1,0 +1,121 @@
+---
+title: "Distances"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(reticulate)
+use_condaenv("ox", conda = "~/opt/anaconda3/condabin/conda")
+```
+
+We want to calculate network-based distances between blocks in New York City
+and the edges of parks.  In this document, we do the following: 
+
+  - Obtain a highway network for New York City from OpenStreetMap
+  - Determine coordinates for block group centroids and park edge nodes
+  - Compute the shortest path between the centroid and the nearest edge node.
+
+To do this, we are going to use the `osmnx` library for  python.
+
+```{python setup}
+import osmnx as ox
+import networkx as nx
+
+import numpy as np
+import pandas as pd
+```
+
+
+## OpenStreetMap
+
+We use the `osmnx` library to get a highway network graph for New York City from 
+OpenStreetMap. We 
+
+```{python graph}
+B = ox.graph_from_place('New York, New York, USA', network_type='drive')
+B_proj = ox.project_graph(B)
+```
+
+
+
+## Block Groups
+
+We get a list of population-weighted block group centroids from Census.
+
+```{python blockgroups}
+# get the coordinates from census
+url = "https://www2.census.gov/geo/docs/reference/cenpop2010/blkgrp/CenPop2010_Mean_BG36.txt"
+blockgroups = pd.read_csv(url)
+
+# pad the county and tract strings, and get the proper data types
+blockgroups['COUNTYFP'] = blockgroups['COUNTYFP'].apply('{0:0>3}'.format)
+blockgroups['TRACTCE'] = blockgroups['TRACTCE'].apply('{0:0>6}'.format)
+blockgroups['LATITUDE'] = blockgroups['LATITUDE'].astype(float)
+blockgroups['LONGITUDE'] = blockgroups['LONGITUDE'].astype(float)
+
+# filter to nyc
+nyc_counties = ["081", "047", "061", "005", "085"]
+blockgroups = blockgroups[blockgroups.COUNTYFP.isin(nyc_counties)]
+```
+
+
+## Open Spaces
+
+We want to calculate distance from the block group centroid to the nearest
+edge of each open space. The open spaces data created on the 
+[previous page](02_parks_data.html) is a detailed simple features layer with a
+polygon for each open space. The `osmnx` graph needs to have point coordinates 
+to calculate network-based distances, however. To make this work, we 
+
+ 1. simplify the polygon geometry to reduce the number of edge vertices. We do this
+ with a tolerance of 100 feet.
+ 2. convert the polygon geometry into a boundary linestring
+ 3. sample points on the linestring with a density of 1 point every 500 feet. Parks
+ with a permeter of less than 500 feet will have a single point.
+
+
+```{r simplify_spaces}
+# get open spaces file
+open_spaces <- read_rds("data/open_spaces.rds") %>%
+  select(id)  %>%
+  # some polygons are way too detailed, so we want to simplify to 100 foot resolution
+  st_simplify(dTolerance = 100, preserveTopology = TRUE)
+
+# some parks have multiple polygons. We need these to be simpler individual features 
+poly_from_multi <- open_spaces %>%
+  filter(st_geometry_type(geometry) == "MULTIPOLYGON") %>%
+  st_cast("POLYGON")
+
+
+linestrings <- open_spaces %>%
+  # join the original polygons back with the simplified multipolygons
+  filter(st_geometry_type(geometry) != "MULTIPOLYGON") %>%
+  rbind(poly_from_multi) %>%
+  # cast the polygons to a linestring of the park perimeter
+  st_cast("LINESTRING", group_or_split = TRUE) 
+
+point_samples <- linestrings %>%
+  # sample points along the line, one point per 500 feet.
+  st_line_sample(density = 1/500) 
+
+# append open space id
+open_space_points <- tibble(id = linestrings$id, geometry = point_samples) %>%
+  st_as_sf() %>%
+  st_cast(to = "POINT")
+```
+
+
+```{r simplified-point-map}
+leaflet() %>%
+  addProviderTiles(providers$OpenStreetMap) %>%
+  addCircleMarkers(data = open_space_points %>% st_transform(4326), radius = 0.001,
+                   color = "red") %>%
+  addPolygons(data = open_spaces %>% st_transform(4326))
+```
+
+
+```{r}
+
+```
+
+
