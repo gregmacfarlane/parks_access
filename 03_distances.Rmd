@@ -23,17 +23,20 @@ import networkx as nx
 
 import numpy as np
 import pandas as pd
+import time
+import multiprocessing as mp
 ```
 
 
 ## OpenStreetMap
 
 We use the `osmnx` library to get a highway network graph for New York City from 
-OpenStreetMap. We 
+OpenStreetMap. We get the walk network because most people in New York City will
+not be driving to get to their park.
 
 ```{python graph}
-B = ox.graph_from_place('New York, New York, USA', network_type='drive')
-B_proj = ox.project_graph(B)
+graph = ox.graph_from_place('New York, New York, USA', network_type='drive')
+graph_proj = ox.project_graph(graph)
 ```
 
 
@@ -48,14 +51,19 @@ url = "https://www2.census.gov/geo/docs/reference/cenpop2010/blkgrp/CenPop2010_M
 blockgroups = pd.read_csv(url)
 
 # pad the county and tract strings, and get the proper data types
-blockgroups['COUNTYFP'] = blockgroups['COUNTYFP'].apply('{0:0>3}'.format)
-blockgroups['TRACTCE'] = blockgroups['TRACTCE'].apply('{0:0>6}'.format)
+blockgroups.STATEFP = blockgroups.STATEFP.apply(str)
+blockgroups.BLKGRPCE = blockgroups.BLKGRPCE.apply(str)
+blockgroups.COUNTYFP = blockgroups.COUNTYFP.apply('{0:0>3}'.format)
+blockgroups.TRACTCE = blockgroups.TRACTCE.apply('{0:0>6}'.format)
+blockgroups['GEOID'] = blockgroups[['STATEFP', 'COUNTYFP', 'TRACTCE', 'BLKGRPCE']].apply(lambda x: ''.join(x), axis = 1)
+
 blockgroups['LATITUDE'] = blockgroups['LATITUDE'].astype(float)
 blockgroups['LONGITUDE'] = blockgroups['LONGITUDE'].astype(float)
 
 # filter to nyc
 nyc_counties = ["081", "047", "061", "005", "085"]
 blockgroups = blockgroups[blockgroups.COUNTYFP.isin(nyc_counties)]
+blockgroups.set_index('GEOID', inplace=True)
 ```
 
 
@@ -95,8 +103,8 @@ linestrings <- open_spaces %>%
   st_cast("LINESTRING", group_or_split = TRUE) 
 
 point_samples <- linestrings %>%
-  # sample points along the line, one point per 500 feet.
-  st_line_sample(density = 1/500) 
+  # sample points along the line, one point per 1000 feet.
+  st_line_sample(density = 1/1000) 
 
 # append open space id
 open_space_points <- tibble(id = linestrings$id, geometry = point_samples) %>%
@@ -104,6 +112,10 @@ open_space_points <- tibble(id = linestrings$id, geometry = point_samples) %>%
   st_cast(to = "POINT")
 ```
 
+The results of this data munging are given below. We have some issues where parks 
+made of multiple polygons end up with internal points. Trying to get rid of these
+by using complex hulls created other problems on linear parks. So we'll just go
+with this.
 
 ```{r simplified-point-map}
 leaflet() %>%
@@ -113,9 +125,98 @@ leaflet() %>%
   addPolygons(data = open_spaces %>% st_transform(4326))
 ```
 
+Get the data into a form that we can pass it into python.
 
-```{r}
+```{r park_points}
+park_points <- open_space_points %>%
+  st_transform(4326) %>%
+  mutate(
+    LONGITUDE = st_coordinates(.)[, 1],
+    LATITUDE = st_coordinates(.)[,2]
+  ) %>%
+  st_set_geometry(NULL) %>%
+  as_tibble()
+```
+
+## Distances
+
+First, we bring the park points we sampled into a pandas data frame with
+the park id as the index.
+```{python park_points_py}
+park_points = pd.DataFrame(r.park_points)
+# TODO: run for all park points
+park_ids = park_points.sample(5).id
+
+park_points.set_index('id', inplace=True)
+park_points = park_points.loc[park_ids]
 
 ```
 
+We already created the block group centroids data frame earlier. Let's get the
+nearest network nodes for each of the block groups and each park point.
+
+```{python park_bg_nodes}
+# TODO: run for all block groups
+blockgroups = blockgroups.sample(5)
+
+def findnode(df):
+  df['node'] = df.apply(lambda row: 
+    ox.get_nearest_node(graph, (row.LATITUDE, row.LONGITUDE)), axis=1)
+  return df
+
+def parallelize_dataframe(df, func, n_cores=4):
+  df_split = np.array_split(df, n_cores)
+  pool = Pool(n_cores)
+  df = pd.concat(pool.map(findnode, df_split))
+  pool.close()
+  pool.join()
+  return df
+  
+a = time.process_time()
+findnode(blockgroups)
+findnode(park_points)
+b = time.process_time()
+b - a
+```
+
+We want to create a data structure that we can quickly populate with the 
+shortest path between a block group and the nearest park point. This is 
+probably a two-level dictionary.
+
+```{python blockgroup_dict}
+# Create a dictionary for the block groups
+blockgroup_dict = {}
+for i in blockgroups.index.unique():
+  blockgroup_dict[i] = {} # create a dictionary for the parks
+  for j in park_points.index.unique():
+    blockgroup_dict[i][j] = float("inf")
+    
+```
+
+
+Now we want to loop through each block group and all of the park points to figure
+out what the shortest path is.
+
+```{python nearest}
+# loop through block groups
+a = time.process_time()
+for bg in blockgroups.itertuples():
+
+  # loop through parks
+  for park in park_ids:
+    these_points = park_points.loc[[park]]
+    
+    # loop through points
+    for point in these_points.itertuples():
+      # get length between park and this edge point
+      length = nx.shortest_path_length(graph_proj, source = bg.node, target=point.node,
+        weight = 'length')
+      
+      # check if this is the shortest one we've found; if so, update.
+      if length < blockgroup_dict[bg.Index][park]:
+        blockgroup_dict[bg.Index][park] = length
+        
+b = time.process_time()
+b - a 
+```
 
