@@ -5,7 +5,10 @@ title: "Distances"
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(reticulate)
-use_condaenv("ox", conda = "~/opt/anaconda3/condabin/conda")
+library(tidyverse)
+library(sf)
+library(leaflet)
+use_condaenv("ox", conda = "~/opt/anaconda3/condabin/conda", required = TRUE)
 ```
 
 We want to calculate network-based distances between blocks in New York City
@@ -24,7 +27,6 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 import time
-import multiprocessing as mp
 ```
 
 
@@ -35,7 +37,7 @@ OpenStreetMap. We get the walk network because most people in New York City will
 not be driving to get to their park.
 
 ```{python graph}
-graph = ox.graph_from_place('New York, New York, USA', network_type='drive')
+graph = ox.graph_from_place('New York, New York, USA', network_type='walk')
 graph_proj = ox.project_graph(graph)
 ```
 
@@ -145,7 +147,7 @@ the park id as the index.
 ```{python park_points_py}
 park_points = pd.DataFrame(r.park_points)
 # TODO: run for all park points
-park_ids = park_points.sample(5).id
+park_ids = park_points.sample(2).id
 
 park_points.set_index('id', inplace=True)
 park_points = park_points.loc[park_ids]
@@ -162,14 +164,6 @@ blockgroups = blockgroups.sample(5)
 def findnode(df):
   df['node'] = df.apply(lambda row: 
     ox.get_nearest_node(graph, (row.LATITUDE, row.LONGITUDE)), axis=1)
-  return df
-
-def parallelize_dataframe(df, func, n_cores=4):
-  df_split = np.array_split(df, n_cores)
-  pool = Pool(n_cores)
-  df = pd.concat(pool.map(findnode, df_split))
-  pool.close()
-  pool.join()
   return df
   
 a = time.process_time()
@@ -209,8 +203,11 @@ for bg in blockgroups.itertuples():
     # loop through points
     for point in these_points.itertuples():
       # get length between park and this edge point
-      length = nx.shortest_path_length(graph_proj, source = bg.node, target=point.node,
-        weight = 'length')
+      try:
+        length = nx.shortest_path_length(graph_proj, source = bg.node, target=point.node,
+          weight = 'length')
+      except:
+        length = float("inf")
       
       # check if this is the shortest one we've found; if so, update.
       if length < blockgroup_dict[bg.Index][park]:
@@ -218,5 +215,11 @@ for bg in blockgroups.itertuples():
         
 b = time.process_time()
 b - a 
+```
+
+
+```{python write}
+park_points.to_csv("data/park_points.csv")
+blockgroups.to_csv("data/blockgroups.csv")
 ```
 
