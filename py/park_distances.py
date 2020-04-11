@@ -3,6 +3,7 @@ import os
 
 import osmnx as ox
 import networkx as nx
+import math
 
 import numpy as np
 import pandas as pd
@@ -18,7 +19,7 @@ def get_shortest_paths(df):
     """
     park_points = pd.read_csv("data/park_points.csv")
     # TODO: remove sampling
-    park_sample_ids = park_points.sample(2).id
+    park_sample_ids = park_points.sample(5).id
     park_points.set_index('id', inplace=True)
     park_points = park_points.loc[park_sample_ids]
 
@@ -52,9 +53,17 @@ def get_shortest_paths(df):
             # loop through points
             min_dist = float("inf")
             for point in these_points.itertuples():
+                # check euclidean distance
+                dx = point.LONGITUDE - bg.LONGITUDE
+                dy = point.LATITUDE - bg.LATITUDE
+                euc_dist = math.sqrt(dx**2 + dy**2)
+                if euc_dist > 5000:
+                    min_dist = euc_dist
+                    break
+
                 # get length between park and this edge point
                 try:
-                    length = nx.shortest_path_length(graph_proj, source=bg.node, target=point.node,
+                    length = nx.astar_path_length(graph_proj, source=bg.node, target=point.node,
                                                      weight='length')
                 except:
                     length = float("inf")
@@ -171,7 +180,7 @@ if __name__ == "__main__":
     # get block groups
     blockgroups = pd.read_csv("data/blockgroups_nonode.csv")
     blockgroups.set_index('GEOID', inplace=True)
-    #blockgroups = blockgroups.sample(20)
+    blockgroups = blockgroups.sample(20)
 
     # get park points
     park_points = pd.read_csv("data/park_points_nonode.csv")
@@ -184,8 +193,10 @@ if __name__ == "__main__":
 
     # create dictionary to fill with shortest paths
     print("Getting shortest paths")
-    ddict = create_ddict(blockgroups.index.unique().array, park_points.index.unique().array)
+    a = time.process_time()
     get_shortest_paths(blockgroups)
+    b = time.process_time()
+    b-a
 
 
 
