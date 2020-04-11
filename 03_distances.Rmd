@@ -38,7 +38,9 @@ not be driving to get to their park.
 
 ```{python graph}
 graph = ox.graph_from_place('New York, New York, USA', network_type='walk')
-graph_proj = ox.project_graph(graph)
+# project to 18N, EPSG = 32618
+graph_proj = ox.project_graph(graph, to_crs="+proj=utm +zone=17 +ellps=WGS84 +datum=WGS84 +units=m +no_defs")
+graph_simple = nx.DiGraph(graph_proj)
 ```
 
 
@@ -131,13 +133,15 @@ Get the data into a form that we can pass it into python.
 
 ```{r park_points}
 park_points <- open_space_points %>%
-  st_transform(4326) %>%
+  st_transform(32618) %>%
   mutate(
     LONGITUDE = st_coordinates(.)[, 1],
     LATITUDE = st_coordinates(.)[,2]
   ) %>%
   st_set_geometry(NULL) %>%
   as_tibble()
+
+write_csv(park_points, "data/park_points_nonode.csv")
 ```
 
 ## Distances
@@ -147,7 +151,7 @@ the park id as the index.
 ```{python park_points_py}
 park_points = pd.DataFrame(r.park_points)
 # TODO: run for all park points
-park_ids = park_points.sample(2).id
+park_ids = park_points.sample(5).id
 
 park_points.set_index('id', inplace=True)
 park_points = park_points.loc[park_ids]

@@ -1,4 +1,5 @@
 import sys
+import os
 
 import osmnx as ox
 import networkx as nx
@@ -7,21 +8,40 @@ import numpy as np
 import pandas as pd
 import multiprocessing as mp
 import pickle
+import time
 
 
-def get_shortest_paths(blockgroups, park_points, graph, ddict):
+def get_shortest_paths(df):
     """
-    :param blockgroups:
-    :param park_points:
-    :param graph:
-    :param ddict:
+    :param df:
     :return: dictionary
     """
+    park_points = pd.read_csv("data/park_points.csv")
+    # TODO: remove sampling
+    park_sample_ids = park_points.sample(2).id
+    park_points.set_index('id', inplace=True)
+    park_points = park_points.loc[park_sample_ids]
+
+    park_ids = park_points.index.unique()
+
+    # get graph information
+    print("Getting graph information")
+    with open("data/graph.file", "rb") as f:
+        graph = pickle.load(f)
+
+    with open("data/graph_proj.file", "rb") as f:
+        graph_proj = pickle.load(f)
+
+    # output file
+    write_file = "data/shortest_paths_" + str(os.getpid()) + ".csv"
+    f = open(write_file, "w+")
+    f.write("geoid, park_id, distance\n")
+
     i = 1
-    for bg in blockgroups.itertuples():
+    for bg in df.itertuples():
         # update progress
-        location = i / len(blockgroups) * 100
-        sys.stdout.write("Handling dictionary progress: %d%%  \r" % (location))
+        location = i / len(df) * 100
+        sys.stdout.write("Getting block group %d, %d%% completed \r" % (i, location))
         sys.stdout.flush()
         i += 1
 
@@ -30,6 +50,7 @@ def get_shortest_paths(blockgroups, park_points, graph, ddict):
             these_points = park_points.loc[[park]]
 
             # loop through points
+            min_dist = float("inf")
             for point in these_points.itertuples():
                 # get length between park and this edge point
                 try:
@@ -39,10 +60,15 @@ def get_shortest_paths(blockgroups, park_points, graph, ddict):
                     length = float("inf")
 
                 # check if this is the shortest one we've found; if so, update.
-                if length < ddict[bg.Index][park]:
-                    ddict[bg.Index][park] = length
+                if length < min_dist:
+                    min_dist = length
 
-    return ddict
+            # write out the length between the block group and this park
+            f.write(str(bg.Index) + ", " + str(park) + ", " + str(min_dist) + "\n")
+
+    # close the buffer
+    f.close()
+
 
 
 def get_blockgroups(url, counties):
@@ -71,18 +97,33 @@ def get_blockgroups(url, counties):
 
 
 
-def get_graph(place, mode):
+def get_graph(place, mode, crs):
     """
-    Get a graph for the place
+    Get a graph for the place and write both the original graph and the projected directed
+    graph to file
     :param place:
     :param mode: One of "drive", "walk", etc.
     :return: OSMNX projected graph
     """
+
+    # Get the graph and make it a non multigraph
     graph = ox.graph_from_place(place, network_type=mode)
-    graph_proj = ox.project_graph(graph)
+    graph = nx.DiGraph(graph)
+
+    # write to file
+    with open("data/graph.file", "wb") as f:
+        pickle.dump(graph, f)
+
+    # project to UTM zone 18 N and simplify
+    graph_proj = ox.project_graph(graph, to_crs=crs)
+    graph_proj = nx.DiGraph(graph_proj)
+    with open("data/graph_proj.file", "wb") as f:
+        pickle.dump(graph_proj, f)
+
     return graph_proj
 
-def create_ddict(id1, id2, value = float("inf")):
+
+def create_ddict(id1, id2, value=float("inf")):
     """
     Create a two-index dictionary with a given value
     :param id1: first index
@@ -104,62 +145,47 @@ def create_ddict(id1, id2, value = float("inf")):
 
 
 
-def find_node(df, graph):
+def find_node(df):
     """
     Function to find the nearest node in a network to lat,long columns in data frame
     :param df:  Pandas data frame with lat, long information
     """
+    with open("data/graph.file", "rb") as f:
+        graph = pickle.load(f)
+
     df['node'] = df.apply(lambda row:
       ox.get_nearest_node(graph, (row.LATITUDE, row.LONGITUDE)), axis=1)
     return df
 
-def parallel_find_node(df, graph):
+def parallel_find_node(df):
     n_cores = mp.cpu_count()
     df_split = np.array_split(df, mp.cpu_count())
+    pool = mp.Pool(n_cores)
+    df = pd.concat(pool.map(find_node(df_split)))
+    pool.close()
+    pool.join()
+    return df
 
 
 if __name__ == "__main__":
-    # get blockgroups data frame
-    print("Getting blockgroups data from Census")
-    url = "https://www2.census.gov/geo/docs/reference/cenpop2010/blkgrp/CenPop2010_Mean_BG36.txt"
-    counties = ["081", "047", "061", "005", "085"]
-    blockgroups = get_blockgroups(url, counties)
+    # get block groups
+    blockgroups = pd.read_csv("data/blockgroups_nonode.csv")
+    blockgroups.set_index('GEOID', inplace=True)
+    #blockgroups = blockgroups.sample(20)
+
+    # get park points
+    park_points = pd.read_csv("data/park_points_nonode.csv")
+    park_points.set_index('id', inplace=True)
 
     # get node information
     print("Determining node locations")
-
-    # read block group information
-    blockgroups = pd.read_csv("data/blockgroups.csv")
-    blockgroups = blockgroups.sample(5)
-    blockgroups.set_index('GEOID', inplace=True)
-
-    # read park points information
-    park_points = pd.read_csv("data/park_points.csv")
-    # TODO: run for all park points
-    park_ids = park_points.sample(2).id
-
-    park_points.set_index('id', inplace=True)
-    park_points = park_points.loc[park_ids]
-
-    # get graph information
-    print("Getting graph information")
-    #graph = ox.graph_from_place('New York, New York, USA', network_type='walk')
-    #graph_proj = ox.project_graph(graph)
-    with open("data/graph.file", "rb") as f:
-        graph = pickle.load(f)
-
-    with open("data/graph_proj.file", "rb") as f:
-        graph_proj = pickle.load(f)
-
-
-    # locate nodes
-    print("Locating nodes for points")
-    #blockgroups = find_node(blockgroups, graph)
-    #park_points = find_node(park_points, graph)
+    blockgroups = find_node(blockgroups)
+    park_points = find_node(park_points)
 
     # create dictionary to fill with shortest paths
     print("Getting shortest paths")
     ddict = create_ddict(blockgroups.index.unique().array, park_points.index.unique().array)
-    ddict = get_shortest_paths(blockgroups, park_points, graph_proj, ddict)
+    get_shortest_paths(blockgroups)
+
 
 
