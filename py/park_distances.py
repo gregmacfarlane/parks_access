@@ -30,9 +30,6 @@ def get_shortest_paths(df):
     with open("data/graph.file", "rb") as f:
         graph = pickle.load(f)
 
-    with open("data/graph_proj.file", "rb") as f:
-        graph_proj = pickle.load(f)
-
     # output file
     write_file = "data/shortest_paths_" + str(os.getpid()) + ".csv"
     f = open(write_file, "w+")
@@ -63,7 +60,7 @@ def get_shortest_paths(df):
 
                 # get length between park and this edge point
                 try:
-                    length = nx.astar_path_length(graph_proj, source=bg.node, target=point.node,
+                    length = nx.shortest_path_length(graph, source=bg.node, target=point.node,
                                                      weight='length')
                 except:
                     length = float("inf")
