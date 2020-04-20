@@ -83,7 +83,8 @@ logsums <- distances %>%
   )
 
 bg_access <- bg_poly %>%
-  left_join(logsums, by = "geoid")
+  left_join(logsums, by = "geoid") %>%
+  write_rds("data/bg_access.rds")
 ```
 
 ## 10-minute buffer

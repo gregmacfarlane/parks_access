@@ -9,13 +9,13 @@ navbar:
       href: 01_health_data.html
     - text: "Parks Data"
       href: 02_parks_data.html
-    - text: "Logsum Specifications"
-      href: 03_logsums.html
+    - text: "Distances"
+      href: 03_distances.html
+    - text: "Logsums"
+      href: 04_accessibility.html
     - text: "Model Estimation"
-      href: 04_estimation.html
-    - text: "Mental Health"
-      href: 05_mental_health.Rmd
-exclude: ["poster", "data", "manuscript", "parks_access", "presentations", "R"]
+      href: 05_estimation.html
+exclude: ["poster", "data", "manuscript", "parks_access", "presentations"]
 output:
   html_document:
     theme: cosmo

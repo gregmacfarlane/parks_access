@@ -5,7 +5,8 @@ date: "6/6/2019"
 output: html_document
 ---
 
-```{r setup}
+```{r setup, cache = FALSE}
+knitr::opts_chunk$set(cache = TRUE)
 library(leaflet)
 library(tidyverse)
 library(tidycensus)

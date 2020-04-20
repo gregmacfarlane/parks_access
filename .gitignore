@@ -2,9 +2,12 @@
 .Rhistory
 _site/
 .Rproj.user/
+.idea/
 *_cache/
 *_files/
-
+data/nyc_shortest_paths_*
+data/graph.file
+data/graph_proj.file
 *.bbl
 *.blg
 *.log
@@ -16,13 +19,10 @@ _site/
 *.fdb_latexmk
 manuscript/manuscript.tex
 manuscript/manuscript_files/
-
-
-
 manuscript/manuscript\.aux
-
 manuscript/manuscript-tikzDictionary
+manuscript/manuscript.md
 
 site_libs/
 
-manuscript/manuscript.md
+

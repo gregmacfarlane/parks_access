@@ -7,7 +7,8 @@ editor_options:
   chunk_output_type: console
 ---
 
-```{r setup}
+```{r setup, cache = FALSE}
+knitr::opts_chunk$set(cache = TRUE)
 library(leaflet)
 library(tidyverse)
 library(RSocrata)
