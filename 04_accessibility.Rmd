@@ -1,0 +1,111 @@
+---
+title: "Logsums"
+author: "Greg Macfarlane"
+date: "6/7/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache = TRUE)
+library(tidyverse)
+library(sf)
+library(leaflet)
+library(lubridate)
+library(VGAM)
+```
+
+In this document we calculate the utility-based measure of accessibility, as well
+as the 10-minute walk buffer.
+
+
+## Distances
+We cleaned and gathered the data parks data and data for tracts in the previous
+two pages, as well as computed the network-based distance between each block
+group and the nearest edge point of each park.
+
+```{r load, message=FALSE}
+open_spaces <- read_rds("data/open_spaces.rds")
+blockgroups <- read_csv("data/blockgroups.csv")
+
+# tigris not working, manual download
+#bg_poly <- tigris::block_groups("New York", county =  c("081", "047", "061", "005", "085"))
+bg_poly <- st_read("/Users/gregmacfarlane/Library/Caches/tigris/tl_2019_36_bg.shp") %>%
+  filter(GEOID %in% blockgroups$GEOID) %>%
+  transmute(geoid = GEOID) %>%
+  st_transform(32618)
+```
+
+In calculating the distances, two things could happen. First, it is possible that
+no path is found between the park and the block group centroid; this could be the
+result of network miscodings or other errors in the network algorithm. We'll have
+to take the results as they come, and we simply remove the park from that block
+group's accessibility calculation. The other issue is when a block group centroid
+and the park edge point match to the *same* node, resulting in a distance of zero.
+Because we are going to log-transform the distance, we add ten meters to all paths.
+
+```{r distance_adjust}
+distance_files <- list.files("data/nyc_shortest_paths_3500m/", full.names = TRUE)
+
+read_all_files <- function(pattern = pattern, path = "./"){
+  map_df(list.files(path = path, pattern = pattern, full.names = TRUE), read_csv,
+         col_types = list(geoid = col_character(), park_id = col_character()))
+}
+distances <- read_all_files(".csv", "data/nyc_shortest_paths_3500m/") %>%
+  # filter out infinite paths
+  filter(!is.infinite(distance)) %>%
+  # add ten meters to all paths
+  mutate(distance = distance + 10)
+```
+
+Now we can calculate the utility specification. The first specification uses the
+distance and size terms from the Alameda County study. The second specification
+adds the amenities with the utilities found by the Kinnell et al. study.
+
+```{r logsums}
+logsums <- distances %>%
+  left_join(open_spaces %>% st_set_geometry(NULL), by = c("park_id" = "id")) %>%
+  mutate(
+    distance_miles = (distance + 10) * 0.000621371,
+    u_access = -1.768 * log(distance_miles) + 0.373 * log(as.numeric(acres)),
+    u_multi = u_access + 
+      open_spaces$trails * 0.99 + 
+      open_spaces$playgrounds * 0.26 + 
+      open_spaces$courts * 0.43
+  ) %>%
+  group_by(geoid) %>%
+  summarise(
+    access_ls = log(sum(exp(u_access), na.rm = TRUE)),
+    multi_ls = log(sum(exp(u_multi), na.rm = TRUE))
+  ) %>%
+  mutate_at(
+    vars(ends_with("_ls")),
+    list(~ (. - mean(., na.rm = TRUE)) / sd(., na.rm = TRUE))
+  )
+
+bg_access <- bg_poly %>%
+  left_join(logsums, by = "geoid")
+```
+
+## 10-minute buffer
+
+We are also interested in looking at what happens when the tracts are within a 
+10-minute walk of a park, the threshold established by the Trust for Public Lands.
+This is interesting because whereas a limited number of tract centroids failed
+to overlap with the 10-minute buffer, all of the block group centroids intersect.
+
+## Accessibility Map
+Here's a map of the values. Note that there is also a shiny app in this project
+that allows the user to set different values for the logsum parameters.
+
+```{r access_map}
+# this interactive map is much easier to create and explore
+pal <- colorQuantile("GnBu", c(bg_access$access_ls, bg_access$multi_ls), n = 5)
+leaflet(bg_access %>% st_transform(4326)) %>%
+  addProviderTiles(providers$Esri.WorldGrayCanvas) %>%
+  addPolygons(group = "access", color = ~ pal(access_ls), stroke = 1,
+              label = ~as.character(round(access_ls, 2))) %>%
+  addPolygons(group = "Kinner", color = ~ pal(multi_ls), stroke = 1,
+              label = ~as.character(round(multi_ls, 2))) %>%
+  addLayersControl(overlayGroups = c("access", "Kinner"))
+```
+
