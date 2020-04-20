@@ -23,7 +23,10 @@ data dictionary is available at
 ```{r parks}
 parks_url <- "https://data.cityofnewyork.us/api/geospatial/y6ja-fw4f?method=export&format=GeoJSON"
 parks <- st_read(parks_url, stringsAsFactors = FALSE) %>%
-  mutate(shape_area = as.numeric(shape_area))
+  mutate(
+    shape_area = as.numeric(shape_area),
+    parknum = ifelse(parknum == "B527\r\nB527", "B527", parknum) 
+  ) 
 ```
 
 The New York City open data portal also contains a list of designated trails 
