@@ -30,8 +30,9 @@ blockgroups <- read_csv("data/blockgroups.csv")
 # tigris not working, manual download
 #bg_poly <- tigris::block_groups("New York", county =  c("081", "047", "061", "005", "085"))
 bg_poly <- st_read("/Users/gregmacfarlane/Library/Caches/tigris/tl_2019_36_bg.shp") %>%
-  filter(GEOID %in% blockgroups$GEOID) %>%
-  transmute(geoid = GEOID) %>%
+  transmute(geoid = GEOID, p_water = AWATER / (AWATER + ALAND)) %>%
+  filter(p_water < 1) %>%
+  filter(geoid %in% blockgroups$GEOID) %>%
   st_transform(32618)
 ```
 
@@ -50,7 +51,7 @@ read_all_files <- function(pattern = pattern, path = "./"){
   map_df(list.files(path = path, pattern = pattern, full.names = TRUE), read_csv,
          col_types = list(geoid = col_character(), park_id = col_character()))
 }
-distances <- read_all_files(".csv", "data/nyc_shortest_paths_3500m/") %>%
+distances <- read_all_files(".csv", "data/nyc_shortest_paths_5000m/") %>%
   # filter out infinite paths
   filter(!is.infinite(distance)) %>%
   # add ten meters to all paths
