@@ -44,30 +44,22 @@ regions with a matrix $W$. There are a few different ways to represent this
 matrix, but we will consider the simplest. First, let's load the shapefile of 
 the regions with the accessibility logsums attached.
 
-```{r tracts}
-tracts_access <- read_rds("data/tracts_access.rds")
+```{r bg_access}
+bg_access <- read_rds("data/bg_access.rds")
 ```
 
-### Inverse distance weights
-My Atlanta house price study considered that houses within 1.8 miles of each
-other were "neighbors," with the strength of the relationship decaying with 
-the inverse of the distance between them. We can build the same matrix using 
-the population-weighted centroid of the tract as the observation point.
+The accessibility is calculated at the block group level, but the other information
+(health, demographics) is available only at the tract level. 
 
-```{r Winv}
-pop_weighted_centroids <- read_rds("data/pop_weighted_centroids.rds")
-
-# determine which tracts are neighbors of each other. Need to be less than
-# 1.8 miles away from the centroids
-tracts.dnn <- dnearneigh(pop_weighted_centroids, 0, 1.8 * 5280)
-# calculate the inverse distance to use as a weight on the neighbor connection
-tract_dists <- nbdists(tracts.dnn, as(pop_weighted_centroids, "Spatial"))
-
-tract_dists.inv <- lapply(tract_dists, function(x) 1 / x)
-# get the spatial weights matrix and its trace to use in any impact analyses
-Winv <- nb2listw(neighbours = tracts.dnn, glist = tract_dists.inv,
-                 zero.policy = TRUE, style = "W")
-print(Winv, zero.policy = TRUE)
+```{r tracts}
+mydata <- bg_access %>% 
+  dplyr::mutate(tract = substr(geoid, 0, 11)) %>%
+  left_join(
+    read_rds("data/tracts.rds") %>%
+      st_set_geometry(NULL),
+    by = c("tract" = "geoid")
+  ) %>%
+  filter(!is.na(households))
 ```
 
 
@@ -77,8 +69,8 @@ Other investigations will often use a contiguity matrix where adjacent or
 bordering regions are considered neighbors.
 
 ```{r Wcontig}
-tracts.adj <- poly2nb(tracts_access)
-Wcontig <- nb2listw(tracts.adj, style = "W", zero.policy = TRUE)
+areas_adj <- poly2nb(mydata)
+Wcontig <- nb2listw(areas_adj, style = "W", zero.policy = TRUE)
 print(Wcontig, zero.policy = TRUE)
 ```
 
@@ -139,14 +131,11 @@ $$PhysAct = X\beta + \beta_{access}*access + u; u = \lambda W u + \epsilon$$
 We will consider both spatial weights matrices.
 
 ```{r ols_vs_sem}
-access_ols <- lm(update(base_formula, physact ~ . + access_ls), data = tracts_access)
-access_sem_wd <- errorsarlm(update(base_formula, physact ~ . + access_ls),
-                            data = tracts_access, listw = Winv, zero.policy = TRUE)
+access_ols <- lm(update(base_formula, physact ~ . + access_ls), data = mydata)
 access_sem_wc <- errorsarlm(update(base_formula, physact ~ . + access_ls),
-                            data = tracts_access, listw = Wcontig, zero.policy = TRUE)
+                            data = mydata, listw = Wcontig, zero.policy = TRUE)
 
-ols_vs_sem <- list("OLS" = access_ols, "SEM dist" = access_sem_wd, 
-                   "SEM cont" = access_sem_wd)
+ols_vs_sem <- list("OLS" = access_ols, "SEM" = access_sem_wc)
 ```
 
 In this case the null hypothesis is that both models (the OLS and SEM) are equally
@@ -172,7 +161,6 @@ sp_hausman <- function(ols, sem) {
   )
 }
 
-sp_hausman(access_ols, access_sem_wd)
 sp_hausman(access_ols, access_sem_wc)
 ```
 
@@ -239,26 +227,18 @@ relationship among the $y$ variables, then the SLX and SDEM will have unbiased
 estimates of $\beta$ and $\gamma$.
 
 ```{r access_slx}
-access_slx_wd <- lmSLX(update(base_formula, physact ~ . + access_ls), 
-                       data = tracts_access, listw = Winv, zero.policy = TRUE)
 access_slx_wc <- lmSLX(update(base_formula, physact ~ . + access_ls), 
-                       data = tracts_access, listw = Wcontig, zero.policy = TRUE)
-access_sdem_wd <- errorsarlm(update(base_formula, physact ~ . + access_ls),
-                            data = tracts_access, listw = Winv, zero.policy = TRUE,
-                            Durbin = TRUE)
+                       data = mydata, listw = Wcontig, zero.policy = TRUE)
 access_sdem_wc <- errorsarlm(update(base_formula, physact ~ . + access_ls),
-                            data = tracts_access, listw = Wcontig, zero.policy = TRUE, 
+                            data = mydata, listw = Wcontig, zero.policy = TRUE, 
                             Durbin = TRUE)
 slx_vs_sdem <- list(
-  "Dist SLX" = access_slx_wd, 
-  "Dist SDEM" = access_sdem_wd, 
-  "Contig SDEM" = access_sdem_wc,
-  "Contig SLX" = access_slx_wc
+  "SDEM" = access_sdem_wc,
+  "SLX" = access_slx_wc
 )
 ```
 
-As before, we can try a Hausman-style test, but in this case the covariance
-matrix appears poorly defined and we therefore get a negative test statistic.
+As before, we can try a Hausman-style test.
 ```{r slx_hausman}
 slx_hausman <- function(slx, sdem) {
   b1 <- slx$coefficients
@@ -275,7 +255,6 @@ slx_hausman <- function(slx, sdem) {
   )
 }
 slx_hausman(access_slx_wc, access_sdem_wc)
-slx_hausman(access_slx_wd, access_sdem_wd)
 ```
 
 Let's look at the tidied dataframes instead.
@@ -295,18 +274,17 @@ the access logsum variable is not directly significant. But this does point to a
 potential way forwards: what if we don't lag that variable?
 
 ```{r lagged_vars}
-contiglagged_vars <- tracts_access %>%
-  st_set_geometry(NULL) %>%
+contiglagged_vars <- mydata %>%
   as_tibble() %>%
   transmute_at(
     vars(density, income, fulltime, college, single, youth, young_adults, seniors, black, asian, hispanic, other, physact),
     ~lag.listw(Wcontig, .)
   ) %>%
-  mutate(geoid = tracts_access$geoid) %>%
+  mutate(geoid = mydata$geoid) %>%
   dplyr::select(geoid, everything())
 
 names(contiglagged_vars)[-1] <- str_c("lag.", names(contiglagged_vars)[-1])
-contiglagged_tracts <- tracts_access %>% left_join(contiglagged_vars, by = "geoid")
+contiglagged_data <- mydata %>% left_join(contiglagged_vars, by = "geoid")
 ```
 
 This is a good model. Access is significant, the direct effects are significant
@@ -317,13 +295,13 @@ access_slx_wc <- lm(update(
   base_formula, physact ~ . +  log(lag.density) + log(lag.income) + 
     lag.fulltime + lag.college + lag.single + lag.youth +  lag.young_adults + 
     lag.seniors + lag.black + lag.asian + lag.hispanic + lag.other + access_ls),
-  data = contiglagged_tracts)
+  data = contiglagged_data)
 
 access_sdem_wc <- errorsarlm(update(
   base_formula, physact ~ . +  log(lag.density) + log(lag.income) + 
     lag.fulltime + lag.college + lag.single + lag.youth +  lag.young_adults + 
     lag.seniors + lag.black + lag.asian + lag.hispanic + lag.other + access_ls), 
-  data = contiglagged_tracts, listw = Wcontig, zero.policy = TRUE)
+  data = contiglagged_data, listw = Wcontig, zero.policy = TRUE)
 ```
 
 
@@ -340,13 +318,11 @@ Now to estimate the other models we are considering in the analysis.
 
 ```{r estimate_sdems}
 base_sdem <- update(access_sdem_wc, formula = . ~ . - access_ls,
-                    data = contiglagged_tracts, listw = Wcontig, zero.policy = TRUE)
+                    data = contiglagged_data, listw = Wcontig, zero.policy = TRUE)
 
 # estimate models
 pa_access_sdm <- access_sdem_wc
-pa_tweets_sdm  <- update(base_sdem, .~ . + tweets_ls)
 pa_multi_sdm   <- update(base_sdem, .~ . + multi_ls)
-pa_walk10_sdm  <- update(base_sdem, .~ . + walk_10)
 ```
 
 
@@ -355,9 +331,7 @@ Now we can add all four access measures to the formula one after the other.
 ```{r access_sdm}
 pa_models <- list("Base"        = base_sdem,
                   "Logsum"      = pa_access_sdm,
-                  "Tweets"      = pa_tweets_sdm,
-                  "Attributes"  = pa_multi_sdm,
-                  "10-min walk" = pa_walk10_sdm)
+                  "Attributes"  = pa_multi_sdm)
 ```
 
 ```{r screen_pa_models, results = "asis"}
