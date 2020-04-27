@@ -45,8 +45,6 @@ and the park edge point match to the *same* node, resulting in a distance of zer
 Because we are going to log-transform the distance, we add ten meters to all paths.
 
 ```{r distance_adjust}
-distance_files <- list.files("data/nyc_shortest_paths_3500m/", full.names = TRUE)
-
 read_all_files <- function(pattern = pattern, path = "./"){
   map_df(list.files(path = path, pattern = pattern, full.names = TRUE), read_csv,
          col_types = list(geoid = col_character(), park_id = col_character()))
@@ -57,6 +55,24 @@ distances <- read_all_files(".csv", "data/nyc_shortest_paths_5000m/") %>%
   # add ten meters to all paths
   mutate(distance = distance + 10)
 ```
+
+
+```{r check-distances}
+check_id = "M010"
+check <- bg_poly %>%
+  left_join(distances %>% filter(park_id == check_id), by = "geoid") %>%
+  mutate(distance = log(distance + 10)) %>% 
+  st_transform(4326)
+park <- open_spaces %>% st_transform(4326) %>% filter(id == check_id) 
+
+pal <- colorNumeric("plasma", check$distance)
+leaflet(check ) %>%
+  addProviderTiles(providers$Esri.WorldGrayCanvas) %>%
+  addPolygons(color = ~pal(distance) ) %>%
+  addPolygons(data = park, color = "green")
+```
+
+
 
 Now we can calculate the utility specification. The first specification uses the
 distance and size terms from the Alameda County study. The second specification
