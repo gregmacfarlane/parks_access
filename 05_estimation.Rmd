@@ -1,8 +1,5 @@
 ---
-title: "Model "
-author: "Greg Macfarlane"
-date: "6/17/2019"
-output: html_document
+title: "Model Estimation"
 ---
 
 ```{r setup}

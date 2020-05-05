@@ -1,15 +1,13 @@
 ---
 title: "Logsums"
-author: "Greg Macfarlane"
-date: "6/7/2019"
-output: html_document
 ---
 
-```{r setup}
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(cache = TRUE)
 library(tidyverse)
 library(sf)
 library(spdep)
+library(spatialreg)
 library(leaflet)
 library(lubridate)
 library(VGAM)
@@ -29,7 +27,7 @@ of the tracts are not satisfying, so we will use the population-weighted centroi
 instead.
 
 ```{r pop_weighted_centroids}
-pop_weighted_centroids <- tracts %>% tbl_df() %>%
+pop_weighted_centroids <- tracts %>% as_tibble() %>%
   dplyr::select(geoid) %>%
   left_join(
     read_csv("https://www2.census.gov/geo/docs/reference/cenpop2010/tract/CenPop2010_Mean_TR36.txt") %>%
@@ -84,6 +82,12 @@ distances <- st_distance(pop_weighted_centroids, open_spaces, byid = TRUE) %>%
 
 # assert that a tract must be at least 1/10 mile from a park
 distances <- pmax(distances, 0.1)
+rownames(distances) <- pop_weighted_centroids$geoid
+colnames(distances) <- open_spaces$id
+
+distance_df <- distances %>%
+  as_tibble(rownames = "geoid") %>%
+  pivot_longer(cols = -geoid, names_to = "park_id", values_to = "distance")
 
 write_rds(distances, "data/distances.rds")
 ```
@@ -99,37 +103,38 @@ source("R/logsums.R")
 print(calculate_park_logsums)
 ```
 
-We use this function with asserted beta values of -1.98 and 0.3 to calculate the
+We use this function with asserted beta values of -1.768 and 0.373 to calculate the
 accessibility logsum.
+
 ```{r logsum_vars}
-open_spaces$acres <- as.numeric(open_spaces$acres)
+logsums <- distance_df %>%
+  left_join(
+    open_spaces %>% 
+      transmute(
+        park_id = id, acres,
+        tweet_count, trails, playgrounds, courts,
+      ) %>% 
+      st_set_geometry(NULL),  
+    by = "park_id"
+  ) %>%
+  mutate(
+    u_access = log(distance)*-1.768 + log(acres) * 0.373,
+    u_multi  = u_access + 
+      trails * 0.99 +  
+      playgrounds * 0.26 +  
+      courts * 0.43,
+    u_tweets = u_access + 0.1 * yeo.johnson(tweet_count, lambda = 0),
+  ) %>%
+  group_by(geoid) %>%
+  summarise(
+    access_ls = log(sum(exp(u_access))),
+    multi_ls = log(sum(exp(u_multi))),
+    tweets_ls = log(sum(exp(u_tweets)))
+  ) %>%
+  mutate_at(.vars = c("access_ls", "multi_ls", "tweets_ls"),  ~ (. - mean(.)) / sd(.))
+
 logsum_vars <- tracts %>%
-  transmute(
-    geoid, 
-    # Log-sum based utilities, without and with Twitter data
-    access_ls = calculate_park_logsums(
-      log(distances) * -1.768, log(open_spaces$acres) * 0.373
-    ),
-    tweets_ls = calculate_park_logsums(
-      log(distances) * -1.768, 
-      log(open_spaces$acres) * 0.373 + 
-        0.1 * yeo.johnson(open_spaces$tweet_count, lambda = 0)
-    ),
-    multi_ls = calculate_park_logsums(
-      log(distances) * -1.768, 
-      log(open_spaces$acres) * 0.373 + 
-        open_spaces$trails * 0.99 + 
-        open_spaces$playgrounds * 0.26 + 
-        open_spaces$courts * 0.43
-    ),
-  ) %>%
-  mutate_at(
-    vars(ends_with("_ls")),
-    # Normalize the logsum onto the Z-scale
-    list(~ (. - mean(.) ) / sd(.))
-  ) %>%
-  st_set_geometry(NULL) %>%
-  as_tibble()
+  left_join(logsums, by = "geoid")
 ```
 
 We are also interested in looking at what happens when the tracts are within a 
