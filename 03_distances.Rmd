@@ -1,0 +1,107 @@
+---
+title: "03_distances"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(sf)
+counties <- c("081", "047", "061", "005", "085")
+```
+
+A key aspect of accessibility to parks is the distance between parks and
+neighborhoods. There are two different ways to calculate distance:
+
+   - *Euclidean* distances use the straight-line distance between two points.
+   - *Network* distances use the path along a highway or sidewalk network.
+  
+Both measurements have limitiations. Euclidean distances are particularly
+problematic when there are rivers, interstates, or other impassible features that
+substantially lengthen the distance people travel to get between points. On the
+other hand, there is not lots of data suggesting that people perceive network 
+travel times very well when they are choosing destinations. We originally
+estimated the models for this paper with Euclidean distances, but
+our reviewers suggested we examine network-based distances as well.
+
+Another issue the reviewers identified is the spatial resolution of the analysis.
+We had used tracts, because this is where the socioeconomic and health data are 
+available. But block groups are more geographically precise, and it is possible
+for us to compute the accessibility at that level, if we assume that the 
+socioeconomics and health information is constant across the tract (this is not
+a good assumption, but we can entertain it for the purposes of the response to
+reviewers).
+
+We will use the same parks dataset we assembled [previously](02_parks_data.html).
+
+```{r open_spaces}
+open_spaces <- read_rds("data/open_spaces.rds")
+```
+
+
+## Euclidean Distances
+
+The geometric centroid of the tract / block group is not a good approximation of
+the center point of the tract from an accessibility standpoint. Thus, we 
+get the population-weighted centroid for tracts and block groups from Census.
+
+```{r tract_centroids}
+tracts_url <- "https://www2.census.gov/geo/docs/reference/cenpop2010/tract/CenPop2010_Mean_TR36.txt"
+
+tract_centroids <- read_csv(tracts_url) %>%
+  filter(COUNTYFP %in% counties) %>%
+  transmute(geoid = str_c(STATEFP, COUNTYFP, TRACTCE), LATITUDE, LONGITUDE) %>%
+  # convert to sf and project into the feet-based projection used in the
+  # parks dataset.
+  st_as_sf(crs = 4326, coords = c("LONGITUDE", "LATITUDE")) %>%
+  st_transform(3628) 
+```
+
+
+```{r bg_centroids}
+bg_url <- "https://www2.census.gov/geo/docs/reference/cenpop2010/blkgrp/CenPop2010_Mean_BG36.txt"
+
+bg_centroids <- read_csv(bg_url) %>%
+  filter(COUNTYFP %in% counties) %>%
+  transmute(geoid = str_c(STATEFP, COUNTYFP, TRACTCE, BLKGRPCE), LATITUDE, LONGITUDE) %>%
+  # convert to sf and project into the feet-based projection used in the
+  # parks dataset.
+  st_as_sf(crs = 4326, coords = c("LONGITUDE", "LATITUDE")) %>%
+  st_transform(3628) 
+```
+
+
+The `st_distance()` function from the `sf` library is able to compute the 
+Euclidean distance between two sets of shapes, and gets the distance between 
+points and edges of polygons directly. We calculate the distance in miles, 
+and constrain that the minimum distance is 0.1 miles (no one lives in a park).
+
+```{r distance_table}
+distance_table <- function(points, poly){
+  dists <- st_distance(points, poly, by_element = FALSE) %>%
+    units::set_units(miles) %>%
+    units::drop_units()
+  
+  dists <- pmax(dists, 0.1)
+  
+  rownames(dists) <- points$geoid
+  colnames(dists) <- poly$id
+  
+  as_tibble(dists, rownames = "geoid") %>%
+    pivot_longer(cols = -geoid, names_to = "park_id", values_to = "distance")
+}
+
+dist_tr_euc <- distance_table(tract_centroids, open_spaces)
+dist_bg_euc <- distance_table(bg_centroids,    open_spaces)
+```
+
+
+```{r distances}
+list("tracts" = dist_tr_euc, "blockgroups" = dist_bg_euc) %>%
+  write_rds("data/distances.rds")
+```
+
+
+## Network Distances
+
+For this
+
