@@ -16,13 +16,9 @@ _site/
 *.fdb_latexmk
 manuscript/manuscript.tex
 manuscript/manuscript_files/
-
-
-
 manuscript/manuscript\.aux
-
 manuscript/manuscript-tikzDictionary
-
 site_libs/
-
 manuscript/manuscript.md
+
+data/distances.rds
