@@ -1,5 +1,5 @@
 ---
-title: "03_distances"
+title: "Distances"
 ---
 
 ```{r setup, include=FALSE}
@@ -103,5 +103,107 @@ list("tracts" = dist_tr_euc, "blockgroups" = dist_bg_euc) %>%
 
 ## Network Distances
 
-For this
+To calculate network-based distances between block group / tract centroids and
+park boundaries, we employ the `osmnx` library for Python. This is a relatively
+new package that allows users to retrieve networks from OpenStreetMap and 
+compute shortest paths using Python's other network libraries. We retrieve
+a walk network for New York City, and re-project it to UTM zone 18N
 
+```py
+graph = ox.graph_from_place("New York City", network_type='walk')
+# project to UTM zone 18 N and simplify
+graph_proj = ox.project_graph(graph)
+graph_proj = nx.DiGraph(graph_proj)
+```
+
+One limitation of the network calculation is that it only works for nodes on the
+network, and we can only find nearest nodes to points. Thus we need to convert
+the park polygons data into points. But we can't simply have an endless number
+of points because the shortest path calculations are computationally extensive.
+
+So to make this work, we first simplify the parks polygons, convert the boundaries
+to linestrings, and then sample points along the linestring.
+
+```{r park_points, eval = FALSE}
+open_spaces <- open_spaces %>%
+  filter(id == "M010") %>%
+  select(id)  %>%
+  # some polygons are way too detailed, so we want to simplify to 100 foot resolution
+  st_simplify(dTolerance = 100, preserveTopology = TRUE)
+# some parks have multiple polygons. We need these to be simpler individual features 
+poly_from_multi <- open_spaces %>%
+  filter(st_geometry_type(geometry) == "MULTIPOLYGON") %>%
+  st_cast("POLYGON")
+linestrings <- open_spaces %>%
+  # join the original polygons back with the simplified multipolygons
+  filter(st_geometry_type(geometry) != "MULTIPOLYGON") %>%
+  rbind(poly_from_multi) %>%
+  # cast the polygons to a linestring of the park perimeter
+  st_cast("LINESTRING", group_or_split = TRUE) 
+point_samples <- linestrings %>%
+  # sample points along the line, one point per 1000 feet.
+  st_line_sample(density = 1/500) 
+# append open space id
+open_space_points <- tibble(id = linestrings$id, geometry = point_samples) %>%
+  st_as_sf() %>%
+  st_cast(to = "POINT")
+```
+
+```{r open_space_points, echo = FALSE}
+park_points <- read_csv("data/park_points.csv") %>%
+  st_as_sf(coords = c("LONGITUDE", "LATITUDE"), crs = 32618)
+```
+
+
+We can illustrate what this looks like. Every park has at least one sampled point,
+and some have several. Unfortunately there's not a concave polygon function to help
+us remove all the internal points from the parks.
+
+```{r simplified-point-map}
+leaflet() %>%
+  addProviderTiles(providers$Esri.WorldGrayCanvas) %>%
+  addPolygons(data = open_spaces %>% st_transform(4326), color = "green") %>%
+  addCircleMarkers(data = park_points %>% st_transform(4326), radius = 0.001,
+                   color = "red") 
+```
+
+With `r nrow(open_space_points)` and `r nrow(bg_centroids)`, that suggests we
+need to compute `r nrow(open_space_points) * nrow(bg_centroids)` shortest
+paths. Even on a 20+ core process, this would take several weeks.  As a result,
+we simplify the problem by first identifying the "closest" point of the park
+by Euclidean distance and then computing the network path to that point.
+This introduces some distortion where if the closest Euclidean point is across 
+a river or interstate, the method calculates the network distance to *that*
+point instead of the first point the person would encounter following the
+network. This may end up overstating the true experienced distance.
+
+```py
+# loop through centroids for block group or tract
+for bg in df.itertuples():
+
+    # loop through parks
+    for park in park_ids:
+        these_points = park_points.loc[[park]]
+        min_euc = float("inf")
+        
+        # loop through points associated with park
+        for point in these_points.itertuples():
+            # find closest park point by Euclidean distance
+            dx = point.LONGITUDE - bg.LONGITUDE
+            dy = point.LATITUDE - bg.LATITUDE
+            euc_dist = math.sqrt(dx**2 + dy**2)
+            
+            if euc_dist < min_euc:
+                min_euc = euc_dist
+                closest_point = point.node
+                
+        # compute shortest path between closest_point and centroid
+        try:
+            length = nx.shortest_path_length(graph, source=bg.node, target=closest_point, weight='length')
+        except:
+            # can fail if no path exists
+            length = float("inf")
+```
+
+
+Calculated this way, the path is calculated in meters.
