@@ -22,3 +22,6 @@ site_libs/
 manuscript/manuscript.md
 
 data/distances.rds
+data/nyc_shortest_paths*
+data/tracts/*
+data/blockgroups/*
