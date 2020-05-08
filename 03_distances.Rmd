@@ -107,7 +107,7 @@ To calculate network-based distances between block group / tract centroids and
 park boundaries, we employ the `osmnx` library for Python. This is a relatively
 new package that allows users to retrieve networks from OpenStreetMap and 
 compute shortest paths using Python's other network libraries. We retrieve
-a walk network for New York City, and re-project it to UTM zone 18N
+a walk network for New York City, and re-project it to UTM zone 18N.
 
 ```py
 graph = ox.graph_from_place("New York City", network_type='walk')
@@ -125,33 +125,29 @@ So to make this work, we first simplify the parks polygons, convert the boundari
 to linestrings, and then sample points along the linestring.
 
 ```{r park_points, eval = FALSE}
-open_spaces <- open_spaces %>%
-  filter(id == "M010") %>%
+# get park boundary polygon
+park_boundaries <- open_spaces %>%
   select(id)  %>%
+  
   # some polygons are way too detailed, so we want to simplify to 100 foot resolution
-  st_simplify(dTolerance = 100, preserveTopology = TRUE)
-# some parks have multiple polygons. We need these to be simpler individual features 
-poly_from_multi <- open_spaces %>%
-  filter(st_geometry_type(geometry) == "MULTIPOLYGON") %>%
-  st_cast("POLYGON")
-linestrings <- open_spaces %>%
-  # join the original polygons back with the simplified multipolygons
-  filter(st_geometry_type(geometry) != "MULTIPOLYGON") %>%
-  rbind(poly_from_multi) %>%
+  st_simplify(dTolerance = 100, preserveTopology = TRUE) %>%
+  
+  # need to convert everything to multipolygons to get multiple rows per shape
+  st_cast("MULTIPOLYGON") %>%
+  
+  st_cast("POLYGON") %>%
+
   # cast the polygons to a linestring of the park perimeter
   st_cast("LINESTRING", group_or_split = TRUE) 
-point_samples <- linestrings %>%
-  # sample points along the line, one point per 1000 feet.
+
+point_samples <- park_boundaries %>%
+  # sample points along the line, one point per 500 feet.
   st_line_sample(density = 1/500) 
-# append open space id
-open_space_points <- tibble(id = linestrings$id, geometry = point_samples) %>%
+
+# append open space id and coerce to single point per row
+park_points <- st_sf(id = park_boundaries$id, geometry = point_samples)  %>%
   st_as_sf() %>%
   st_cast(to = "POINT")
-```
-
-```{r open_space_points, echo = FALSE}
-park_points <- read_csv("data/park_points.csv") %>%
-  st_as_sf(coords = c("LONGITUDE", "LATITUDE"), crs = 32618)
 ```
 
 
@@ -207,3 +203,30 @@ for bg in df.itertuples():
 
 
 Calculated this way, the path is calculated in meters.
+
+
+```{r write_python_files}
+
+write_points_file <- function(points, file){
+  points %>% 
+    st_transform(4326) %>%
+    mutate(
+      LATITUDE = st_coordinates(.)[, 2],
+      LONGITUDE = st_coordinates(.)[, 1]
+    ) %>%
+    st_transform(32618) %>%
+    mutate(
+      Y = st_coordinates(.)[, 2],
+      X = st_coordinates(.)[, 1]
+    ) %>%
+    st_set_geometry(NULL) %>%
+    write_csv(file)
+}
+
+park_points     %>% write_points_file("data/park_points.csv")
+bg_centroids    %>% write_points_file("data/bg_centroids.csv")
+tract_centroids %>% write_points_file("data/tract_centroids.csv")
+
+```
+
+
