@@ -187,3 +187,24 @@ leaflet(tracts_access %>% st_transform(4326)) %>%
   addLayersControl(baseGroups = c("Network", "Euclidean", "Network-Multi", "Euclidean-Multi"))
 ```
 
+
+## 10-minute walk buffer
+
+We are also interested in looking at what happens when the tracts are within a 
+10-minute walk of a park, the threshold established by the Trust for Public Lands.
+
+```{r nyc10mw}
+access_10mw <- st_read("data/nyc_10mw.geojson") %>%
+  st_cast("MULTIPOLYGON") %>%
+  lwgeom::st_make_valid() %>%
+  summarise(d = 1)
+
+read_csv("data/tract_centroids.csv", col_types = "cnnnn") %>%
+  st_as_sf(coords = c("LONGITUDE", "LATITUDE"), crs = 4326) %>%
+  mutate(walk10 = st_intersects(., access_10mw, sparse = FALSE)) %>%
+  st_set_geometry(NULL) %>%
+  dplyr::select(geoid, walk10) %>%
+  write_rds("data/walk10.rds")
+```
+
+
