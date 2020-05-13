@@ -149,17 +149,6 @@ the same and conclude that the true DGP is not likely OLS or SEM. Still, it's wo
 considering just how far apart the estimates are.
 
 ```{r tidy.sarlm}
-tidy.sarlm <- function(x){
-  s <- summary(x)
-  df <- length(s$residuals) - length(s$coefficients) - 1
-  tibble(
-    term = gsub("[\\(\\)]", "\\.", rownames(s$Coef)),
-    estimate = s$Coef[,1],
-    std.error = s$Coef[,2],
-    statistic = estimate / std.error,
-    p.value = 2*(pt(abs(statistic), Inf, lower.tail = FALSE))
-  )
-}
 lapply(ols_vs_sem, tidy) %>%
   bind_rows(.id = "model") %>%
   dwplot() + scale_x_continuous(limits = c(-0.3, 1))
