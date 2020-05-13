@@ -163,8 +163,8 @@ leaflet() %>%
                    color = "red") 
 ```
 
-With `r nrow(open_space_points)` and `r nrow(bg_centroids)`, that suggests we
-need to compute `r nrow(open_space_points) * nrow(bg_centroids)` shortest
+With `r nrow(park_points)` and `r nrow(tract_centroids)`, that suggests we
+need to compute `r nrow(park_points) * nrow(bg_centroids)` shortest
 paths. Even on a 20+ core process, this would take several weeks.  As a result,
 we simplify the problem by first identifying the "closest" point of the park
 by Euclidean distance and then computing the network path to that point.
