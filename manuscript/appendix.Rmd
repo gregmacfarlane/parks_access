@@ -24,9 +24,7 @@ comparison.
 
 ```{r}
 pa_models <- read_rds(here("data/pa_models.rds"))
-pa_models$Tweets <- NULL
 obesity_models <- read_rds(here("data/obesity_models.rds"))
-obesity_models$Tweets <- NULL
 ```
 
 ```{r}
@@ -36,31 +34,40 @@ base_termnames <- c(
   "Asian population share", "Hispanic population share", "Other Minorities"
 )
 
-names_for_terms <- c(
-  base_termnames, str_c("$\\gamma$: ", base_termnames[-1])
+cmnames <- c(
+  base_termnames, str_c("$\\gamma$: ", base_termnames[-1]), 
+  rep("Accessibility", 3), "$\\lambda$: spatial correlation"
 )
 
-lambda <- "$\\lambda$: spatial correlation"
-access_terms <- c("Size and Distance", "Attributes", "10-min walk")
+#coefficient map
+cm <- as.list(cmnames)
+names(cm) <- c(names(pa_models$Logsum$coefficients), "euc_multi", "walk10TRUE", "$\\lambda$")
 
-ob_names <- c(base_termnames, "Physical Activity Rate")
-ob_names <- c(
-  ob_names, str_c("$\\gamma$: ", ob_names[-1])
+# obesity coefficient map
+cmonames <- c(
+  base_termnames, str_c("$\\gamma$: ", base_termnames[-1]), 
+  "Physical Activity", "$\\gamma$: Physical Activity",
+  rep("Accessibility", 3),
+  "$\\lambda$: spatial correlation"
 )
-
+cmo <- as.list(cmonames)
+names(cmo) <- c(names(obesity_models$Base$coefficients), 
+                "euc_access", "euc_multi", "walk10TRUE",  "$\\lambda$")
 ```
 
 \begin{table*}
   \caption{\label{tab:pa-fullmodels} Estimated Effect of Accessibility on Physical Activity Rates}
   \begin{center}
-  \scalebox{0.7}{
+  \scalebox{0.8}{
 ```{r pa-fullmodels, results = "asis"}
-texreg(pa_models, digits = 4, ci.force = TRUE,
-       booktabs = TRUE, use.packages = FALSE, 
-       custom.coef.names = c(names_for_terms, lambda, access_terms),
-       custom.model.names = c("No Access", access_terms), table = F,
-       caption.above = TRUE, include.aic = F, include.lr = F,
-       custom.note = "%stars 95\\% confidence interval in brackets.")
+texreg(
+  pa_models, digits = 4, ci.force = TRUE,
+  booktabs = TRUE, use.packages = FALSE, 
+  custom.coef.map = cm,
+  custom.model.names = c("No Access", "Size and Distance", "Amenities", "10-minute Walk"), 
+  table = F,
+  include.aic = F, include.lr = F,
+  custom.note = "%stars 95\\% confidence interval in brackets.")
 ```
 }\end{center}
 \end{table*}
@@ -69,14 +76,16 @@ texreg(pa_models, digits = 4, ci.force = TRUE,
 \begin{table*}
   \caption{\label{tab:ob-fullmodels} Estimated Effect of Accessibility on Obesity Rates}
   \begin{center}
-  \scalebox{0.7}{
+  \scalebox{0.8}{
 ```{r ob-fullmodels, results="asis"}
-texreg(obesity_models, digits = 4, ci.force = TRUE,
-       booktabs = TRUE, use.packages = FALSE, 
-       custom.coef.names = c(ob_names, lambda, access_terms),
-       custom.model.names = c("No Access", access_terms), table = F,
-       caption.above = TRUE, include.aic = F, include.lr = F, 
-       custom.note = "%stars 95\\% confidence interval in brackets.")
+texreg(
+  obesity_models, digits = 4, ci.force = TRUE,
+  booktabs = TRUE, use.packages = FALSE, 
+  custom.coef.map = cmo,
+  custom.model.names = c("No Access", "Size and Distance", "Amenities", "10-minute Walk"), 
+  table = F,
+  include.aic = F, include.lr = F,
+  custom.note = "%stars 95\\% confidence interval in brackets.")
 ```
 }\end{center}
 \end{table*}
