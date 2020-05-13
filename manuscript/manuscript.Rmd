@@ -39,6 +39,7 @@ bibliographystyle: sageh.bst
 
 ```{r setup, cache = FALSE, echo = FALSE, message = FALSE, warning = FALSE}
 library(tidyverse)
+library(broom)
 library(geojsonio)
 library(rgdal)
 library(rgeos)
@@ -51,6 +52,7 @@ library(knitr)
 library(kableExtra)
 library(texreg)
 library(here)
+library(xtable)
 
 options(tigris_use_cache = TRUE)
 opts_chunk$set(cache=FALSE, message = FALSE, echo = FALSE, warning = FALSE)
@@ -59,6 +61,7 @@ library(leaflet)
 knit_hooks$set(inline = function(x) {
   prettyNum(x, big.mark=",", digits = 4, drop0trailing = TRUE)
 })
+
 
 ```
 
@@ -269,8 +272,10 @@ activity and the other controls.
 ## Data
 
 ```{r tracts}
-# built in 01_health_data.Rmd and 03_logsums.Rmd
-tracts <- read_rds(here("data/tracts_access.rds"))
+# built in 01_health_data.Rmd and 04_accessibility.Rmd
+tracts <- est_data <- read_rds(here("data/tracts.rds")) %>%
+  left_join(read_rds(here("data/tract_logsums.rds")), by = "geoid") %>%
+  left_join(read_rds(here("data/walk10.rds")), by = "geoid")
 ```
 
 This study uses data available to the public from a variety of federal and state
@@ -479,7 +484,7 @@ population-weighted centroid of a tract is within a 10-minute walk of a green sp
 as defined by ParkScore, the tract is considered as having "access" to a park.
 The centroid is necessary as all tracts in New York City have at least *some* 
 intersection with the 10-minute walk buffer; as it is, only 
-`r sum(!tracts$walk_10)` of the `r nrow(tracts)` tract centroids are not located 
+`r sum(!tracts$walk10)` of the `r nrow(tracts)` tract centroids are not located 
 within this buffer.
 
 ```{r map, fig.env="figure*", echo=FALSE, message=FALSE, warning=FALSE, fig.height=4, fig.cap="Normalized utility-based park accessibility values in New York City."}
@@ -489,7 +494,7 @@ map <- ggmap(
                 maptype = "toner-lite"), extent = "device")
 map +
   geom_sf(data = tracts, inherit.aes=FALSE,
-          aes(fill = cut(multi_ls, breaks = c(-Inf, -3, -2, -1, 0, 1, 2, 3, Inf))),
+          aes(fill = cut(euc_multi, breaks = c(-Inf, -3, -2, -1, 0, 1, 2, 3, Inf))),
           alpha = 0.9, color = NA) +
   scale_fill_brewer("Accessibility", palette = "RdYlBu")
 ```
@@ -581,9 +586,7 @@ of $W$ are then row-standardized so that each observation has an equal total
 influence from all its neighbors.
 
 ```{r weights, warning = FALSE}
-# This are developed in 03_logsums.Rmd
-distances <- read_rds(here("data/distances.rds"))
-W <- read_rds(here("data/W.rds"))
+W <- read_rds(here("data/Wtr.rds"))
 trMC <- trW(as(W, "CsparseMatrix"), type="MC")
 ```
 
@@ -604,12 +607,14 @@ base_termnames <- c(
   "Asian population share", "Hispanic population share", "Other Minorities"
 )
 
-names_for_terms <- c(
-  base_termnames, str_c("$\\gamma$: ", base_termnames[-1])
+termnames <- c(
+  base_termnames, str_c("$\\gamma$: ", base_termnames[-1]), 
+  "Accessibility", "$\\lambda$: spatial correlation"
 )
 
-lambda <- "$\\lambda$: spatial correlation"
-access_terms <- c("Logsum", "Tweets",  "Attributes", "10-min walk")
+#coefficient map
+cm <- as.list(termnames)
+names(cm) <- c(names(slx_vs_sdem$SDEM$coefficients), "$\\lambda$")
 ```
 
 ```{r slx_hausman}
@@ -639,8 +644,8 @@ estimates for corresponding covariates lie within the 95\% confidence intervals
 of the other model. A Hausman-style test [@Pace2008] on the coefficients 
 assumes a null hypothesis that the coefficients are equivalent; this test 
 produces $p$-value of only $`r slx_sdem_htest[2]`$. Though this statistic is
-technically beneath a common hypothesis test threshold of $\alpha = 0.05$, we
-fail to reject the null hypothesis that the coefficients are equivalent, as 
+well beneath a common hypothesis test threshold of $\alpha = 0.05$, we
+elect retain the null hypothesis that the coefficients are equivalent, as 
 the differences are at no point practically different from each other. The consequences
 of rejecting the null hypothesis in this case would be to suggest a model with 
 spatial dependence of the dependent variable; as stated above, we feel that such
@@ -652,22 +657,30 @@ specification.
 \begin{table*}
 \caption{Comparison of SLX and SDEM Coefficients}
 \label{tab:slx-sdem}
+\begin{tabular}{l d{2.4} d{2.4} d{2.4} c d{2.4} d{2.4} d{2.4} }
+\toprule
+ & \multicolumn{3}{c}{SLX} & & \multicolumn{3}{c}{SDEM} \\
+\cmidrule{2-4}\cmidrule{6-8}
+ & \multicolumn{1}{c}{Estimate} & \multicolumn{2}{c}{95\% Conf.Int.} & 
+ & \multicolumn{1}{c}{Estimate} & \multicolumn{2}{c}{95\% Conf.Int.}\\
+\midrule
 ```{r slx-sdem, results = "asis"}
-texreg(slx_vs_sdem, single.row = TRUE, ci.force = TRUE,  digits = 4,
-       custom.coef.names = c(names_for_terms, "Accessibility", lambda), 
-       # Goodness of fit (LM and SP are different)
-       custom.gof.rows = list(
-         "Log Likelihood" = lapply(slx_vs_sdem, logLik) %>% unlist(),
-         "Num. Obs." = lapply(slx_vs_sdem, function(s) length(s$residuals))
-       ),
-       include.rsquared = F, include.adjrs = F, include.aic = F, include.loglik = F,
-       include.parameters = F, include.nobs = F,
-       use.packages = FALSE, booktabs = TRUE,
-       caption = "Comparison of SLX and SDEM Coefficients",
-       label = "tab:slx-sdem",table = FALSE,
-       custom.note = "%stars $y = $ tract-level physical activity rate.",
-       caption.above = TRUE)
+slx_coefs <- lapply(slx_vs_sdem, function(x) tidy(x, conf.int = TRUE))
+slx_stats <- lapply(slx_vs_sdem, glance)
+tab <- right_join(slx_coefs$SLX, slx_coefs$SDEM, by = "term") %>%
+  transmute(term, estimate.x, conf.low.x, conf.high.x, space = " ",
+                  estimate.y, conf.low.y, conf.high.y) %>%
+  mutate(term = unlist(cm))
+
+xtab <- xtable(tab, digits = 4)
+print(xtab, include.rownames = FALSE, include.colnames = F,
+      sanitize.text.function = identity, floating = F, only.contents = T, hline.after = NULL)
 ```
+\midrule
+Log Likelihood & \multicolumn{3}{c}{$-4831.974$} & & \multicolumn{3}{c}{$-4435.507$}\\
+Num.Obs.       & \multicolumn{3}{c}{$2099$}   & & \multicolumn{3}{c}{$2099$}\\
+\bottomrule
+\end{tabular}
 \end{table*}
 
 The coefficients in the SDEM model are of two general types: the direct effect
@@ -708,7 +721,7 @@ estimated utility-based coefficients, moving from the least-accessible tract
 most-accessible tract ($A_i = 3$) is expected to raise the physical activity rate
 by `r 6 * .15` percentage points. With the understanding of the full 95\% confidence
 interval, we could suggest that the true effect of excellent versus poor park access
-is anywhere between `r 6 * .02` and `r 6 * .3` percentage points.
+is anywhere between `r 6 * .01` and `r 6 * .3` percentage points.
 
 The 10-minute walk buffer is considerably less useful at isolating the effects
 of park "access" on physical activity rates. As so few tracts are located
@@ -720,18 +733,18 @@ to a gain of `r 6 * 1.35`.
 \caption{Estimated Effect of Accessibility on Physical Activity Rates}
 \label{tab:pa-models}
 ```{r pa-models, results = "asis"}
-texreg(pa_models[c(2, 4:5)], digits = 4, ci.force = TRUE,
+texreg(pa_models[c(2:4)], digits = 4, ci.force = TRUE,
        booktabs = TRUE, use.packages = FALSE, 
        custom.model.names = c("Size and Distance", "Amenities", "10-Minute Walk"),
        custom.coef.map = list(
          "lambda" = "$\\lambda$: spatial correlation", 
-         "access_ls" = "Size and Distance", 
-         "multi_ls" = "Amenities", 
-         "walk_10TRUE" = "10-minute walk"),
+         "euc_access" = "Accessibility", 
+         "euc_multi" = "Accessibility", 
+         "walk10TRUE" = "Accessibility"),
        caption = "Estimated Effect of Accessibility on Physical Activity Rates",
        label = "tab:pa-models", table = FALSE,
        caption.above = TRUE, include.aic = F, include.lr = F,
-       custom.note = "%stars 95\\% confidence interval in brackets.")
+       custom.note = "%stars 95\\% confidence interval in brackets.  $y = $ tract-level physical activity rate.")
 ```
 \end{table*}
 
@@ -755,7 +768,7 @@ It is important to consider the implications of the full range of the confidence
 interval, however [@Amrhein2019]. The results suggest that after controlling
 for tract socioeconomic variables, physical activity rates, and spatially correlated
 error terms, obesity rates in tracts with excellent park accessibility are expected 
-to be between `r 6 * 0.15` percentage points lower and `r 6 * .0053` percentage 
+to be between `r 6 * 0.113` percentage points lower and `r 6 * .0425` percentage 
 points higher than tracts with poor park accessibility. This range of values 
 suggests that accessibility to parks may have obesity-reducing effects beyond
 the effect of accessibility on physical activity rates worth further study.
@@ -764,20 +777,20 @@ the effect of accessibility on physical activity rates worth further study.
 \caption{Estimated Effect of Accessibility on Obesity Rates}
 \label{tab:obesity-models}
 ```{r obesity-models, results="asis"}
-texreg(obesity_models[c(2, 4:5)], digits = 4, ci.force = TRUE, 
+texreg(obesity_models[c(2:4)], digits = 4, ci.force = TRUE, 
        booktabs = TRUE, use.packages = FALSE, 
        custom.model.names = c("Size and Distance", "Amenities", "10-Minute Walk"),
        custom.coef.map = list(
          "physact" = "Physical Activity", 
          "lag.physact" = "$\\gamma$: Physical Activity",
          "lambda" = "$\\lambda$: spatial correlation", 
-         "access_ls" = "Size and Distance", 
-         "multi_ls" = "Amenities", 
-         "walk_10TRUE" = "10-minute walk"),
+         "euc_access" = "Accessibility", 
+         "euc_multi" = "Accessibility", 
+         "walk10TRUE" = "Accessibility"),
        caption = "Estimated Effect of Accessibility on Obesity Rates",
        label = "tab:obesity-models", table = FALSE,
        caption.above = TRUE, include.aic = F, include.lr = F,
-       custom.note = "%stars 95\\% confidence interval in brackets.")
+       custom.note = "%stars 95\\% confidence interval in brackets.  $y = $ tract-level obesity rate.")
 ```
 \end{table*}
 
@@ -848,9 +861,12 @@ impacts of park access on obesity or other health outcomes. And regarding these
 other variables: this study did not consider potential relationships between park
 access and hospitalization rates, life expectancy, respiratory disease,
 mental health, or any number of potential beneficial outcomes hypothesized
-or explored in the existing literature. Exploring these connections and their
-underlying mechanisms should be a priority as city planners and urban architects
-attempt to improve the quality of life of urban residents in the future.
+or explored in the existing literature. The COVID-19 pandemic and its associated
+social distancing behaviors in many regions of the world has also drawn
+attention to problems of park access, use, and equity. Exploring these
+connections and their underlying mechanisms should be a priority as city
+planners and urban architects attempt to improve the quality of life of urban
+residents in the future.
 
 # Conclusion
 
@@ -864,7 +880,7 @@ continuous distance to all parks in the region, weighted against the size of the
 park and its other amenities, with weights determinable through revealed
 preferences. In terms of physical activity, we found a positive relationship
 where the least park-accessible tracts have an expected physical activity
-participation rate between `r 6 * .05` and `r 6 * .35` percentage points lower than the most
+participation rate between `r 6 * .01` and `r 6 * .3` percentage points lower than the most
 accessible tracts. We also found a suggestive though not sigificant relationship
 between park accessiblity and expected obesity rates *in addition to* the effect
 of physical activity participation. 
