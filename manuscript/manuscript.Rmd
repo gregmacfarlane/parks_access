@@ -423,11 +423,14 @@ bind_rows(tract_summary, park_summary) %>%
 
 We calculate a pair of utility-based accessibility statistics for each tract
 in New York City. The most basic utility specification includes only the
-park size in acres and the distance from the population-weighted tract centroid
-to the boundary of the park in miles,
+park size in acres and the Euclidean distance from the population-weighted tract
+centroid to the nearest boundary of the park in miles,
 \begin{equation}\label{eq:u_access}
 V_{ij} = \lambda_s * \log(size_j) + \lambda_d * \log(distance_{ij})
 \end{equation}
+There are a few cases where the population-weighted tract centroid lies on or
+within the boundary of a park; for these cases we assert that the minimum
+possible distance is one tenth of a mile.
 The logarithmic transform allows for diminishing marginal utility of distance
 and park size: A 1-mile increase to a trip matters more for a 1-mile trip than a
 10-mile trip. @Macfarlane2019 estimated destination choice 
@@ -505,10 +508,15 @@ map +
 
 We predict either the physical activity or the obesity rate ($y$) in a census
 tract as a linear function of the tract's sociodemographic characteristics $X$
-and accessibility to parks $A$,
+and accessibility to parks $\boldsymbol{A}$,
 \begin{equation}\label{eq:themodel}
  \boldsymbol{y} = X\boldsymbol{\beta} + \beta_{a}\boldsymbol{A} + \boldsymbol{\varepsilon}
 \end{equation}
+where $X$ is a matrix of dimension $n\times p$ where $n$ is the number of observations and $p$ is the number of predictor
+variables, and $\boldsymbol{\beta}$ is a $p\times 1$ vector of estimated parameters.
+The accessibility vector $\boldsymbol{A}$ influences physical activity or obesity rates by the
+single estimated parameter $\beta_a$, and a vector $\boldsymbol{\varepsilon}$ 
+represents the model residual as a random variable.
 
 As the observations are related to each other spatially, it is likely that this
 process involves spatial spillovers of one kind or another. A complete treatment of
@@ -567,9 +575,9 @@ is non-zero, the model accounting for spatially dependent residuals will produce
 proper estimates of the model standard errors.
 
 Note that in the lag-$X$ specifications (SLX and SDEM) we exclude the accessiblity 
-component $A$, that is we do *not* consider that the accessibility
+component $\boldsymbol{A}$, that is we do *not* consider that the accessibility
 in a neighboring zone will have an effect on physical activity or obesity rates.
-In a practical sense, this is because the accessibility term $A$ is itself spatially
+In a practical sense, this is because the accessibility term $\boldsymbol{A}$ is itself spatially
 determined.
 
 
@@ -768,7 +776,7 @@ It is important to consider the implications of the full range of the confidence
 interval, however [@Amrhein2019]. The results suggest that after controlling
 for tract socioeconomic variables, physical activity rates, and spatially correlated
 error terms, obesity rates in tracts with excellent park accessibility are expected 
-to be between `r 6 * 0.113` percentage points lower and `r 6 * .0425` percentage 
+to be between `r 6 * 0.12` percentage points lower and `r 6 * .035` percentage 
 points higher than tracts with poor park accessibility. This range of values 
 suggests that accessibility to parks may have obesity-reducing effects beyond
 the effect of accessibility on physical activity rates worth further study.
@@ -822,12 +830,18 @@ each preferring different amenities of a park:
 An analyst could then compute the utility-based accessibility for each cluster
 with different utility values for each park's amenities, and obtain a measure of
 a neighborhood's accessibility to park features that its residents most care
-about. In this paper, we proceed only incrementally towards this by adding some
-selected park amenities as an element of each park's
-attractiveness above and beyond its size. Exploring detailed definitions of
-an increased number of amenities on one hand, and market segmentation strategies
-on the other, could provide a more nuanced understanding of the relationship
-between park accessibility and health outcomes.
+about. In this paper, we proceed only incrementally towards
+this by adding some selected park amenities as an element of each park's
+attractiveness above and beyond its size. The set of amenities we included in
+the utility calculation --- and the contribution of each amenity to the overall
+utility --- was dictated by the availability of data on the park amenities in New
+York City and our ability to find comparable prior studies with transferrable
+utility parameters. We can envision a study where mobile device data
+revealing the home locations of park users would be paired with more detailed
+park amenities and use data (e.g. geolocated Twitter data *a la*
+@roberts2017using) to estimate the utility contribution of these features. This
+could in turn provide a more nuanced understanding of the relationship between
+park accessibility, use, and health outcomes.
 
 As a travel impedance measure, we used the Euclidean distance between each tract's
 population-weighted centroid and the nearest point on the edge of a park's border.
@@ -835,9 +849,12 @@ Euclidean distances have well-rehearsed limitations regarding their fidelity wit
 the underlying infrastructure network, etc. Network-based distances can also
 suffer from challenges when applied to multimodal problems; these challenges are
 exacerbated when the non-highway mode share is high, as is likely when considering
-access to parks. A better metric of travel impedance may be a mode choice model
-logsum, which weights all alternative travel alternatives against each other. 
-We leave this as a recommendation for future research.
+access to parks. We examined replacing the Euclidean distance with a network-based
+distance; the choice of distance metric appeared inconsequential to our larger
+findings in this case. We retained the Euclidean distance for computational simplicity. A
+better metric of travel impedance may be a mode choice model logsum, which
+weights all alternative travel alternatives against each other. We leave this as
+a recommendation for future research.
 
 We compared our utility-based accessibility to a well-constructed isochrone
 that has attracted attention in the literature. That said, virtually all tracts

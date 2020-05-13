@@ -20,6 +20,7 @@ combined with park attributes.
 ```{r load}
 tracts <- read_rds("data/tracts.rds")
 open_spaces <- read_rds("data/open_spaces.rds")
+distances <- read_rds("data/distances.rds")
 ```
 
 
@@ -34,11 +35,17 @@ tract_files <- list.files("data/tracts", "*.csv", full.names = TRUE)
 
 read_dist_csv <- function(x){
   # warnings are from `inf` strings, which become converted to NA, which is okay.
-  read_csv(x, col_types = "ccnn") %>% as_tibble()
+  suppressWarnings(read_csv(x, col_types = "ccnn") %>% as_tibble())
 }
 
-blockgroup_distances <- lapply(blockgroup_files, read_dist_csv) %>% bind_rows()
-tract_distances      <- lapply(tract_files,      read_dist_csv) %>% bind_rows()
+blockgroup_distances <- lapply(blockgroup_files, read_dist_csv) %>% 
+  bind_rows() %>% 
+  left_join(distances$blockgroups %>% rename(euc_old = distance), 
+            by = c("geoid", "park_id"))
+tract_distances <- lapply(tract_files, read_dist_csv) %>% 
+  bind_rows() %>% 
+  left_join(distances$tracts %>% rename(euc_old = distance), 
+            by = c("geoid", "park_id"))
 ```
 
 First, let's compare the difference between the Euclidean and network
@@ -148,7 +155,7 @@ compute_logsums <- function(df) {
   
     # compute utility
     mutate(
-      euc_access = -1.768 * log(euc_dist) + 0.373 * log(as.numeric(acres)),
+      euc_access = -1.768 * log(euc_old) + 0.373 * log(as.numeric(acres)),
       euc_multi  = euc_access + trails * 0.99 +  playgrounds * 0.26 + courts * 0.43,
       net_access = -1.768 * log(distance) + 0.373 * log(as.numeric(acres)),
       net_multi  = net_access + trails * 0.99 +  playgrounds * 0.26 + courts * 0.43
