@@ -52,6 +52,7 @@ bordering regions are considered neighbors.
 
 ```{r W}
 Wtr <- nb2listw(poly2nb(est_data), style = "W", zero.policy = TRUE)
+Wtr %>% write_rds("data/Wtr.rds")
 print(Wtr, zero.policy = TRUE)
 ```
 
