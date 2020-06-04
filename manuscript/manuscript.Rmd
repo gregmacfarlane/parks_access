@@ -132,7 +132,7 @@ association at all.
 Loosely defined, the *accessibility* of an arbitrary place describes the ease
 with which people can accomplish activities there.  Accessibility is an abstract
 concept with tempting quantifiability [@Handy1997], but objective quantification 
-may not be strictly necessary. For example, takano2002urban showed improved 
+may not be strictly necessary. For example, @takano2002urban showed improved 
 survival rates among senior citizens in Japan who self-reported having access
 to qualitatively good walking spaces. Though encouraging, this result could
 simply reveal self-selection: Those seniors who felt the walking space was good
@@ -140,7 +140,8 @@ were those who chose to enjoy it. Urban planners seeking to evaluate which
 residents have good access to quality green space may desire objective and
 therefore comparable measures.
 
-@Dong2006 present a helpful mathematical heirarchy of
+
+@Dong2006 present a helpful mathematical hierarchy of
 common quantitative mechanisms for calculating access, which we follow here.
 Consider a person residing at
 point $i$ in a city with parks $j \in 1 \ldots J$. An analyst might consider
@@ -167,6 +168,8 @@ between the health of senior citizens and the number of parks within 500 meters.
 
 Another common access measure fits in this category, where distance-based
 isochrones are replaced with political, geographical, or statistical boundaries.
+For example, @Mitchell2008 find that inequalities in health outcomes attributable to 
+income are mitigated in statistical areas with a greater percentage of green space.
 These are especially common in comparative macroscopic studies, such as the
 positive relationships found by @West2012 between density of park land in a
 metropolitan area and self-reported population health indicators derived from
@@ -174,13 +177,13 @@ the Behavioral Risk Factor Surveillance System (BRFSS). On the other hand,
 @Larson2016 found no relationship between physical health and park
 quantity, quality, and accessibility in 44 U.S. cities and self-reported scores
 on the Gallup-Healthways Wellbeing Index. At the sub-metropolitan level, 
-the @Stark2014 found a significant relationship in New York City between the percent
+@Stark2014 found a significant relationship in New York City between the percent
 of a residential ZIP code that is park space and objectively measured body
 mass index (BMI). It is also possible to attenuate an isochrone with 
 various factors; for instance, @Dias2019 considered road safety perception as an
 extenuating factor in the effective distance to a park.
 
-In spite of the flexibility of adapted isochrone techniques, the arbritrary
+In spite of the flexibility of adapted isochrone techniques, the arbitrary
 definitions necessarily imposed by researchers in its application can inhibit
 holistic analysis [@Logan2017].
 A somewhat more complete approach is the so-called "gravity" accessibility
@@ -856,7 +859,10 @@ suffer from challenges when applied to multimodal problems; these challenges are
 exacerbated when the non-highway mode share is high, as is likely when considering
 access to parks. We examined replacing the Euclidean distance with a network-based
 distance; the choice of distance metric appeared inconsequential to our larger
-findings in this case. We retained the Euclidean distance for computational simplicity. A
+findings in this case while substantially increasing the computational load required.
+Additionally, we could not verify the accuracy of the underlying network data at 
+the scale of this analysis. We therefore retain the Euclidean distance for
+simplicity. A
 better metric of travel impedance may be a mode choice model logsum, which
 weights all alternative travel alternatives against each other. We leave this as
 a recommendation for future research.
