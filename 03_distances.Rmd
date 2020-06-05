@@ -3,249 +3,230 @@ title: "Distances"
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, python.reticulate = FALSE, cache = TRUE)
-library(reticulate)
+knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(sf)
-library(leaflet)
-use_condaenv("ox", conda = "~/opt/anaconda3/condabin/conda", required = TRUE)
+counties <- c("081", "047", "061", "005", "085")
 ```
 
-We want to calculate network-based distances between blocks in New York City
-and the edges of parks.  In this document, we do the following: 
+A key aspect of accessibility to parks is the distance between parks and
+neighborhoods. There are two different ways to calculate distance:
 
-  - Obtain a highway network for New York City from OpenStreetMap
-  - Determine coordinates for block group centroids and park edge nodes
-  - Compute the shortest path between the centroid and the nearest edge node.
+   - *Euclidean* distances use the straight-line distance between two points.
+   - *Network* distances use the path along a highway or sidewalk network.
+  
+Both measurements have limitiations. Euclidean distances are particularly
+problematic when there are rivers, interstates, or other impassible features that
+substantially lengthen the distance people travel to get between points. On the
+other hand, there is not lots of data suggesting that people perceive network 
+travel times very well when they are choosing destinations. We originally
+estimated the models for this paper with Euclidean distances, but
+our reviewers suggested we examine network-based distances as well.
 
-To do this, we are going to use the `osmnx` library for  python.
+Another issue the reviewers identified is the spatial resolution of the analysis.
+We had used tracts, because this is where the socioeconomic and health data are 
+available. But block groups are more geographically precise, and it is possible
+for us to compute the accessibility at that level, if we assume that the 
+socioeconomics and health information is constant across the tract (this is not
+a good assumption, but we can entertain it for the purposes of the response to
+reviewers).
 
- > The python calculations in this page are illustrations of the methods
- performed; the code is not actually literate as the computations do not complete 
- in a reasonable amount of time. The actual python script is in [py/park_distances.py](py/park_distances.py)
+We will use the same parks dataset we assembled [previously](02_parks_data.html).
 
-```{python setuppy}
-import osmnx as ox
-import networkx as nx
-
-import numpy as np
-import pandas as pd
-import time
-import pickle
-```
-
-
-## OpenStreetMap
-
-We use the `osmnx` library to get a highway network graph for New York City from 
-OpenStreetMap. We get the walk network because most people in New York City will
-not be driving to get to their park. We then project the network into UTM 17N 
-so that all paths will return in meters.
-
-```{python graph}
-def get_graph(place, mode, crs):
-    """
-    Get a graph for the place and write both the original graph and the projected directed
-    graph to file
-    :param place:
-    :param mode: One of "drive", "walk", etc.
-    :return: OSMNX projected graph
-    """
-    # Get the graph and make it a non multigraph
-    graph = ox.graph_from_place(place, network_type=mode)
-    # write to file
-    with open("data/graph.file", "wb") as f:
-        pickle.dump(graph, f)
-    # project to UTM zone 18 N and simplify
-    graph_proj = ox.project_graph(graph, to_crs=crs)
-    graph_proj = nx.DiGraph(graph_proj)
-    with open("data/graph_proj.file", "wb") as f:
-        pickle.dump(graph_proj, f)
-    return graph_proj
-```
-
-An image of this graph is shown below, zoomed in on Midtown Manhattan / Columbus
-Circle.
-
-```{r columbus-circle}
-knitr::include_graphics("figs/nyc_network_columbus_circle.png")
+```{r open_spaces}
+open_spaces <- read_rds("data/open_spaces.rds")
 ```
 
 
-## Block Groups
+## Euclidean Distances
 
-The tract and socioeconomic information is provided at the tract level, but we
-can calculate the accessibility at the block group level. We get a list of
-population-weighted block group centroids from Census, and transform them into 
-UTM17N coordinates.
+The geometric centroid of the tract / block group is not a good approximation of
+the center point of the tract from an accessibility standpoint. Thus, we 
+get the population-weighted centroid for tracts and block groups from Census.
 
-```{r blockgroups}
-# get the coordinates from census
-url = "https://www2.census.gov/geo/docs/reference/cenpop2010/blkgrp/CenPop2010_Mean_BG36.txt"
-bg <- read_csv(url, col_types = list(
-  STATEFP = col_character(),
-  COUNTYFP = col_character(),
-  TRACTCE = col_character(),
-  BLKGRPCE = col_character()
-)) %>%
-  filter(COUNTYFP %in% c("081", "047", "061", "005", "085")) %>%
-  transmute(GEOID = str_c(STATEFP, COUNTYFP, TRACTCE, BLKGRPCE),
-            LATITUDE, LONGITUDE) %>%
-  st_as_sf(coords = c("LONGITUDE", "LATITUDE"), crs = 4326) %>%
-  st_transform(32618) %>%
-    mutate(
-    LONGITUDE = st_coordinates(.)[, 1],
-    LATITUDE = st_coordinates(.)[,2]
-  ) %>%
-  st_set_geometry(NULL) %>%
-  as_tibble() %>%
-  write_csv("data/blockgroups_nonode.csv")
+```{r tract_centroids}
+tracts_url <- "https://www2.census.gov/geo/docs/reference/cenpop2010/tract/CenPop2010_Mean_TR36.txt"
+
+tract_centroids <- read_csv(tracts_url) %>%
+  filter(COUNTYFP %in% counties) %>%
+  transmute(geoid = str_c(STATEFP, COUNTYFP, TRACTCE), LATITUDE, LONGITUDE) %>%
+  # convert to sf and project into the feet-based projection used in the
+  # parks dataset.
+  st_as_sf(crs = 4326, coords = c("LONGITUDE", "LATITUDE")) %>%
+  st_transform(3628) 
 ```
 
 
-## Open Spaces
+```{r bg_centroids}
+bg_url <- "https://www2.census.gov/geo/docs/reference/cenpop2010/blkgrp/CenPop2010_Mean_BG36.txt"
 
-We want to calculate distance from the block group centroid to the nearest
-edge of each open space. The open spaces data created on the 
-[previous page](02_parks_data.html) is a detailed simple features layer with a
-polygon for each open space. The `osmnx` graph needs to have point coordinates 
-to calculate network-based distances, however. To make this work, we 
+bg_centroids <- read_csv(bg_url) %>%
+  filter(COUNTYFP %in% counties) %>%
+  transmute(geoid = str_c(STATEFP, COUNTYFP, TRACTCE, BLKGRPCE), LATITUDE, LONGITUDE) %>%
+  # convert to sf and project into the feet-based projection used in the
+  # parks dataset.
+  st_as_sf(crs = 4326, coords = c("LONGITUDE", "LATITUDE")) %>%
+  st_transform(3628) 
+```
 
- 1. simplify the polygon geometry to reduce the number of edge vertices. We do this
- with a tolerance of 100 feet.
- 2. convert the polygon geometry into a boundary linestring
- 3. sample points on the linestring with a density of 1 point every 500 feet. Parks
- with a permeter of less than 500 feet will have a single point.
 
-```{r simplify_spaces}
-# get open spaces file
-open_spaces <- read_rds("data/open_spaces.rds") %>%
+The `st_distance()` function from the `sf` library is able to compute the 
+Euclidean distance between two sets of shapes, and gets the distance between 
+points and edges of polygons directly. We calculate the distance in miles, 
+and constrain that the minimum distance is 0.1 miles (no one lives in a park).
+
+```{r distance_table}
+distance_table <- function(points, poly){
+  dists <- st_distance(points, poly, by_element = FALSE) %>%
+    units::set_units(miles) %>%
+    units::drop_units()
+  
+  dists <- pmax(dists, 0.1)
+  
+  rownames(dists) <- points$geoid
+  colnames(dists) <- poly$id
+  
+  as_tibble(dists, rownames = "geoid") %>%
+    pivot_longer(cols = -geoid, names_to = "park_id", values_to = "distance")
+}
+
+dist_tr_euc <- distance_table(tract_centroids, open_spaces)
+dist_bg_euc <- distance_table(bg_centroids,    open_spaces)
+```
+
+
+```{r distances}
+list("tracts" = dist_tr_euc, "blockgroups" = dist_bg_euc) %>%
+  write_rds("data/distances.rds")
+```
+
+
+## Network Distances
+
+To calculate network-based distances between block group / tract centroids and
+park boundaries, we employ the `osmnx` library for Python. This is a relatively
+new package that allows users to retrieve networks from OpenStreetMap and 
+compute shortest paths using Python's other network libraries. We retrieve
+a walk network for New York City, and re-project it to UTM zone 18N.
+
+```py
+graph = ox.graph_from_place("New York City", network_type='walk')
+# project to UTM zone 18 N and simplify
+graph_proj = ox.project_graph(graph)
+graph_proj = nx.DiGraph(graph_proj)
+```
+
+One limitation of the network calculation is that it only works for nodes on the
+network, and we can only find nearest nodes to points. Thus we need to convert
+the park polygons data into points. But we can't simply have an endless number
+of points because the shortest path calculations are computationally extensive.
+
+So to make this work, we first simplify the parks polygons, convert the boundaries
+to linestrings, and then sample points along the linestring.
+
+```{r park_points, eval = FALSE}
+# get park boundary polygon
+park_boundaries <- open_spaces %>%
   select(id)  %>%
+  
   # some polygons are way too detailed, so we want to simplify to 100 foot resolution
-  st_simplify(dTolerance = 100, preserveTopology = TRUE)
+  st_simplify(dTolerance = 100, preserveTopology = TRUE) %>%
+  
+  # need to convert everything to multipolygons to get multiple rows per shape
+  st_cast("MULTIPOLYGON") %>%
+  
+  st_cast("POLYGON") %>%
 
-# some parks have multiple polygons. We need these to be simpler individual features 
-poly_from_multi <- open_spaces %>%
-  filter(st_geometry_type(geometry) == "MULTIPOLYGON") %>%
-  st_cast("POLYGON")
-
-
-linestrings <- open_spaces %>%
-  # join the original polygons back with the simplified multipolygons
-  filter(st_geometry_type(geometry) != "MULTIPOLYGON") %>%
-  rbind(poly_from_multi) %>%
   # cast the polygons to a linestring of the park perimeter
   st_cast("LINESTRING", group_or_split = TRUE) 
 
-point_samples <- linestrings %>%
-  # sample points along the line, one point per 1000 feet.
-  st_line_sample(density = 1/1000) 
+point_samples <- park_boundaries %>%
+  # sample points along the line, one point per 500 feet.
+  st_line_sample(density = 1/500) 
 
-# append open space id
-open_space_points <- tibble(id = linestrings$id, geometry = point_samples) %>%
+# append open space id and coerce to single point per row
+park_points <- st_sf(id = park_boundaries$id, geometry = point_samples)  %>%
   st_as_sf() %>%
   st_cast(to = "POINT")
 ```
 
-The results of this data munging are given below. We have some issues where parks 
-made of multiple polygons end up with internal points. Trying to get rid of these
-by using complex hulls created other problems on linear parks. So we'll just go
-with this.
+
+We can illustrate what this looks like. Every park has at least one sampled point,
+and some have several. Unfortunately there's not a concave polygon function to help
+us remove all the internal points from the parks.
 
 ```{r simplified-point-map}
 leaflet() %>%
-  addProviderTiles(providers$OpenStreetMap) %>%
-  addCircleMarkers(data = open_space_points %>% st_transform(4326), radius = 0.001,
-                   color = "red") %>%
-  addPolygons(data = open_spaces %>% st_transform(4326))
+  addProviderTiles(providers$Esri.WorldGrayCanvas) %>%
+  addPolygons(data = open_spaces %>% st_transform(4326), color = "green") %>%
+  addCircleMarkers(data = park_points %>% st_transform(4326), radius = 0.001,
+                   color = "red") 
 ```
 
-Now, we transform the points into UTM Zone 17N.
+With `r nrow(park_points)` and `r nrow(tract_centroids)`, that suggests we
+need to compute `r nrow(park_points) * nrow(bg_centroids)` shortest
+paths. Even on a 20+ core process, this would take several weeks.  As a result,
+we simplify the problem by first identifying the "closest" point of the park
+by Euclidean distance and then computing the network path to that point.
+This introduces some distortion where if the closest Euclidean point is across 
+a river or interstate, the method calculates the network distance to *that*
+point instead of the first point the person would encounter following the
+network. This may end up overstating the true experienced distance.
 
-```{r park_points}
-park_points <- open_space_points %>%
-  st_transform(32618) %>%
-  mutate(
-    LONGITUDE = st_coordinates(.)[, 1],
-    LATITUDE = st_coordinates(.)[,2]
-  ) %>%
-  st_set_geometry(NULL) %>%
-  as_tibble()
+```py
+# loop through centroids for block group or tract
+for bg in df.itertuples():
 
-write_csv(park_points, "data/park_points_nonode.csv")
+    # loop through parks
+    for park in park_ids:
+        these_points = park_points.loc[[park]]
+        min_euc = float("inf")
+        
+        # loop through points associated with park
+        for point in these_points.itertuples():
+            # find closest park point by Euclidean distance
+            dx = point.LONGITUDE - bg.LONGITUDE
+            dy = point.LATITUDE - bg.LATITUDE
+            euc_dist = math.sqrt(dx**2 + dy**2)
+            
+            if euc_dist < min_euc:
+                min_euc = euc_dist
+                closest_point = point.node
+                
+        # compute shortest path between closest_point and centroid
+        try:
+            length = nx.shortest_path_length(graph, source=bg.node, target=closest_point, weight='length')
+        except:
+            # can fail if no path exists
+            length = float("inf")
 ```
 
-## Distances
 
-In order to calculate the distances between the block group centroids and the 
-park edge points, we need to look up the nearest point on the network to each
-point.  First, we bring the park points we sampled into a pandas data frame with
-the park id as the index. 
+Calculated this way, the path is calculated in meters.
 
-```{python park_points_py}
-def find_node(df):
-    """
-    Function to find the nearest node in a network to lat,long columns in data frame
-    :param df:  Pandas data frame with lat, long information
-    """
-    with open("data/graph_proj.file", "rb") as f:
-        graph = pickle.load(f)
-    df['node'] = df.apply(lambda row:
-      ox.get_nearest_node(graph, (row.LATITUDE, row.LONGITUDE)), axis=1)
-    return df
+
+```{r write_python_files}
+
+write_points_file <- function(points, file){
+  points %>% 
+    st_transform(4326) %>%
+    mutate(
+      LATITUDE = st_coordinates(.)[, 2],
+      LONGITUDE = st_coordinates(.)[, 1]
+    ) %>%
+    st_transform(32618) %>%
+    mutate(
+      Y = st_coordinates(.)[, 2],
+      X = st_coordinates(.)[, 1]
+    ) %>%
+    st_set_geometry(NULL) %>%
+    write_csv(file)
+}
+
+park_points     %>% write_points_file("data/park_points.csv")
+bg_centroids    %>% write_points_file("data/bg_centroids.csv")
+tract_centroids %>% write_points_file("data/tract_centroids.csv")
+
 ```
-
-Now we get the shortest paths. The network is quite large with 122,794 nodes and
-381,656 edges. We also have `r nrow(bg)`  and `r nrow(park_points)`, meaning
-we need to find `r nrow(bg) * nrow(park_points)` shortest paths. Even on my beefy
-computer this can cause some problems. So we use the Euclidean distance if over 
-3.5 km, and only get the shortest paths for points less than 3.5km away.
-
-```{python nearest}
-# loop through block groups
-def get_shortest_paths(df):
-    """
-    :param df:
-    """
-    # get graph information
-    print("Getting graph information")
-    with open("data/graph_proj.file", "rb") as f:
-        graph = pickle.load(f)
-    # output file
-    write_file = "data/shortest_paths_" + str(os.getpid()) + ".csv"
-    f = open(write_file, "w+")
-    f.write("geoid, park_id, distance\n")
-    for bg in df.itertuples():
-        # loop through parks
-        for park in park_ids:
-            these_points = park_points.loc[[park]]
-            # loop through points
-            min_dist = float("inf")
-            min_euc = float("inf")
-            for point in these_points.itertuples():
-                # check euclidean distance
-                dx = point.LONGITUDE - bg.LONGITUDE
-                dy = point.LATITUDE - bg.LATITUDE
-                euc_dist = math.sqrt(dx**2 + dy**2)
-                # if the Euclidean distance is more than 3500 meters, we will just use that
-                if euc_dist > 3500:
-                    if euc_dist < min_euc:
-                      min_euc = euc_dist
-                    break
-                # If it's within 3500m Euclidean, then we will get the network distance
-                try:
-                    length = nx.shortest_path_length(graph, source=bg.node, target=point.node, weight='length')
-                except: # unless there is no path
-                    length = float("inf")
-                # check if this is the shortest one we've found; if so, update.
-                if length < min_dist:
-                    min_dist = length
-            # write out the length between the block group and this park
-            used_distance = min(min_dist, min_euc)
-            f.write(str(bg.Index) + ", " + str(park) + ", " + str(used_distance) + "\n")
-    # close the buffer
-    f.close()
-```
-
 
 

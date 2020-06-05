@@ -21,8 +21,10 @@ manuscript/manuscript.tex
 manuscript/manuscript_files/
 manuscript/manuscript\.aux
 manuscript/manuscript-tikzDictionary
+site_libs/
 manuscript/manuscript.md
 
-site_libs/
-
-
+data/distances.rds
+data/nyc_shortest_paths*
+data/tracts/*
+data/blockgroups/*

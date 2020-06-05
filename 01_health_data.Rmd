@@ -1,8 +1,5 @@
 ---
 title: "Health Data"
-author: "Greg Macfarlane"
-date: "6/6/2019"
-output: html_document
 ---
 
 ```{r setup, cache = FALSE}
@@ -154,7 +151,7 @@ cdc_urls <- list(
 cdc500 <- lapply(cdc_urls, function(url){
   read.socrata(url, app_token = Sys.getenv("CDC_KEY"),
                stringsAsFactors = FALSE) %>%
-    tbl_df() %>%
+    as_tibble() %>%
     filter(tractfips %in% acs$geoid) %>%
     transmute( geoid = tractfips, value = as.numeric(data_value ), year = year)
 }) %>%

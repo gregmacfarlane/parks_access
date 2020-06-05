@@ -1,129 +1,217 @@
 ---
 title: "Logsums"
-author: "Greg Macfarlane"
-date: "6/7/2019"
-output: html_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(cache = TRUE)
 library(tidyverse)
 library(sf)
+library(spdep)
+library(spatialreg)
 library(leaflet)
 library(lubridate)
 library(VGAM)
 ```
 
-In this document we calculate the utility-based measure of accessibility, as well
-as the 10-minute walk buffer.
+In this document we calculate the accessiblity logsums based on the Euclidean
+and network distances from the tract and block group centroids to the tract,
+combined with park attributes.
 
-
-## Distances
-We cleaned and gathered the data parks data and data for tracts in the previous
-two pages, as well as computed the network-based distance between each block
-group and the nearest edge point of each park.
-
-```{r load, message=FALSE}
+```{r load}
+tracts <- read_rds("data/tracts.rds")
 open_spaces <- read_rds("data/open_spaces.rds")
-blockgroups <- read_csv("data/blockgroups.csv")
-
-# tigris not working, manual download
-#bg_poly <- tigris::block_groups("New York", county =  c("081", "047", "061", "005", "085"))
-bg_poly <- st_read("/Users/gregmacfarlane/Library/Caches/tigris/tl_2019_36_bg.shp") %>%
-  transmute(geoid = GEOID, p_water = AWATER / (AWATER + ALAND)) %>%
-  filter(p_water < 1) %>%
-  filter(geoid %in% blockgroups$GEOID) %>%
-  st_transform(32618)
+distances <- read_rds("data/distances.rds")
 ```
 
-In calculating the distances, two things could happen. First, it is possible that
-no path is found between the park and the block group centroid; this could be the
-result of network miscodings or other errors in the network algorithm. We'll have
-to take the results as they come, and we simply remove the park from that block
-group's accessibility calculation. The other issue is when a block group centroid
-and the park edge point match to the *same* node, resulting in a distance of zero.
-Because we are going to log-transform the distance, we add ten meters to all paths.
 
-```{r distance_adjust}
-read_all_files <- function(pattern = pattern, path = "./"){
-  map_df(list.files(path = path, pattern = pattern, full.names = TRUE), read_csv,
-         col_types = list(geoid = col_character(), park_id = col_character()))
+## Distance Examination
+The distances were computed according to the code presented in the [Distances](03_distances.html)
+page. But we want to evaluate the difference between the various distance measurements
+and visualize what they mean in terms of our analysis.
+
+```{r read_distances}
+blockgroup_files <- list.files("data/blockgroups", "*.csv", full.names = TRUE)
+tract_files <- list.files("data/tracts", "*.csv", full.names = TRUE)
+
+read_dist_csv <- function(x){
+  # warnings are from `inf` strings, which become converted to NA, which is okay.
+  suppressWarnings(read_csv(x, col_types = "ccnn") %>% as_tibble())
 }
-distances <- read_all_files(".csv", "data/nyc_shortest_paths_5000m/") %>%
-  # filter out infinite paths
-  filter(!is.infinite(distance)) %>%
-  # add ten meters to all paths
-  mutate(distance = distance + 10)
+
+blockgroup_distances <- lapply(blockgroup_files, read_dist_csv) %>% 
+  bind_rows() %>% 
+  left_join(distances$blockgroups %>% rename(euc_old = distance), 
+            by = c("geoid", "park_id"))
+tract_distances <- lapply(tract_files, read_dist_csv) %>% 
+  bind_rows() %>% 
+  left_join(distances$tracts %>% rename(euc_old = distance), 
+            by = c("geoid", "park_id"))
+```
+
+First, let's compare the difference between the Euclidean and network
+distance at the block group level. Well, this is troubling; it appears as though
+there is no relationship between the two methods of measurement. 
+
+```{r bg_dist_comparison}
+ggplot(blockgroup_distances %>% sample_n(1e4), aes(x = euc_dist, y = distance)) +
+  geom_point(alpha = 0.3) + geom_smooth()
+```
+
+Let's look at the same plot for tracts. This is much better, though there
+are still some curious issues. 
+
+```{r tr_dist_comparison}
+ggplot(tract_distances %>% sample_n(1e4), aes(x = euc_dist, y = distance)) +
+  geom_point(alpha = 0.3) + geom_smooth()
 ```
 
 
-```{r check-distances}
-check_id = "M010"
-check <- bg_poly %>%
-  left_join(distances %>% filter(park_id == check_id), by = "geoid") %>%
-  mutate(distance = log(distance + 10)) %>% 
-  st_transform(4326)
-park <- open_spaces %>% st_transform(4326) %>% filter(id == check_id) 
+In particular, how is it possible for the
+Euclidean distance to be *longer* than the network distance? Let's look at this
+by distance. It seems that everything is doing okay except for tracts and parks in Staten 
+Island (prefix '085' and "R"). Obviously the shortest path isn't handling Staten
+Island very well. The Verrazzano-Narrows Bridge is in the network, but I-78 and
+the Bayonne Bridge route to Manhattan through New Jersey is not in the network.
 
-pal <- colorNumeric("plasma", check$distance)
-leaflet(check ) %>%
+```{r tr_dist_comparison_borough}
+ggplot(tract_distances %>% sample_n(1e4) %>% 
+         mutate(borough = substr(geoid, 3, 5),
+                park_borough = substr(park_id, 0, 1),
+                park_borough = ifelse(!park_borough %in% c("B", "M", "Q", "R", "X"), "C", park_borough)), 
+       aes(x = euc_dist, y = distance)) +
+  geom_abline(slope = 1, intercept = 0, lty = "dotted", color = "grey") + 
+  geom_point(alpha = 0.3) + geom_smooth() +
+  xlab("Euclidean Distance") + ylab("Network Distance") +
+  facet_grid(borough ~ park_borough) +
+  theme_bw()
+```
+
+All of this is to say we probably need to eliminate Staten Island for our 
+analysis, or else adjust the network distances we calculate.
+
+Is there a relation between the tract distance and the distances for block
+groups within the tract?
+
+```{r comparison}
+comparison <- blockgroup_distances %>%
+  sample_n(1e5) %>%
+  rename(bg_net = distance, bg_euc = euc_dist) %>%
+  mutate(tract = substr(geoid, 1, 11)) %>%
+  left_join(tract_distances %>% rename(tr_net = distance, tr_euc = euc_dist), 
+            by = c("tract" = "geoid", "park_id" = "park_id"))
+```
+
+Let's look first at the network distances. Yikes!
+```{r comparison-net}
+ggplot(comparison, aes(x = bg_net, y = tr_net)) +
+  geom_point(alpha = 0.1) + geom_smooth() + 
+  xlab("Blockgroup Network Distance") + ylab("Tract Network Distance")
+```
+
+The Euclidean distances make *loads* more sense, with some aggregation error
+but it's obvious the numbers aren't stupid.
+
+```{r comparison-net}
+ggplot(comparison, aes(x = bg_euc, y = tr_euc)) +
+  geom_point(alpha = 0.1) + geom_smooth() + 
+  xlab("Blockgroup Euclidean Distance") + ylab("Tract Euclidean Distance")
+```
+
+Let's make a map of tracts colored by how far the two methods think they are
+from Central Park. In general this seems fine, except again, Staten Island does
+not look that great. Something is definitely happening there.
+
+```{r distance-map}
+pal <- colorQuantile(palette = "magma", log(tract_distances$distance), n = 7)
+tracts %>%
+  select(geoid) %>%
+  left_join(tract_distances %>% filter(park_id == "M010"), by = "geoid") %>%
+  st_transform(4326) %>%
+  leaflet() %>%
   addProviderTiles(providers$Esri.WorldGrayCanvas) %>%
-  addPolygons(color = ~pal(distance) ) %>%
-  addPolygons(data = park, color = "green")
+  addPolygons(color = ~pal(log(distance)), group = "Network") %>%
+  addPolygons(color = ~pal(log(euc_dist)), group = "Euclidean") %>%
+  addLayersControl(overlayGroups = c("Network", "Euclidean"))
 ```
 
 
+## Logsums
 
-Now we can calculate the utility specification. The first specification uses the
-distance and size terms from the Alameda County study. The second specification
-adds the amenities with the utilities found by the Kinnell et al. study.
+Now that we have the distances between parks and block groups / tracts, we can 
+calculate the logsums.
 
 ```{r logsums}
-logsums <- distances %>%
-  left_join(open_spaces %>% st_set_geometry(NULL), by = c("park_id" = "id")) %>%
-  mutate(
-    distance_miles = (distance + 10) * 0.000621371,
-    u_access = -1.768 * log(distance_miles) + 0.373 * log(as.numeric(acres)),
-    u_multi = u_access + 
-      open_spaces$trails * 0.99 + 
-      open_spaces$playgrounds * 0.26 + 
-      open_spaces$courts * 0.43
-  ) %>%
-  group_by(geoid) %>%
-  summarise(
-    access_ls = log(sum(exp(u_access), na.rm = TRUE)),
-    multi_ls = log(sum(exp(u_multi), na.rm = TRUE))
-  ) %>%
-  mutate_at(
-    vars(ends_with("_ls")),
-    list(~ (. - mean(., na.rm = TRUE)) / sd(., na.rm = TRUE))
-  )
+logsum <- function(x) { log(sum(exp(x))) }
 
-bg_access <- bg_poly %>%
-  left_join(logsums, by = "geoid") %>%
-  write_rds("data/bg_access.rds")
+compute_logsums <- function(df) {
+  df %>%
+    left_join(open_spaces %>% st_set_geometry(NULL), by = c("park_id" = "id")) %>%
+    # use euc_distance for impossible distances.
+    mutate( distance = ifelse(distance < euc_dist, euc_dist, distance) ) %>%
+    # convert distances to miles
+    mutate_at(c("distance", "euc_dist"), ~ . * 0.000621371) %>%
+    # must be at least 1/10 miles
+    mutate_at(c("distance", "euc_dist"), ~ ifelse(. < 0.1, 0.1, .)) %>%
+  
+    # compute utility
+    mutate(
+      euc_access = -1.768 * log(euc_old) + 0.373 * log(as.numeric(acres)),
+      euc_multi  = euc_access + trails * 0.99 +  playgrounds * 0.26 + courts * 0.43,
+      net_access = -1.768 * log(distance) + 0.373 * log(as.numeric(acres)),
+      net_multi  = net_access + trails * 0.99 +  playgrounds * 0.26 + courts * 0.43
+    ) %>%
+    
+    # group by origin and compute access logsum
+    group_by(geoid) %>%
+    summarize_at(vars(euc_access:net_multi), logsum) %>%
+    
+    # standardize
+    mutate_at(vars(euc_access:net_multi), ~(. - mean(.)) / sd(.))
+    
+}
+
+tract_logsums <- compute_logsums(tract_distances) %>% write_rds("data/tract_logsums.rds")
+bg_logsums    <- compute_logsums(blockgroup_distances) %>% write_rds("data/bg_logsums.rds")
 ```
 
-## 10-minute buffer
+
+Let's visualize the access logsums calculated for each graph in this method.
+
+```{r tracts_access}
+tracts_access <- tracts %>% left_join(tract_logsums, by = "geoid")
+# this interactive map is much easier to create and explore
+pal <- colorQuantile("GnBu", c(tracts_access$euc_access, tracts_access$net_multi), n = 7)
+leaflet(tracts_access %>% st_transform(4326)) %>%
+  addProviderTiles(providers$Esri.WorldGrayCanvas) %>%
+  addPolygons(group = "Network", color = ~ pal(net_access),
+              label = ~as.character(round(net_access, 2))) %>%
+  addPolygons(group = "Network-Multi", color = ~ pal(net_multi),
+              label = ~as.character(round(net_multi, 2))) %>%
+  addPolygons(group = "Euclidean", color = ~ pal(euc_access),
+              label = ~as.character(round(euc_access, 2))) %>%
+  addPolygons(group = "Euclidean-Multi", color = ~ pal(euc_multi),
+              label = ~as.character(round(euc_multi, 2))) %>%
+  addLayersControl(baseGroups = c("Network", "Euclidean", "Network-Multi", "Euclidean-Multi"))
+```
+
+
+## 10-minute walk buffer
 
 We are also interested in looking at what happens when the tracts are within a 
 10-minute walk of a park, the threshold established by the Trust for Public Lands.
-This is interesting because whereas a limited number of tract centroids failed
-to overlap with the 10-minute buffer, all of the block group centroids intersect.
 
-## Accessibility Map
-Here's a map of the values. Note that there is also a shiny app in this project
-that allows the user to set different values for the logsum parameters.
+```{r nyc10mw}
+access_10mw <- st_read("data/nyc_10mw.geojson") %>%
+  st_cast("MULTIPOLYGON") %>%
+  lwgeom::st_make_valid() %>%
+  summarise(d = 1)
 
-```{r access_map}
-# this interactive map is much easier to create and explore
-pal <- colorQuantile("GnBu", c(bg_access$access_ls, bg_access$multi_ls), n = 5)
-leaflet(bg_access %>% st_transform(4326)) %>%
-  addProviderTiles(providers$Esri.WorldGrayCanvas) %>%
-  addPolygons(group = "access", color = ~ pal(access_ls), stroke = 1,
-              label = ~as.character(round(access_ls, 2))) %>%
-  addPolygons(group = "Kinner", color = ~ pal(multi_ls), stroke = 1,
-              label = ~as.character(round(multi_ls, 2))) %>%
-  addLayersControl(overlayGroups = c("access", "Kinner"))
+read_csv("data/tract_centroids.csv", col_types = "cnnnn") %>%
+  st_as_sf(coords = c("LONGITUDE", "LATITUDE"), crs = 4326) %>%
+  mutate(walk10 = st_intersects(., access_10mw, sparse = FALSE)) %>%
+  st_set_geometry(NULL) %>%
+  dplyr::select(geoid, walk10) %>%
+  write_rds("data/walk10.rds")
 ```
+
 

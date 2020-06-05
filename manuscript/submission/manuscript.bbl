@@ -1,4 +1,4 @@
-\begin{thebibliography}{45}
+\begin{thebibliography}{49}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \providecommand{\urlprefix}{URL }
@@ -32,6 +32,13 @@ Bruce N (1977) {A Note on Consumer's Surplus, the Divisia Index, and the
   Measurement of Welfare Changes}.
 \newblock \emph{Econometrica} 45(4): 1033.
 \newblock \doi{10.2307/1912692}.
+
+\bibitem[{Carlson et~al.(2012)Carlson, Sallis, Conway, Saelens, Frank, Kerr,
+  Cain and King}]{carlson2012interactions}
+Carlson JA, Sallis JF, Conway TL, Saelens BE, Frank LD, Kerr J, Cain KL and
+  King AC (2012) Interactions between psychosocial and built environment
+  factors in explaining older adults' physical activity.
+\newblock \emph{Preventive medicine} 54(1): 68--73.
 
 \bibitem[{{Centers for Disease Control and Prevention}(2009)}]{CDC2009}
 {Centers for Disease Control and Prevention} (2009) {CDC - Healthy Places -
@@ -67,6 +74,23 @@ de~Jong G, Daly A, Pieters M and van~der Hoorn T (2007) {The logsum as an
 \newblock \emph{Transportation Research Part A: Policy and Practice} 41(9):
   874--889.
 \newblock \doi{10.1016/J.TRA.2006.10.002}.
+
+\bibitem[{{de Vries} et~al.(2013){de Vries}, {van Dillen}, Groenewegen and
+  Spreeuwenberg}]{devries2013streetscape}
+{de Vries} S, {van Dillen} SM, Groenewegen PP and Spreeuwenberg P (2013)
+  Streetscape greenery and health: Stress, social cohesion and physical
+  activity as mediators.
+\newblock \emph{Social Science {\&} Medicine} 94: 26 -- 33.
+\newblock \doi{https://doi.org/10.1016/j.socscimed.2013.06.030}.
+
+\bibitem[{de~Vries et~al.(2003)de~Vries, Verheij, Groenewegen and
+  Spreeuwenberg}]{devries2003natural}
+de~Vries S, Verheij RA, Groenewegen PP and Spreeuwenberg P (2003) Natural
+  environments—healthy environments? an exploratory analysis of the
+  relationship between greenspace and health.
+\newblock \emph{Environment and Planning A: Economy and Space} 35(10):
+  1717--1731.
+\newblock \doi{10.1068/a35111}.
 
 \bibitem[{Dias et~al.(2019)Dias, Gaya, Brand, Pizarro, Fochesatto, Mendes,
   Mota, {Maia Santos} and Gaya}]{Dias2019}
@@ -137,15 +161,19 @@ Handy SL and Niemeier DA (1997) {Measuring Accessibility: An Exploration of
 \newblock \emph{Environment and Planning A} 29(7): 1175--1194.
 \newblock \doi{10.1068/a291175}.
 
-\bibitem[{Kaczynski et~al.(2014)Kaczynski, Besenyi, Stanis, Koohsari, Oestman,
-  Bergstrom, Potwarka and Reis}]{Kaczynski2014}
-Kaczynski AT, Besenyi GM, Stanis SAW, Koohsari MJ, Oestman KB, Bergstrom R,
-  Potwarka LR and Reis RS (2014) {Are park proximity and park features related
-  to park use and park-based physical activity among adults? Variations by
-  multiple socio-demographic characteristics}.
-\newblock \emph{International Journal of Behavioral Nutrition and Physical
-  Activity} 11(1): 146.
-\newblock \doi{10.1186/s12966-014-0146-4}.
+\bibitem[{Hillsdon et~al.(2006)Hillsdon, Panter, Foster and
+  Jones}]{hillsdon2006relationship}
+Hillsdon M, Panter J, Foster C and Jones A (2006) The relationship between
+  access and quality of urban green space with population physical activity.
+\newblock \emph{Public Health} 120(12): 1127 -- 1132.
+\newblock \doi{https://doi.org/10.1016/j.puhe.2006.10.007}.
+
+\bibitem[{Kabisch et~al.(2015)Kabisch, Qureshi and Haase}]{kabisch2015human}
+Kabisch N, Qureshi S and Haase D (2015) Human–environment interactions in
+  urban green spaces — a systematic review of contemporary issues and
+  prospects for future research.
+\newblock \emph{Environmental Impact Assessment Review} 50: 25 -- 34.
+\newblock \doi{https://doi.org/10.1016/j.eiar.2014.08.007}.
 
 \bibitem[{Kaczynski et~al.(2016)Kaczynski, Schipperijn, Hipp, Besenyi, {Wilhelm
   Stanis}, Hughey and Wilcox}]{Kaczynski2016}
@@ -210,13 +238,9 @@ Pace RK and LeSage JP (2008) {A spatial Hausman test}.
 \newblock \emph{Economics Letters} 101(3): 282--284.
 \newblock \doi{10.1016/j.econlet.2008.09.003}.
 
-\bibitem[{Richardson et~al.(2012)Richardson, Mitchell, Hartig, de~Vries,
-  Astell-Burt and Frumkin}]{Richardson2012}
-Richardson EA, Mitchell R, Hartig T, de~Vries S, Astell-Burt T and Frumkin H
-  (2012) {Green cities and health: a question of scale?}
-\newblock \emph{Journal of Epidemiology and Community Health} 66(2): 160 LP --
-  165.
-\newblock \doi{10.1136/jech.2011.137240}.
+\bibitem[{Roberts(2017)}]{roberts2017using}
+Roberts H (2017) Using twitter data in urban green space research.
+\newblock \emph{Applied Geography} 81: 13e20.
 
 \bibitem[{Stark et~al.(2014)Stark, Neckerman, Lovasi, Quinn, Weiss, Bader,
   Konty, Harris and Rundle}]{Stark2014}
@@ -226,9 +250,23 @@ Stark JH, Neckerman K, Lovasi GS, Quinn J, Weiss CC, Bader MD, Konty K, Harris
 \newblock \emph{Preventive Medicine} 64: 63--68.
 \newblock \doi{10.1016/J.YPMED.2014.03.026}.
 
+\bibitem[{Takano et~al.(2002)Takano, Nakamura and Watanabe}]{takano2002urban}
+Takano T, Nakamura K and Watanabe M (2002) Urban residential environments and
+  senior citizens’ longevity in megacity areas: the importance of walkable
+  green spaces.
+\newblock \emph{Journal of Epidemiology \& Community Health} 56(12): 913--918.
+
 \bibitem[{{Trust for Public Land}(2019)}]{parkscore2019}
 {Trust for Public Land} (2019) {2019 ParkScore Index}.
 \newblock \urlprefix\url{https://www.tpl.org/parkscore}.
+
+\bibitem[{Tzoulas et~al.(2007)Tzoulas, Korpela, Venn, Yli-Pelkonen,
+  Kaźmierczak, Niemela and James}]{tzoulas2007promoting}
+Tzoulas K, Korpela K, Venn S, Yli-Pelkonen V, Kaźmierczak A, Niemela J and
+  James P (2007) Promoting ecosystem and human health in urban areas using
+  green infrastructure: A literature review.
+\newblock \emph{Landscape and Urban Planning} 81(3): 167 -- 178.
+\newblock \doi{https://doi.org/10.1016/j.landurbplan.2007.02.001}.
 
 \bibitem[{Vale et~al.(2016)Vale, Saraiva and Pereira}]{Vale2016}
 Vale DS, Saraiva M and Pereira M (2016) {Active accessibility}.
@@ -238,12 +276,6 @@ Vale DS, Saraiva M and Pereira M (2016) {Active accessibility}.
 Walker K (2019) \emph{{tidycensus: Load US Census Boundary and Attribute Data
   as 'tidyverse' and 'sf'-Ready Data Frames}}.
 \newblock \urlprefix\url{https://cran.r-project.org/package=tidycensus}.
-
-\bibitem[{Wang and Taylor(2016)}]{Wang2016}
-Wang Q and Taylor JE (2016) {Process Map for Urban-Human Mobility and Civil
-  Infrastructure Data Collection Using Geosocial Networking Platforms}.
-\newblock \emph{Journal of Computing in Civil Engineering} 30(2): 04015004.
-\newblock \doi{10.1061/(ASCE)CP.1943-5487.0000469}.
 
 \bibitem[{Wang et~al.(2018)Wang, Holt, Xu, Zhang, Dooley, Lu and
   Croft}]{Wang2018}
@@ -284,11 +316,6 @@ Wolf KL (2008) {City trees, nature and physical activity: A research review}.
 {World Health Organization} (2014) {Noncommunicable diseases country profiles
   2014}.
 \newblock Technical report, World Health Organization.
-
-\bibitem[{Yeo and Johnson(2000)}]{Yeo2000}
-Yeo IK and Johnson RA (2000) {A New Family of Power Transformations to Improve
-  Normality or Symmetry}.
-\newblock \emph{Biometrika} 87(4): 954--959.
 
 \bibitem[{Zhang et~al.(2011)Zhang, Lu and Holt}]{Zhang2011}
 Zhang X, Lu H and Holt JB (2011) {Modeling spatial accessibility to parks: a
