@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Health Data</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Parks Access</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="01_health_data.html">Health Data</a>
+</li>
+<li>
+  <a href="02_parks_data.html">Parks Data</a>
+</li>
+<li>
+  <a href="03_distances.html">Distances</a>
+</li>
+<li>
+  <a href="04_accessibility.html">Logsums</a>
+</li>
+<li>
+  <a href="05_estimation.html">Model Estimation</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Health Data</h1>
+
+</div>
+
+
+<pre class="r"><code>knitr::opts_chunk$set(cache = TRUE)
+library(leaflet)
+library(tidyverse)</code></pre>
+<pre><code>## ── Attaching packages ─────────────────────────────────────────────────────────────────── tidyverse 1.3.0 ──</code></pre>
+<pre><code>## ✓ ggplot2 3.3.0     ✓ purrr   0.3.4
+## ✓ tibble  3.0.1     ✓ dplyr   0.8.5
+## ✓ tidyr   1.1.0     ✓ stringr 1.4.0
+## ✓ readr   1.3.1     ✓ forcats 0.5.0</code></pre>
+<pre><code>## ── Conflicts ────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>library(tidycensus)
+library(RSocrata)
+library(sf)</code></pre>
+<pre><code>## Linking to GEOS 3.7.2, GDAL 2.4.2, PROJ 5.2.0</code></pre>
+<pre class="r"><code>options(tigris_use_cache=TRUE)</code></pre>
+<p>In this document we collect the health and socioeconomic data necessary for the project from the American Community Survey and the Centers for Disease Control.</p>
+<div id="american-community-survey" class="section level2">
+<h2>American Community Survey</h2>
+<p>We will use the <code>tidycensus</code> package from Kyle Walker to get the datatables in our analysis region, which is the five boroughs of New York City.</p>
+<pre class="r"><code># The study area includes the five boroughs of New York City
+counties &lt;- c(&quot;081&quot;, &quot;047&quot;, &quot;061&quot;, &quot;005&quot;, &quot;085&quot;)
+names(counties) &lt;- c(&quot;Queens&quot;, &quot;Brooklyn&quot;, &quot;Manhattan&quot;, &quot;Bronx&quot;, &quot;Staten Island&quot;)</code></pre>
+<p>We need to get lots of variables from the American Community Survey 5-year data. This vector defines the variable names as well as the table/cell in the Census API that each variable is drawn from. The comments help to identify which table name and population type they come from.</p>
+<pre class="r"><code>variables &lt;- c(
+  &quot;population&quot; = &quot;B25008_001&quot;, # TOTAL POPULATION IN OCCUPIED HOUSING UNITS BY TENURE
+  &quot;housing_units&quot; = &quot;B25001_001&quot;, # HOUSING UNITS
+  &quot;households&quot; = &quot;B19001_001&quot;, #HOUSEHOLD INCOME IN THE PAST 12 MONTHS (IN 2017 INFLATION-ADJUSTED DOLLARS)
+  # Employment status
+  &quot;men_fulltime&quot; = &quot;B23022_004&quot;,
+  # Estimate!!Total!!Male!!Worked in the past 12 months!!Usually worked 35 or more hours per week
+  &quot;women_fulltime&quot; = &quot;B23022_028&quot;,
+  #Estimate!!Total!!Female!!Worked in the past 12 months!!Usually worked 35 or more hours per week
+  # LIVING ARRANGEMENTS OF ADULTS 18 YEARS AND OVER BY AGE
+  # everyone who
+  &quot;adults&quot; = &quot;B09021_001&quot;,
+  &quot;lives_alone&quot; = &quot;B09021_002&quot;,
+  &quot;child_of_hhr&quot; = &quot;B09021_005&quot;,
+  &quot;other_rel&quot; = &quot;B09021_006&quot;,
+  &quot;other_nonrel&quot; = &quot;B09021_007&quot;,
+  # EDUCATIONAL ATTAINMENT BY EMPLOYMENT STATUS FOR THE POPULATION 25 TO 64 YEARS
+  &quot;college&quot; = &quot;B23006_016&quot;,
+  # RACE
+  &quot;black&quot; = &quot;B02001_003&quot;,
+  &quot;asian&quot; = &quot;B02001_005&quot;,
+  &quot;pacific&quot; = &quot;B02001_006&quot;,
+  &quot;nativeam&quot; = &quot;B02001_004&quot;,
+  # HISPANIC OR LATINO ORIGIN BY SPECIFIC ORIGIN
+  # The number of hispanic individuals needs to be drawn from a different table.
+  &quot;hispanic&quot; = &quot;B03001_003&quot;,
+  #MEDIAN HOUSEHOLD INCOME IN THE PAST 12 MONTHS (IN 2017 INFLATION-ADJUSTED DOLLARS)
+  &quot;income&quot; = &quot;B19013_001&quot;,
+  #HOUSEHOLD INCOME IN THE PAST 12 MONTHS (IN 2017 INFLATION-ADJUSTED DOLLARS)
+  &quot;inc_0010&quot; = &quot;B19001_002&quot;,  &quot;inc_1015&quot; = &quot;B19001_003&quot;, &quot;inc_1520&quot; = &quot;B19001_004&quot;,
+  &quot;inc_2025&quot; = &quot;B19001_005&quot;, &quot;inc_2530&quot; = &quot;B19001_006&quot;, &quot;inc_3035&quot; = &quot;B19001_007&quot;,
+  &quot;inc_125&quot;  = &quot;B19001_015&quot;, &quot;inc_150&quot;  = &quot;B19001_016&quot;, &quot;inc_200&quot;  = &quot;B19001_017&quot;,
+  #AGE BY RATIO OF INCOME TO POVERTY LEVEL IN THE PAST 12 MONTHS.
+  # we really only need the numbers of individuals in each age group, and the groups
+  # are more coarse here than in the sex by age table.
+  &quot;age_0005&quot; = &quot;B17024_002&quot;, &quot;age_0611&quot; = &quot;B17024_015&quot;, &quot;age_1217&quot; = &quot;B17024_028&quot;,
+  &quot;age_1824&quot; = &quot;B17024_041&quot;, &quot;age_2534&quot; = &quot;B17024_054&quot;,
+  &quot;age_3544&quot; = &quot;B17024_067&quot;, &quot;age_4554&quot; = &quot;B17024_080&quot;, &quot;age_5564&quot; = &quot;B17024_093&quot;,
+  &quot;age_6574&quot; = &quot;B17024_106&quot;,
+  &quot;age_75up&quot; = &quot;B17024_119&quot;
+)</code></pre>
+<p>Now that we’ve defined the necessary variables and geographic scope, we can pull the data from the API. Because the data coming from census are counts, we need to transform the numbers into percents of the relevant population denominator.</p>
+<pre class="r"><code>acs &lt;- get_acs(geography = &quot;tract&quot;, variables = variables, year = 2017,
+               state = &quot;NY&quot;, county = counties, geometry = TRUE) %&gt;%
+  select(-moe) %&gt;%
+  spread(variable, estimate) %&gt;%
+  filter(adults &gt; 0) %&gt;%
+  mutate(area = as.numeric(st_area(geometry) * 1e-6)) %&gt;%
+  # area is in m^2, change to km^2
+  transmute(
+    geoid = GEOID,
+    county_fips = substr(GEOID, 3, 5),
+    borough = case_when(
+      county_fips == &quot;081&quot; ~ &quot;Queens&quot;,
+      county_fips == &quot;047&quot; ~ &quot;Brooklyn&quot;,
+      county_fips == &quot;061&quot; ~ &quot;Manhattan&quot;,
+      county_fips == &quot;005&quot; ~ &quot;Bronx&quot;,
+      county_fips == &quot;085&quot; ~ &quot;Staten Island&quot;,
+      TRUE ~ as.character(NA)
+    ),
+    population, households, housing_units, adults,
+    density = households / area,
+    income,
+    # many of the variables come in raw counts, but we want to consider
+    # them as shares of a relevant denominator.
+    lowincome    = 100 * (inc_0010 + inc_1015 + inc_1520 + inc_2530 +
+                            inc_3035) / households,
+    highincome   = 100 * (inc_125 + inc_150 + inc_200) / households,
+    fulltime     = 100 * (men_fulltime + women_fulltime) / adults,
+    college      = 100 * college / adults,
+    single       = 100 * (lives_alone + child_of_hhr + other_rel +
+                            other_nonrel) / adults,
+    youth        = 100 * (age_0005 + age_0611 + age_1217) / population,
+    young_adults = 100 * (age_1824 + age_2534) / population,
+    seniors      = 100 * (age_6574 + age_75up) / population,
+    black        = 100 * black / population,
+    asian        = 100 * asian / population,
+    hispanic     = 100 * hispanic / population,
+    other        = 100 * (nativeam + pacific) / population
+  )</code></pre>
+<pre><code>## Getting data from the 2013-2017 5-year ACS</code></pre>
+</div>
+<div id="cities" class="section level2">
+<h2>500 Cities</h2>
+<p>The Centers for Disease Control and Prevention makes small-area estimates on key health indicators available through its 500 Cities data program (CDC5002016). The indicators are multilevel aggregations and imputations of BRFSS responses (Wang2018, Wang2017), and have been recently used to study the tract-level link between gentrification and urban health (Gibbons2018). We use two indicators as our dependent variables in this study: the share of adults in a Census tract who are obese, and the share of adults who participate in no leisure-time physical activity. To improve clarity in our interpretation, we use the complement of the second variable — the share of tract adults who participate in {} physical activity — even if the amount is not sufficient to affect overall health. Both indicators are estimated for the year 2016.</p>
+<p>The CDC 500 cities project makes its data available through the Socrata API. The url endpoints for each data object are different, though we have identified them as below. We pre-filter the data to New York to save ourselves and the API a bit of time. For each URL endpoint, get the data through Socrata (you will need your own Socrata API key), filter to the FIPS codes we specified above, and trim to only the data values we want to keep.</p>
+<pre class="r"><code>cdc_urls &lt;- list(
+  &quot;physact&quot; = &quot;https://chronicdata.cdc.gov/resource/axqz-rkkp.json?stateabbr=NY&quot;,
+  &quot;obesity&quot; = &quot;https://chronicdata.cdc.gov/resource/bjvu-3y7d.json?stateabbr=NY&quot;,
+  &quot;mhealth&quot; = &quot;https://chronicdata.cdc.gov/resource/i2ek-k3pa.json?stateabbr=NY&quot;
+)
+
+cdc500 &lt;- lapply(cdc_urls, function(url){
+  read.socrata(url, app_token = Sys.getenv(&quot;CDC_KEY&quot;),
+               stringsAsFactors = FALSE) %&gt;%
+    as_tibble() %&gt;%
+    filter(tractfips %in% acs$geoid) %&gt;%
+    transmute( geoid = tractfips, value = as.numeric(data_value ), year = year)
+}) %&gt;%
+  bind_rows(.id = &quot;measure&quot;) %&gt;%
+  spread(measure, value) %&gt;%
+  mutate(physact = 100 - physact)</code></pre>
+<p>Save the dataset for further analysis.</p>
+<pre class="r"><code>tracts &lt;- left_join(acs, cdc500, by = &quot;geoid&quot;) %&gt;%
+  filter(!is.na(obesity), !is.na(income)) %&gt;% 
+  write_rds(&quot;data/tracts.rds&quot;)</code></pre>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

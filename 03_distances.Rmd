@@ -124,7 +124,7 @@ of points because the shortest path calculations are computationally extensive.
 So to make this work, we first simplify the parks polygons, convert the boundaries
 to linestrings, and then sample points along the linestring.
 
-```{r park_points, eval = FALSE}
+```{r park_points}
 # get park boundary polygon
 park_boundaries <- open_spaces %>%
   select(id)  %>%

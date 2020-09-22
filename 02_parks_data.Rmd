@@ -47,7 +47,7 @@ The map of Flushing Meadows in Queens below shows some of the difficulties of th
   green spaces.
   - Fourth, important green spaces like cemeteries are in a different dataset.
   
-```{r fm1}
+```{r fm1, cache = FALSE}
 leaflet(st_buffer(parks %>% filter(grepl("Flushing Meadows", park_name)), dist = 0.000001)) %>%
   addProviderTiles(providers$Esri.WorldGrayCanvas) %>%
   addPolygons(label = ~as.character(park_name), stroke = 0.5)
@@ -93,7 +93,7 @@ dissolved <- parks %>%
   st_transform(3628)
 ```
 
-```{r fm3}
+```{r fm3, cache=FALSE}
 leaflet(st_transform(dissolved, 4326) ) %>%
   addProviderTiles(providers$Esri.WorldGrayCanvas) %>%
   addPolygons(stroke = 0.5,)
