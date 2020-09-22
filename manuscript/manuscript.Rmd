@@ -328,14 +328,8 @@ comprising a single facility --- as is the case in Flushing Meadows --- and
 eliminated sub-facilities such as tennis courts or baseball fields included within
 larger park facilities. Instead of these distinct sub-facilities, we created 
 variables for each containing park indicating the presence of sports courts,
-playgrounds, and trails.
-
-To this dataset of parks and regularized green spaces, we add a polygons layer of
-cemeteries in New York that are open to the public. Cemeteries are important
-green spaces that can be used for many types of physical activity. These
-operations leave us with `r nrow(parks)` distinct green spaces; for simplicity 
-we will refer to both parks and cemeteries as "parks" going forward. 
-For each park, we calculate the size of the park in acres. 
+playgrounds, and trails. These operations leave us with `r nrow(parks)` distinct
+green spaces; For each park, we calculate the size of the park in acres.
 
 ```{r tractsdata, results="asis", message=FALSE, warning=FALSE, cache=FALSE}
 # This is an index pairing the variable names with the order we want them
