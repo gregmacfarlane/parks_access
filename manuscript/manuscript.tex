@@ -16,6 +16,7 @@
 
 \usepackage{xcolor}
 
+\renewcommand{\appendixname}{Supplementary Material}
 
 \usepackage{hyperref}
 \usepackage{rotating}
@@ -46,7 +47,7 @@ accessibility approach}
 
 \runninghead{Macfarlane \emph{et al}.}
 
-\author{Gregory Macfarlane\affilnum{1}, Nico Boyd\affilnum{2}, John E. Taylor\affilnum{3}, Kari Watkins\affilnum{3}}
+\author{Gregory S. Macfarlane\affilnum{1}, Nico Boyd\affilnum{2}, John E. Taylor\affilnum{3}, Kari Watkins\affilnum{3}}
 
 \affiliation{\affilnum{}{}\\\affilnum{}{}\\\affilnum{}{}}
 
@@ -187,7 +188,7 @@ relatively common. ParkScore \citep{parkscore2019} is a sophisticated
 application of this approach where \(D\) is a carefully calculated
 10-minute network-bound walk, paired with a demographic analysis of
 areas within and outside of this threshold. \citet{devries2003natural}
-showed the amount of greenspace within a 3-kilometer radius was
+showed the amount of green space within a 3-kilometer radius was
 positively associated with a suite of self-reported health outcomes.
 Similarly, \citet{devries2013streetscape} showed that streetscape
 greenery within 500 meters of a residence was associated with perceived
@@ -350,7 +351,7 @@ descriptive statistics for these data.
 
 In a destination choice framework, the tracts represent the ``origins''
 and the ``destinations'' are parks and green spaces in New York City. We
-retrieved a polygons layer of public parks and greenspaces within New
+retrieved a polygons layer of public parks and green spaces within New
 York City's municipal boundaries and checked it for accuracy and
 relevance \citep{nycparks}. Upon inspection, we removed several
 facilities that do not qualify as publicly accessible green space, such
@@ -561,7 +562,7 @@ both pairs of models are similar and the residual correlation parameter
 residuals will produce proper estimates of the model standard errors.
 
 Note that in the lag-\(X\) specifications (SLX and SDEM) we exclude the
-accessiblity component \(\boldsymbol{A}\), that is we do \emph{not}
+accessibility component \(\boldsymbol{A}\), that is we do \emph{not}
 consider that the accessibility in a neighboring zone will have an
 effect on physical activity or obesity rates. In a practical sense, this
 is because the accessibility term \(\boldsymbol{A}\) is itself spatially
@@ -600,7 +601,7 @@ null hypothesis in this case would be to suggest a model with spatial
 dependence of the dependent variable; as stated above, we feel that such
 a relationship is unreasonable. As a consequence of these analyses, we
 adopt the SDEM specification moving forward as the spatial lag of the
-errors is significant and the overal log likelihood of the SDEM is
+errors is significant and the overall log likelihood of the SDEM is
 higher than the SLX specification.
 
 \begin{table*}
@@ -614,7 +615,7 @@ higher than the SLX specification.
  & \multicolumn{1}{c}{Estimate} & \multicolumn{2}{c}{95\% Conf.Int.}\\
 \midrule
 % latex table generated in R 4.0.0 by xtable 1.8-4 package
-% Thu Jun  4 16:31:52 2020
+% Tue Jul  7 09:56:24 2020
  (Intercept) & -15.8424 & -26.8735 & -4.8112 &   & -24.9740 & -41.8930 & -8.0549 \\ 
   log(Density) & 0.0484 & -0.1314 & 0.2282 &   & 0.1775 & 0.0384 & 0.3166 \\ 
   log(Income) & 5.8210 & 5.2977 & 6.3443 &   & 5.9985 & 5.5746 & 6.4224 \\ 
@@ -679,18 +680,18 @@ buffer calculated by ParkScore. Note that the model called ``Size and
 Distance'' is precisely the model labeled ``SDEM'' in Table
 \ref{tab:slx-sdem}. The controlling covariates are suppressed for
 clarity but do not change meaningfully across the four specifications.
-Complete model estimates are available in the Appendix. Each of the
-three utility-based specifications is significant at the
-\(\alpha = 0.05\) level or lower, and is of the hypothesized
-directionality. That is, residents living in tracts with increased
-utility-based accessiblity to green spaces show a significantly higher
-physical activity participation rate. Taking the rough mean of the 2
-estimated utility-based coefficients, moving from the least-accessible
-tract (\(A_i = -3\)) to the most-accessible tract (\(A_i = 3\)) is
-expected to raise the physical activity rate by 0.9 percentage points.
-With the understanding of the full 95\% confidence interval, we could
-suggest that the true effect of excellent versus poor park access is
-anywhere between 0.06 and 1.8 percentage points.
+Complete model estimates are available in Table \ref{tab:pa-fullmodels}
+of the Supplementary Material. Each of the three utility-based
+specifications is significant at the \(\alpha = 0.05\) level or lower,
+and is of the hypothesized directionality. That is, residents living in
+tracts with increased utility-based accessibility to green spaces show a
+significantly higher physical activity participation rate. Taking the
+rough mean of the 2 estimated utility-based coefficients, moving from
+the least-accessible tract (\(A_i = -3\)) to the most-accessible tract
+(\(A_i = 3\)) is expected to raise the physical activity rate by 0.9
+percentage points. With the understanding of the full 95\% confidence
+interval, we could suggest that the true effect of excellent versus poor
+park access is anywhere between 0.06 and 1.8 percentage points.
 
 The 10-minute walk buffer is considerably less useful at isolating the
 effects of park ``access'' on physical activity rates. As so few tracts
@@ -723,14 +724,15 @@ independent covariate alongside the controlling variables and the
 accessibility metrics. Table \ref{tab:obesity-models} presents estimates
 of the effect of all three utility-based accessibility measures as well
 as the 10-minute walk buffer. As before, the estimates of the other
-variables are available in the Appendix. The correlation between
-physical activity rates and obesity is clear; for every percentage point
-increase in physical activity rate, the expected obesity rate drops by
-\(0.43\) percentage points in all four accessiblity specifications. The
-indirect effect of physical activity rates on obesity in neighboring
-zones is inconsequential, supporting our methodological assertion that
-public health variables are not spatially dependent, though the factors
-leading to them may be.
+variables are available in Table \ref{tab:ob-fullmodels} of the
+Supplementary Material. The correlation between physical activity rates
+and obesity is clear; for every percentage point increase in physical
+activity rate, the expected obesity rate drops by \(0.43\) percentage
+points in all four accessibility specifications. The indirect effect of
+physical activity rates on obesity in neighboring zones is
+inconsequential, supporting our methodological assertion that public
+health variables are not spatially dependent, though the factors leading
+to them may be.
 
 As far as the accessibility values are concerned, none of the three
 utility-based specifications nor the ParkScore 10-minute walk buffer are
@@ -885,7 +887,7 @@ preferences. In terms of physical activity, we found a positive
 relationship where the least park-accessible tracts have an expected
 physical activity participation rate between 0.06 and 1.8 percentage
 points lower than the most accessible tracts. We also found a suggestive
-though not sigificant relationship between park accessiblity and
+though not significant relationship between park accessibility and
 expected obesity rates \emph{in addition to} the effect of physical
 activity participation.
 
@@ -917,9 +919,11 @@ Samuels and Neda Madi for helping to assemble the data.
 
 
 \hypertarget{appendix}{%
-\subsection{Appendix}\label{appendix}}
+\subsection{Supplementary Material}\label{appendix}}
+\setcounter{table}{0}
+\renewcommand{\thetable}{S\arabic{table}}
 
-In this appendix we present the complete estimation results for the
+In this supplementary material we present the complete estimation results for the
 models relating different definitions of access to physical activity (in
 Table \ref{tab:pa-fullmodels}) and to obesity (in Table
 \ref{tab:ob-fullmodels}). In each case we also present a base model with

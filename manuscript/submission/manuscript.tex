@@ -2,7 +2,7 @@
 
 \usepackage{moreverb,url,natbib, multirow, tabularx}
 \usepackage[colorlinks,bookmarksopen,bookmarksnumbered,citecolor=red,urlcolor=red]{hyperref}
-
+\renewcommand{\appendixname}{Supplementary Material}
 
 
 \usepackage{natbib}
@@ -44,7 +44,7 @@
 \title{Modeling the impacts of park access on health outcomes: a utility-based
 accessibility approach}
 
-\runninghead{Macfarlane \emph{et al}.}
+\runninghead{XXXX \emph{et al}.}
 
 \author{XXXX\affilnum{1}, XXXX\affilnum{2}, XXXX\affilnum{3}, XXXXX \affilnum{3}}
 
@@ -324,7 +324,7 @@ obesity rates, accounting for physical activity and the other controls.
 This study uses data available to the public from a variety of federal
 and state data agencies\footnote{The datasets, as well as the analysis
   code, are available on GitHub at
-  \url{https://github.com/gregmacfarlane/parks_access}.}. The Centers
+  \url{https://github.com/XXXX}.}. The Centers
 for Disease Control and Prevention makes small-area estimates on key
 health indicators available through its 500 Cities data program
 \citep{CDC5002016}. The indicators are multilevel aggregations and
@@ -354,7 +354,7 @@ descriptive statistics for these data.
 
 In a destination choice framework, the tracts represent the ``origins''
 and the ``destinations'' are parks and green spaces in New York City. We
-retrieved a polygons layer of public parks and greenspaces within New
+retrieved a polygons layer of public parks and green spaces within New
 York City's municipal boundaries and checked it for accuracy and
 relevance \citep{nycparks}. Upon inspection, we removed several
 facilities that do not qualify as publicly accessible green space, such
@@ -566,7 +566,7 @@ both pairs of models are similar and the residual correlation parameter
 residuals will produce proper estimates of the model standard errors.
 
 Note that in the lag-\(X\) specifications (SLX and SDEM) we exclude the
-accessiblity component \(\boldsymbol{A}\), that is we do \emph{not}
+accessibility component \(\boldsymbol{A}\), that is we do \emph{not}
 consider that the accessibility in a neighboring zone will have an
 effect on physical activity or obesity rates. In a practical sense, this
 is because the accessibility term \(\boldsymbol{A}\) is itself spatially
@@ -605,7 +605,7 @@ null hypothesis in this case would be to suggest a model with spatial
 dependence of the dependent variable; as stated above, we feel that such
 a relationship is unreasonable. As a consequence of these analyses, we
 adopt the SDEM specification moving forward as the spatial lag of the
-errors is significant and the overal log likelihood of the SDEM is
+errors is significant and the overall log likelihood of the SDEM is
 higher than the SLX specification.
 
 \begin{table*}
@@ -684,11 +684,11 @@ buffer calculated by ParkScore. Note that the model called ``Size and
 Distance'' is precisely the model labeled ``SDEM'' in Table
 \ref{tab:slx-sdem}. The controlling covariates are suppressed for
 clarity but do not change meaningfully across the four specifications.
-Complete model estimates are available in the Appendix. Each of the
+Complete model estimates are available in Table \ref{tab:pa-fullmodels}. Each of the
 three utility-based specifications is significant at the
 \(\alpha = 0.05\) level or lower, and is of the hypothesized
 directionality. That is, residents living in tracts with increased
-utility-based accessiblity to green spaces show a significantly higher
+utility-based accessibility to green spaces show a significantly higher
 physical activity participation rate. Taking the rough mean of the 2
 estimated utility-based coefficients, moving from the least-accessible
 tract (\(A_i = -3\)) to the most-accessible tract (\(A_i = 3\)) is
@@ -728,10 +728,10 @@ independent covariate alongside the controlling variables and the
 accessibility metrics. Table \ref{tab:obesity-models} presents estimates
 of the effect of all three utility-based accessibility measures as well
 as the 10-minute walk buffer. As before, the estimates of the other
-variables are available in the Appendix. The correlation between
+variables are available in Table \ref{tab:ob-fullmodel} in the Supplementary Material. The correlation between
 physical activity rates and obesity is clear; for every percentage point
 increase in physical activity rate, the expected obesity rate drops by
-\(0.43\) percentage points in all four accessiblity specifications. The
+\(0.43\) percentage points in all four accessibility specifications. The
 indirect effect of physical activity rates on obesity in neighboring
 zones is inconsequential, supporting our methodological assertion that
 public health variables are not spatially dependent, though the factors
@@ -890,7 +890,7 @@ preferences. In terms of physical activity, we found a positive
 relationship where the least park-accessible tracts have an expected
 physical activity participation rate between 0.06 and 1.8 percentage
 points lower than the most accessible tracts. We also found a suggestive
-though not sigificant relationship between park accessiblity and
+though not significant relationship between park accessibility and
 expected obesity rates \emph{in addition to} the effect of physical
 activity participation.
 
@@ -920,9 +920,12 @@ and beyond --- benefit the health of the community the park serves.
 
 
 \hypertarget{appendix}{%
-\subsection{Appendix}\label{appendix}}
+\subsection{Supplementary Material}\label{appendix}}
+\setcounter{table}{0}
+\renewcommand{\thetable}{S\arabic{table}}
 
-In this appendix we present the complete estimation results for the
+
+In this supplementary material we present the complete estimation results for the
 models relating different definitions of access to physical activity (in
 Table \ref{tab:pa-fullmodels}) and to obesity (in Table
 \ref{tab:ob-fullmodels}). In each case we also present a base model with
