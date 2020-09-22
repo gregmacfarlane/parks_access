@@ -488,7 +488,7 @@ intersection with the 10-minute walk buffer; as it is, only
 `r sum(!tracts$walk10)` of the `r nrow(tracts)` tract centroids are not located 
 within this buffer.
 
-```{r map, fig.env="figure*", echo=FALSE, message=FALSE, warning=FALSE, fig.height=4, fig.cap="Normalized utility-based park accessibility values in New York City."}
+```{r map, fig.env="figure*", echo=FALSE, message=FALSE, warning=FALSE, fig.height=4, fig.cap="Normalized utility-based park accessibility values in New York City.", dev='tikz'}
 library(ggmap)
 map <- ggmap(
   get_stamenmap(unname(st_bbox(tracts)), 
