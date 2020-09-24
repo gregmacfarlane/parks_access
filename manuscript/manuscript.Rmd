@@ -843,13 +843,18 @@ each preferring different amenities of a park:
 An analyst could then compute the utility-based accessibility for each cluster
 with different utility values for each park's amenities, and obtain a measure of
 a neighborhood's accessibility to park features that its residents most care
-about. In this paper, we proceed only incrementally towards
-this by adding some selected park amenities as an element of each park's
-attractiveness above and beyond its size. The set of amenities we included in
+about. The set of amenities we included in
 the utility calculation --- and the contribution of each amenity to the overall
-utility --- was dictated by the availability of data on the park amenities in New
-York City and our ability to find comparable prior studies with transferrable
-utility parameters. We can envision a study where mobile device data
+utility --- was dictated by the availability of open data on the park amenities in New
+York City and our ability to find comparable prior studies with transferable
+utility parameters. It is remarkable that our two utility specifications --- one
+with size and distance, and one with size and distance plus amenities --- result
+in such similar model estimates. This may indicate that the utility is driven
+largely by size and distance, or that the additional park amenities we included
+in the utility specification are spatially distributed in a way that correlates
+with the health outcomes. Either way, further analysis examining more amenity
+variables is warranted.
+ We can envision a study where mobile device data
 revealing the home locations of park users would be paired with more detailed
 park amenities and use data (e.g. geolocated Twitter data *a la*
 @roberts2017using) to estimate the utility contribution of these features. This
