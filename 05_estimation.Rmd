@@ -175,6 +175,7 @@ estimates of $\beta$ and $\gamma$.
 ```{r access_slx}
 access_slx <- lmSLX(update(base_formula, physact ~ . + euc_access), 
                    data = est_data, listw = Wtr, zero.policy = TRUE)
+class(access_slx) <- "lm"
 access_sdem <- errorsarlm(update(base_formula, physact ~ . + euc_access),
                           data = est_data, listw = Wtr, zero.policy = TRUE, 
                           Durbin = TRUE)
@@ -404,7 +405,8 @@ names(obesity_models) <- names(pa_models)
 ```{r screen_obesity_models, results="asis"}
 view_kable(
   htmlreg(obesity_models, digits = 3, table = FALSE, single.row = TRUE, 
-                   caption.above = TRUE, caption = "Spatial Error Model ",
+                   caption.above = TRUE, caption = "Spatial Error Model ", ci.force = TRUE,
+          
           stars = c(0.001, 0.01, 0.05, 0.1) )
 )
 ```

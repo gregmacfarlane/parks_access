@@ -145,6 +145,7 @@ logsum <- function(x) { log(sum(exp(x))) }
 
 compute_logsums <- function(df) {
   df %>%
+    filter(!is.na(euc_old)) %>%
     left_join(open_spaces %>% st_set_geometry(NULL), by = c("park_id" = "id")) %>%
     # use euc_distance for impossible distances.
     mutate( distance = ifelse(distance < euc_dist, euc_dist, distance) ) %>%
@@ -203,7 +204,7 @@ We are also interested in looking at what happens when the tracts are within a
 ```{r nyc10mw}
 access_10mw <- st_read("data/nyc_10mw.geojson") %>%
   st_cast("MULTIPOLYGON") %>%
-  lwgeom::st_make_valid() %>%
+  st_make_valid() %>%
   summarise(d = 1)
 
 read_csv("data/tract_centroids.csv", col_types = "cnnnn") %>%

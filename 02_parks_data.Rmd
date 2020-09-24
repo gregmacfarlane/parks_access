@@ -126,14 +126,9 @@ leaflet(st_transform(dissolved_cemeteries, 4326)) %>%
 Now we can join the cemeteries data to the parks data and get a single polygons
 layer.
 ```{r write}
-open_spaces <- rbind(
-  dissolved %>% 
-    transmute(id = parknum, name = park_name, acres, courts, playgrounds, trails, 
-              type = "park"),
-  dissolved_cemeteries %>% 
-    transmute(id = source_id, name, acres, courts = FALSE, playgrounds = FALSE, 
-              trails = FALSE, type = "cemetery")
-  ) %>%
+open_spaces <-  dissolved %>% 
+  transmute(id = parknum, name = park_name, acres, courts, playgrounds, trails, 
+            type = "park") %>%
   filter(as.numeric(acres) > 0.5) %>%
   st_simplify(preserveTopology = TRUE)
 ```
