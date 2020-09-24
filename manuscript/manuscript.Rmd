@@ -679,6 +679,7 @@ specification.
  & \multicolumn{1}{c}{Estimate} & \multicolumn{2}{c}{95\% Conf.Int.}\\
 \midrule
 ```{r slx-sdem, results = "asis"}
+class(slx_vs_sdem$SLX) <- "lm"
 slx_coefs <- lapply(slx_vs_sdem, function(x) tidy(x, conf.int = TRUE))
 slx_stats <- lapply(slx_vs_sdem, glance)
 tab <- right_join(slx_coefs$SLX, slx_coefs$SDEM, by = "term") %>%
@@ -691,8 +692,8 @@ print(xtab, include.rownames = FALSE, include.colnames = F,
       sanitize.text.function = identity, floating = F, only.contents = T, hline.after = NULL)
 ```
 \midrule
-Log Likelihood & \multicolumn{3}{c}{$-4831.974$} & & \multicolumn{3}{c}{$-4435.507$}\\
-Num.Obs.       & \multicolumn{3}{c}{$2099$}   & & \multicolumn{3}{c}{$2099$}\\
+Log Likelihood & \multicolumn{3}{c}{$`r logLik(slx_vs_sdem$SLX)`$} & & \multicolumn{3}{c}{$`r logLik(slx_vs_sdem$SDEM)`$}\\
+Num.Obs.       & \multicolumn{3}{c}{$`r nobs(slx_vs_sdem$SLX)`$}   & & \multicolumn{3}{c}{$`r nrow(slx_vs_sdem$SDEM$X)`$}\\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -720,28 +721,29 @@ with only density, median tract income, some age groups, and some minority group
 showing an indirect effect.
 
 Table \ref{tab:pa-models} presents the estimated spatial lag and accessibility
-coefficients for three models using different specifications of the utility
+coefficients for two models using different specifications of the utility
 equation, as well as the ten-minute walk buffer calculated by ParkScore. 
 Note that the model called "Size and Distance" is precisely the model
 labeled "SDEM" in Table \ref{tab:slx-sdem}. The controlling covariates are
 suppressed for clarity but do not change meaningfully across the four specifications.
-Complete model estimates are available in Table \ref{tab:pa-fullmodels} of the Supplementary Material. Each of the three
+Complete model estimates are available in Table \ref{tab:pa-fullmodels} of the Supplementary Material. Each of the two
 utility-based specifications is significant at the $\alpha = 0.05$ level or lower,
-and is of the hypothesized directionality. That is, residents living in tracts 
+and is of the hypothesized direction That is, residents living in tracts 
 with increased utility-based accessibility to green spaces show a significantly
-higher physical activity participation rate. Taking the rough mean of the 2
+higher physical activity participation rate. Taking the rough mean of the two
 estimated utility-based coefficients, moving from the least-accessible tract
 ($A_i = -3$) to the
 most-accessible tract ($A_i = 3$) is expected to raise the physical activity rate
-by `r 6 * .15` percentage points. With the understanding of the full 95\% confidence
+by `r 6 * .22` percentage points. With the understanding of the full 95\% confidence
 interval, we could suggest that the true effect of excellent versus poor park access
-is anywhere between `r 6 * .01` and `r 6 * .3` percentage points.
+is anywhere between `r 6 * .05` and `r 6 * .35` percentage points.
 
-The 10-minute walk buffer is considerably less useful at isolating the effects
+
+In contrast, 10-minute walk buffer is considerably less useful at isolating the effects
 of park "access" on physical activity rates. As so few tracts are located
 outside of the buffer, the standard error of the estimated effect is large and implies
-an effect on activity rates anywhere from a loss of `r 6 * .18` percentage points
-to a gain of `r 6 * 1.35`.
+an effect on activity rates anywhere from a loss of `r .18` percentage points
+to a gain of `r 1.35`.
 
 \begin{table*}
 \caption{Estimated Effect of Accessibility on Physical Activity Rates}
