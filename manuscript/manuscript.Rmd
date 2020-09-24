@@ -878,7 +878,13 @@ in New York City are within this specific isochrone. It is possible that this
 isochrone may be more discriminating of park access in other cities, or that a
 different definition would yield different results in New York City. This
 observation however reinforces our suggestion that a measure explicitly based in
-the utility of access is warranted.
+the utility of access is warranted.  We acknowledge that a utility-based
+framework for access may be more technically difficult for some practitioners to
+independently construct for their analyses than an isochrone or even a
+gravity-based measure. That said, it may not be necessary for practicing
+planners to construct this measure themselves: web-based tools such as ParkIndex
+[@Kaczynski2016] and even WalkScore (https://www.walkscore.com) abstract complex
+methodologies into tools that planners can and do readily apply.
 
 Finally, this study is primarily focused on the hypothesis that accessibility to
 parks encourages physical activity, which in turn reduces obesity. There are a
@@ -927,13 +933,14 @@ to accommodate attributes of parks beyond their proximity. And even proximity
 may not be adequately handled, as the isochrone threshold may be arbitrarily
 asserted by the researcher. The model we apply in this paper extends
 a more comprehensive and flexible approach
-for measuring the impact of park access on health outcomes. Adopting
-utility-based accessibilities of the kind used in this study will allow
+for measuring the impact of park access on health outcomes. 
+
+Adopting utility-based accessibilities of the kind used in this study will allow
 researchers to encompass the full range of park amenities in their accessibility
-analyses, and to separate the definition of access from the study of its effects.
-This will in turn enhance the ability of planners to consider how multiple
-attributes of a park --- from its location to its size to its amenities and
-beyond --- benefit the health of the community the park serves.
+analyses, and to separate the definition of access from the study of its
+effects. This will in turn enhance the ability of planners to consider how
+multiple attributes of a park --- from its location to its size to its amenities
+and beyond --- benefit the health of the community the park serves.
 
 \begin{acks}
 This project was funded by the Speedwell Foundation. We are grateful to Rachel
