@@ -253,17 +253,25 @@ health and activity benefits over a much larger area than a smaller community
 square.
 
 In spite of its flexibility and basis in choice theory, utility-based
-accessibility measures have not received much application in the accessibility
+accessibility measures have not received much application in the park accessibility
 literature compared with distance-based or even gravity-based measures.
 @Vale2016 present a descriptive classification of active accessibility techniques, and
-explicitly dismiss utility-based metrics for incorporating randomness. The
-accessibility formula presented in Equation \ref{eq:utility} is the expectation of a
-random utility process, and is not in and of itself random any more than the
-gravity model is random.
+explicitly dismiss utility-based metrics for incorporating randomness. This is 
+a curious decision: The accessibility formula presented in Equation
+\ref{eq:utility} is the expectation of a random utility process, but the measure
+is not in and of itself random any more than the gravity model is random.
 Utility-based accessibility metrics are commonly used, however, in alternatives
 analyses of transit infrastructure improvements [@DeJong2007]. A reason for this
 is likely that a regional travel demand model is available to the analysts, thus
 making calibrated and multimodal logsums readily available [@Geurs2010].
+
+To our knowledge, there has been no previous attempt to examine
+access to parks in a metropolitan area using a utility-based definition as the
+primary indicator of access. Consequently, there has also been no previous
+effort to examine the effect of park access on health outcomes using this
+theoretically attractive technique. In this study, we first develop a utility-based
+measure of park access in New York City, and then apply this measure to study the
+effect of access to public parks on aggregate health outcomes.
 
 # Empirical Application
 In this section, we develop a model with data for New York City, where
