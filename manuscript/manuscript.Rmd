@@ -829,7 +829,7 @@ frequently) on the other. As no such dataset exists to our knowledge, this
 tract-level aggregate analysis with asserted and transferred utility
 coefficients is the possibility that remains.
 
-This paper applies a previously-presented but little-used accessibility
+This paper applies a previously presented but seldom applied accessibility
 statistic that could, in theory, accommodate many attributes of the destination
 parks as well as the people who might use them. As an illustration: the
 park-going population could be separated into at least four delineated clusters,
@@ -916,9 +916,9 @@ residents in the future.
 
 Increased physical activity and decreased obesity rates are critical measures of
 improvement in public health. Although many have theorized the link between park
-accessibility and these metrics, previous literature has produced mixed
-findings, perhaps owing to the range of variables modeled and the coarse spatial
-scale of the analyses. Using New York City as a case study, we presented a
+access and public, previous literature has produced mixed
+findings, perhaps owing to the wide range of accessibility definitions. 
+Using New York City as a case study, we presented a
 holistic and flexible measurement for park accessibility that compares the
 continuous distance to all parks in the region, weighted against the size of the
 park and its other amenities, with weights determinable through revealed
