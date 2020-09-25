@@ -271,7 +271,10 @@ primary indicator of access. Consequently, there has also been no previous
 effort to examine the effect of park access on health outcomes using this
 theoretically attractive technique. In this study, we first develop a utility-based
 measure of park access in New York City, and then apply this measure to study the
-effect of access to public parks on aggregate health outcomes.
+effect of access to public parks on aggregate health outcomes. In this
+application, we demonstrate how additional park amenities including park size,
+sport facilities, playgrounds, and trails can be incorporated in a more complete
+and informative measure of access beyond simple proximity.
 
 # Empirical Application
 In this section, we develop a model with data for New York City, where
@@ -926,7 +929,7 @@ continuous distance to all parks in the region, weighted against the size of the
 park and its other amenities, with weights determinable through revealed
 preferences. In terms of physical activity, we found a positive relationship
 where the least park-accessible tracts have an expected physical activity
-participation rate between `r 6 * .01` and `r 6 * .3` percentage points lower than the most
+participation rate between $0.3$ and $2.1$ percentage points lower than the most
 accessible tracts. We also found a suggestive though not significant relationship
 between park accessibility and expected obesity rates *in addition to* the effect
 of physical activity participation. 
