@@ -2,7 +2,7 @@
 
 \usepackage{moreverb,url,natbib, multirow, tabularx}
 \usepackage[colorlinks,bookmarksopen,bookmarksnumbered,citecolor=red,urlcolor=red]{hyperref}
-\renewcommand{\appendixname}{Supplementary Material}
+
 
 
 \usepackage{natbib}
@@ -16,6 +16,7 @@
 
 \usepackage{xcolor}
 
+\renewcommand{\appendixname}{Supplementary Material}
 
 \usepackage{hyperref}
 \usepackage{rotating}
@@ -294,19 +295,28 @@ Central Park in Manhattan may provide health and activity benefits over
 a much larger area than a smaller community square.
 
 In spite of its flexibility and basis in choice theory, utility-based
-accessibility measures have not received much application in the
+accessibility measures have not received much application in the park
 accessibility literature compared with distance-based or even
 gravity-based measures. \citet{Vale2016} present a descriptive
 classification of active accessibility techniques, and explicitly
-dismiss utility-based metrics for incorporating randomness. The
-accessibility formula presented in Equation \ref{eq:utility} is the
-expectation of a random utility process, and is not in and of itself
-random any more than the gravity model is random. Utility-based
-accessibility metrics are commonly used, however, in alternatives
-analyses of transit infrastructure improvements \citep{DeJong2007}. A
-reason for this is likely that a regional travel demand model is
-available to the analysts, thus making calibrated and multimodal logsums
-readily available \citep{Geurs2010}.
+dismiss utility-based metrics for incorporating randomness. This is a
+curious decision: The accessibility formula presented in Equation
+\ref{eq:utility} is the expectation of a random utility process, but the
+measure is not in and of itself random any more than the gravity model
+is random. Utility-based accessibility metrics are commonly used,
+however, in alternatives analyses of transit infrastructure improvements
+\citep{DeJong2007}. A reason for this is likely that a regional travel
+demand model is available to the analysts, thus making calibrated and
+multimodal logsums readily available \citep{Geurs2010}.
+
+To our knowledge, there has been no previous attempt to examine access
+to parks in a metropolitan area using a utility-based definition as the
+primary indicator of access. Consequently, there has also been no
+previous effort to examine the effect of park access on health outcomes
+using this theoretically attractive technique. In this study, we first
+develop a utility-based measure of park access in New York City, and
+then apply this measure to study the effect of access to public parks on
+aggregate health outcomes.
 
 \hypertarget{empirical-application}{%
 \section{Empirical Application}\label{empirical-application}}
@@ -366,15 +376,9 @@ single facility --- as is the case in Flushing Meadows --- and
 eliminated sub-facilities such as tennis courts or baseball fields
 included within larger park facilities. Instead of these distinct
 sub-facilities, we created variables for each containing park indicating
-the presence of sports courts, playgrounds, and trails.
-
-To this dataset of parks and regularized green spaces, we add a polygons
-layer of cemeteries in New York that are open to the public. Cemeteries
-are important green spaces that can be used for many types of physical
-activity. These operations leave us with 1,277 distinct green spaces;
-for simplicity we will refer to both parks and cemeteries as ``parks''
-going forward. For each park, we calculate the size of the park in
-acres.
+the presence of sports courts, playgrounds, and trails. These operations
+leave us with 1,191 distinct green spaces; For each park, we calculate
+the size of the park in acres.
 
 \begin{table*}
 
@@ -402,8 +406,8 @@ acres.
 \hspace{1em}Hispanic & Share of population who is Hispanic & 0.00 & \makecell{19.07\\ (9.39, 41.07)} & 96.27 & ACS\\
 \hspace{1em}Other & Share of population who belong to other minority groups & 0.00 & \makecell{0.00\\ (0.00, 0.53)} & 19.47 & ACS\\
 \addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Park Variables, N = 1277}}\\
-\hspace{1em}Size & Park size in acres & 0.50 & \makecell{1.66\\ (0.95, 5.62)} & 1961.00 & NYC\\
+\multicolumn{6}{l}{\textbf{Park Variables, N = 1191}}\\
+\hspace{1em}Size & Park size in acres & 0.50 & \makecell{1.57\\ (0.94, 4.45)} & 1961.00 & NYC\\
 \hspace{1em}Courts & Presence of sport courts / ball fields & 0.00 & \makecell{0.00\\ (0.00, 0.00)} & 1.00 & NYC\\
 \hspace{1em}Playgrounds & Presence of playgrounds & 0.00 & \makecell{0.00\\ (0.00, 1.00)} & 1.00 & NYC\\
 \hspace{1em}Trails & Presence of trails & 0.00 & \makecell{0.00\\ (0.00, 0.00)} & 1.00 & NYC\\
@@ -447,7 +451,7 @@ of common variables between our data and this survey-based model, we can
 create a second utility specification as
 \begin{equation}\label{eq:u_multi}
 \begin{split}
-V_{ij} & = \lambda_s * \log(size_j) + \lambda_d * \log(distance_{ij}) + \\
+V_{ij} & = \lambda_s * \log(size_j) + \lambda_d * \log(distance_{ij}) + \\ 
   & \quad \lambda_t * trails + \lambda_{c} * courts + \lambda_p * playgrounds
 \end{split}
 \end{equation} with \(\lambda_t = 0.99\), \(\lambda_c = 0.43\), and
@@ -597,16 +601,16 @@ the SLX and SDEM coefficient estimates for corresponding covariates lie
 within the 95\% confidence intervals of the other model. A Hausman-style
 test \citep{Pace2008} on the coefficients assumes a null hypothesis that
 the coefficients are equivalent; this test produces \(p\)-value of only
-\(1.307e-23\). Though this statistic is well beneath a common hypothesis
-test threshold of \(\alpha = 0.05\), we elect to retain the null hypothesis
-that the coefficients are equivalent, as the differences are at no point
-practically different from each other. The consequences of rejecting the
-null hypothesis in this case would be to suggest a model with spatial
-dependence of the dependent variable; as stated above, we feel that such
-a relationship is unreasonable. As a consequence of these analyses, we
-adopt the SDEM specification moving forward as the spatial lag of the
-errors is significant and the overall log likelihood of the SDEM is
-higher than the SLX specification.
+\(1.318e-23\). Though this statistic is well beneath a common hypothesis
+test threshold of \(\alpha = 0.05\), we elect to retain the null
+hypothesis that the coefficients are equivalent, as the differences are
+at no point practically different from each other. The consequences of
+rejecting the null hypothesis in this case would be to suggest a model
+with spatial dependence of the dependent variable; as stated above, we
+feel that such a relationship is unreasonable. As a consequence of these
+analyses, we adopt the SDEM specification moving forward as the spatial
+lag of the errors is significant and the overall log likelihood of the
+SDEM is higher than the SLX specification.
 
 \begin{table*}
 \caption{Comparison of SLX and SDEM Coefficients}
@@ -615,42 +619,42 @@ higher than the SLX specification.
 \toprule
  & \multicolumn{3}{c}{SLX} & & \multicolumn{3}{c}{SDEM} \\
 \cmidrule{2-4}\cmidrule{6-8}
- & \multicolumn{1}{c}{Estimate} & \multicolumn{2}{c}{95\% Conf.Int.} &
+ & \multicolumn{1}{c}{Estimate} & \multicolumn{2}{c}{95\% Conf.Int.} & 
  & \multicolumn{1}{c}{Estimate} & \multicolumn{2}{c}{95\% Conf.Int.}\\
 \midrule
 % latex table generated in R 4.0.0 by xtable 1.8-4 package
-% Thu Jun  4 16:31:52 2020
- (Intercept) & -15.8424 & -26.8735 & -4.8112 &   & -24.9740 & -41.8930 & -8.0549 \\
-  log(Density) & 0.0484 & -0.1314 & 0.2282 &   & 0.1775 & 0.0384 & 0.3166 \\
-  log(Income) & 5.8210 & 5.2977 & 6.3443 &   & 5.9985 & 5.5746 & 6.4224 \\
-  Fulltime & 0.1150 & 0.0936 & 0.1365 &   & 0.1275 & 0.1090 & 0.1460 \\
-  College-educated & 0.0012 & -0.0272 & 0.0297 &   & 0.0076 & -0.0158 & 0.0309 \\
-  Single Adults & -0.0433 & -0.0623 & -0.0244 &   & -0.0362 & -0.0526 & -0.0198 \\
-  Youth (0-17) & -0.1511 & -0.1830 & -0.1192 &   & -0.1310 & -0.1576 & -0.1045 \\
-  Young adults (18-34) & 0.0257 & 0.0008 & 0.0505 &   & 0.0295 & 0.0094 & 0.0496 \\
-  Seniors (65+) & 0.0137 & -0.0185 & 0.0459 &   & 0.0403 & 0.0130 & 0.0677 \\
-  Black population share & -0.0465 & -0.0584 & -0.0346 &   & -0.0499 & -0.0586 & -0.0411 \\
-  Asian population share & -0.0686 & -0.0832 & -0.0541 &   & -0.0767 & -0.0873 & -0.0662 \\
-  Hispanic population share & -0.1017 & -0.1140 & -0.0894 &   & -0.1025 & -0.1116 & -0.0934 \\
-  Other Minorities & 0.0368 & -0.0643 & 0.1378 &   & 0.0037 & -0.0849 & 0.0923 \\
-  $\gamma$: log(Density) & 1.2594 & 0.9413 & 1.5774 &   & 1.0985 & 0.7155 & 1.4815 \\
-  $\gamma$: log(Income) & 2.3930 & 1.5476 & 3.2383 &   & 1.9742 & 0.9465 & 3.0020 \\
-  $\gamma$: Fulltime & -0.1398 & -0.1804 & -0.0991 &   & -0.0397 & -0.0869 & 0.0076 \\
-  $\gamma$: College-educated & -0.1312 & -0.1806 & -0.0818 &   & -0.0710 & -0.1305 & -0.0115 \\
-  $\gamma$: Single Adults & -0.0480 & -0.0821 & -0.0140 &   & -0.0082 & -0.0504 & 0.0339 \\
-  $\gamma$: Youth (0-17) & -0.1031 & -0.1618 & -0.0445 &   & -0.0108 & -0.0798 & 0.0583 \\
-  $\gamma$: Young adults (18-34) & 0.1191 & 0.0762 & 0.1619 &   & 0.0842 & 0.0335 & 0.1349 \\
-  $\gamma$: Seniors (65+) & 0.0108 & -0.0479 & 0.0695 &   & 0.0590 & -0.0102 & 0.1282 \\
-  $\gamma$: Black population share & 0.0096 & -0.0054 & 0.0247 &   & 0.0010 & -0.0151 & 0.0172 \\
-  $\gamma$: Asian population share & -0.0661 & -0.0840 & -0.0483 &   & -0.0397 & -0.0583 & -0.0210 \\
-  $\gamma$: Hispanic population share & -0.0060 & -0.0216 & 0.0097 &   & -0.0010 & -0.0182 & 0.0162 \\
-  $\gamma$: Other Minorities & 0.1868 & -0.0508 & 0.4244 &   & 0.0726 & -0.1845 & 0.3297 \\
-  Accessibility & 0.5430 & 0.4195 & 0.6666 &   & 0.1663 & 0.0277 & 0.3048 \\
-  $\lambda$: spatial correlation &  &  &  &   & 0.6905 & 0.6513 & 0.7296 \\
-
+% Thu Sep 24 13:41:03 2020
+ (Intercept) & -15.8791 & -26.8066 & -4.9515 &   & -24.7352 & -41.5391 & -7.9312 \\ 
+  log(Density) & 0.0502 & -0.1280 & 0.2284 &   & 0.1760 & 0.0371 & 0.3150 \\ 
+  log(Income) & 5.8667 & 5.3476 & 6.3859 &   & 6.0134 & 5.5901 & 6.4368 \\ 
+  Fulltime & 0.1157 & 0.0944 & 0.1369 &   & 0.1271 & 0.1086 & 0.1455 \\ 
+  College-educated & 0.0029 & -0.0253 & 0.0311 &   & 0.0077 & -0.0156 & 0.0310 \\ 
+  Single Adults & -0.0435 & -0.0623 & -0.0247 &   & -0.0365 & -0.0528 & -0.0201 \\ 
+  Youth (0-17) & -0.1528 & -0.1844 & -0.1211 &   & -0.1320 & -0.1585 & -0.1055 \\ 
+  Young adults (18-34) & 0.0245 & -0.0001 & 0.0492 &   & 0.0292 & 0.0092 & 0.0493 \\ 
+  Seniors (65+) & 0.0108 & -0.0212 & 0.0427 &   & 0.0386 & 0.0112 & 0.0659 \\ 
+  Black population share & -0.0471 & -0.0589 & -0.0353 &   & -0.0499 & -0.0586 & -0.0412 \\ 
+  Asian population share & -0.0684 & -0.0828 & -0.0540 &   & -0.0764 & -0.0870 & -0.0659 \\ 
+  Hispanic population share & -0.1003 & -0.1126 & -0.0881 &   & -0.1023 & -0.1114 & -0.0932 \\ 
+  Other Minorities & 0.0341 & -0.0661 & 0.1343 &   & 0.0047 & -0.0837 & 0.0931 \\ 
+  $\gamma$: log(Density) & 1.2513 & 0.9367 & 1.5659 &   & 1.0873 & 0.7062 & 1.4684 \\ 
+  $\gamma$: log(Income) & 2.3641 & 1.5266 & 3.2016 &   & 1.9780 & 0.9563 & 2.9997 \\ 
+  $\gamma$: Fulltime & -0.1346 & -0.1749 & -0.0943 &   & -0.0411 & -0.0882 & 0.0059 \\ 
+  $\gamma$: College-educated & -0.1201 & -0.1692 & -0.0711 &   & -0.0704 & -0.1296 & -0.0112 \\ 
+  $\gamma$: Single Adults & -0.0520 & -0.0857 & -0.0183 &   & -0.0094 & -0.0514 & 0.0325 \\ 
+  $\gamma$: Youth (0-17) & -0.1013 & -0.1594 & -0.0432 &   & -0.0128 & -0.0815 & 0.0559 \\ 
+  $\gamma$: Young adults (18-34) & 0.1131 & 0.0706 & 0.1555 &   & 0.0838 & 0.0334 & 0.1342 \\ 
+  $\gamma$: Seniors (65+) & 0.0015 & -0.0568 & 0.0598 &   & 0.0545 & -0.0145 & 0.1235 \\ 
+  $\gamma$: Black population share & 0.0099 & -0.0051 & 0.0248 &   & 0.0011 & -0.0149 & 0.0172 \\ 
+  $\gamma$: Asian population share & -0.0644 & -0.0821 & -0.0467 &   & -0.0397 & -0.0582 & -0.0212 \\ 
+  $\gamma$: Hispanic population share & -0.0074 & -0.0229 & 0.0081 &   & -0.0015 & -0.0185 & 0.0156 \\ 
+  $\gamma$: Other Minorities & 0.1629 & -0.0725 & 0.3983 &   & 0.0723 & -0.1840 & 0.3286 \\ 
+  Accessibility & 0.6575 & 0.5348 & 0.7801 &   & 0.2306 & 0.0907 & 0.3705 \\ 
+  $\lambda$: spatial correlation &  &  &  &   & 0.6854 & 0.6459 & 0.7249 \\ 
+  
 \midrule
-Log Likelihood & \multicolumn{3}{c}{$-4831.974$} & & \multicolumn{3}{c}{$-4435.507$}\\
-Num.Obs.       & \multicolumn{3}{c}{$2099$}   & & \multicolumn{3}{c}{$2099$}\\
+Log Likelihood & \multicolumn{3}{c}{$-4,815$} & & \multicolumn{3}{c}{$-4,433$}\\
+Num.Obs.       & \multicolumn{3}{c}{$2,099$}   & & \multicolumn{3}{c}{$2,099$}\\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -660,10 +664,10 @@ effect resulting from a tract's own attributes and the indirect effect
 (\(\boldsymbol{\gamma}\)) resulting from the spatially-weighted
 attributes of its neighbors. For example, a percentage point increase in
 the share of young adults in a tract increases the expected physical
-activity rate in a tract by 0.02947 percentage points, and a percentage
+activity rate in a tract by 0.02922 percentage points, and a percentage
 point increase in the share of young adults \emph{in neighboring tracts}
 increases the expected physical activity rate by an \emph{additional}
-0.08417 percentage points. This opportunity to examine spatial
+0.08378 percentage points. This opportunity to examine spatial
 spillovers of attributes is a key benefit of using a spatial model.
 
 For the most part the direct coefficients are highly significant and of
@@ -678,47 +682,47 @@ only density, median tract income, some age groups, and some minority
 groups showing an indirect effect.
 
 Table \ref{tab:pa-models} presents the estimated spatial lag and
-accessibility coefficients for three models using different
-specifications of the utility equation, as well as the ten-minute walk
-buffer calculated by ParkScore. Note that the model called ``Size and
+accessibility coefficients for two models using different specifications
+of the utility equation, as well as the ten-minute walk buffer
+calculated by ParkScore. Note that the model called ``Size and
 Distance'' is precisely the model labeled ``SDEM'' in Table
 \ref{tab:slx-sdem}. The controlling covariates are suppressed for
 clarity but do not change meaningfully across the four specifications.
-Complete model estimates are available in Table \ref{tab:pa-fullmodels}. Each of the
-three utility-based specifications is significant at the
-\(\alpha = 0.05\) level or lower, and is of the hypothesized
-directionality. That is, residents living in tracts with increased
-utility-based accessibility to green spaces show a significantly higher
-physical activity participation rate. Taking the rough mean of the 2
-estimated utility-based coefficients, moving from the least-accessible
-tract (\(A_i = -3\)) to the most-accessible tract (\(A_i = 3\)) is
-expected to raise the physical activity rate by 0.9 percentage points.
-With the understanding of the full 95\% confidence interval, we could
-suggest that the true effect of excellent versus poor park access is
-anywhere between 0.06 and 1.8 percentage points.
+Complete model estimates are available in Table \ref{tab:pa-fullmodels}
+of the Supplementary Material. Each of the two utility-based
+specifications is significant at the \(\alpha = 0.05\) level or lower,
+and is of the hypothesized direction That is, residents living in tracts
+with increased utility-based accessibility to green spaces show a
+significantly higher physical activity participation rate. Taking the
+rough mean of the two estimated utility-based coefficients, moving from
+the least-accessible tract (\(A_i = -3\)) to the most-accessible tract
+(\(A_i = 3\)) is expected to raise the physical activity rate by 1.32
+percentage points. With the understanding of the full 95\% confidence
+interval, we could suggest that the true effect of excellent versus poor
+park access is anywhere between 0.3 and 2.1 percentage points.
 
-The 10-minute walk buffer is considerably less useful at isolating the
-effects of park ``access'' on physical activity rates. As so few tracts
-are located outside of the buffer, the standard error of the estimated
-effect is large and implies an effect on activity rates anywhere from a
-loss of 1.08 percentage points to a gain of 8.1.
+In contrast, 10-minute walk buffer is considerably less useful at
+isolating the effects of park ``access'' on physical activity rates. As
+so few tracts are located outside of the buffer, the standard error of
+the estimated effect is large and implies an effect on activity rates
+anywhere from a loss of 0.18 percentage points to a gain of 1.35.
 
 \begin{table*}
 \caption{Estimated Effect of Accessibility on Physical Activity Rates}
 \label{tab:pa-models}
 
-\begin{tabular}{l c c c }
+\begin{tabular}{l c c c}
 \toprule
  & Size and Distance & Amenities & 10-Minute Walk \\
 \midrule
-Accessibility  & $0.1663^{*}$        & $0.1493^{*}$        & $0.5865$             \\
-               & $[0.0277;\ 0.3048]$ & $[0.0073;\ 0.2914]$ & $[-0.1778;\ 1.3508]$ \\
+Accessibility  & $0.2306^{*}$        & $0.1923^{*}$        & $0.5865$             \\
+               & $ [0.0907; 0.3705]$ & $ [0.0498; 0.3347]$ & $ [-0.1778; 1.3508]$ \\
 \midrule
-Num. obs.      & 2099                & 2099                & 2099                 \\
-Parameters     & 28                  & 28                  & 28                   \\
-Log Likelihood & -4435.3869          & -4436.0034          & -4436.9264           \\
+Num. obs.      & $2099$              & $2099$              & $2099$               \\
+Parameters     & $28$                & $28$                & $28$                 \\
+Log Likelihood & $-4433.0965$        & $-4434.7087$        & $-4436.9264$         \\
 \bottomrule
-\multicolumn{4}{l}{\scriptsize{$^*$ 0 outside the confidence interval 95\% confidence interval in brackets.  $y = $ tract-level physical activity rate.}}
+\multicolumn{4}{l}{\scriptsize{$^*$ Null hypothesis value outside the confidence interval. 95\% confidence interval in brackets.  $y = $ tract-level physical activity rate.}}
 \end{tabular}
 \end{table*}
 
@@ -728,14 +732,15 @@ independent covariate alongside the controlling variables and the
 accessibility metrics. Table \ref{tab:obesity-models} presents estimates
 of the effect of all three utility-based accessibility measures as well
 as the 10-minute walk buffer. As before, the estimates of the other
-variables are available in Table \ref{tab:ob-fullmodel} in the Supplementary Material. The correlation between
-physical activity rates and obesity is clear; for every percentage point
-increase in physical activity rate, the expected obesity rate drops by
-\(0.43\) percentage points in all four accessibility specifications. The
-indirect effect of physical activity rates on obesity in neighboring
-zones is inconsequential, supporting our methodological assertion that
-public health variables are not spatially dependent, though the factors
-leading to them may be.
+variables are available in Table \ref{tab:ob-fullmodels} of the
+Supplementary Material. The correlation between physical activity rates
+and obesity is clear; for every percentage point increase in physical
+activity rate, the expected obesity rate drops by \(0.43\) percentage
+points in all four accessibility specifications. The indirect effect of
+physical activity rates on obesity in neighboring zones is
+inconsequential, supporting our methodological assertion that public
+health variables are not spatially dependent, though the factors leading
+to them may be.
 
 As far as the accessibility values are concerned, none of the three
 utility-based specifications nor the ParkScore 10-minute walk buffer are
@@ -754,22 +759,22 @@ effect of accessibility on physical activity rates worth further study.
 \caption{Estimated Effect of Accessibility on Obesity Rates}
 \label{tab:obesity-models}
 
-\begin{tabular}{l c c c }
+\begin{tabular}{l c c c}
 \toprule
  & Size and Distance & Amenities & 10-Minute Walk \\
 \midrule
-Physical Activity           & $-0.4802^{*}$         & $-0.4802^{*}$         & $-0.4803^{*}$         \\
-                            & $[-0.5043;\ -0.4561]$ & $[-0.5043;\ -0.4561]$ & $[-0.5044;\ -0.4562]$ \\
-$\gamma$: Physical Activity & $0.0197$              & $0.0198$              & $0.0173$              \\
-                            & $[-0.0380;\ 0.0775]$  & $[-0.0380;\ 0.0775]$  & $[-0.0404;\ 0.0750]$  \\
-Accessibility               & $-0.0403$             & $-0.0429$             & $-0.2630$             \\
-                            & $[-0.1158;\ 0.0351]$  & $[-0.1210;\ 0.0352]$  & $[-0.6491;\ 0.1232]$  \\
+Physical Activity           & $-0.4798^{*}$         & $-0.4800^{*}$         & $-0.4803^{*}$         \\
+                            & $ [-0.5039; -0.4556]$ & $ [-0.5041; -0.4558]$ & $ [-0.5044; -0.4562]$ \\
+$\gamma$: Physical Activity & $0.0207$              & $0.0204$              & $0.0173$              \\
+                            & $ [-0.0371;  0.0785]$ & $ [-0.0375;  0.0782]$ & $ [-0.0404;  0.0750]$ \\
+Accessibility               & $-0.0495$             & $-0.0471$             & $-0.2630$             \\
+                            & $ [-0.1260;  0.0270]$ & $ [-0.1259;  0.0316]$ & $ [-0.6491;  0.1232]$ \\
 \midrule
-Num. obs.                   & 2099                  & 2099                  & 2099                  \\
-Parameters                  & 30                    & 30                    & 30                    \\
-Log Likelihood              & -3113.8451            & -3113.8136            & -3113.5028            \\
+Num. obs.                   & $2099$                & $2099$                & $2099$                \\
+Parameters                  & $30$                  & $30$                  & $30$                  \\
+Log Likelihood              & $-3113.5891$          & $-3113.7048$          & $-3113.5028$          \\
 \bottomrule
-\multicolumn{4}{l}{\scriptsize{$^*$ 0 outside the confidence interval 95\% confidence interval in brackets.  $y = $ tract-level obesity rate.}}
+\multicolumn{4}{l}{\scriptsize{$^*$ Null hypothesis value outside the confidence interval. 95\% confidence interval in brackets.  $y = $ tract-level obesity rate.}}
 \end{tabular}
 \end{table*}
 
@@ -780,12 +785,12 @@ Direction}\label{limitations-and-future-research-direction}}
 We readily acknowledge limitations in this study. As in any study
 conducted with areal data, we are at risk of falling victim to the
 ecological inference fallacy, where aggregate statistics mask or
-contradict disaggregated or individual-level trends. \textcolor{blue}{The socioeconomic
+contradict disaggregated or individual-level trends. The socioeconomic
 and public health data used in this study are only available at the
 tract level; projecting the tract-level data to the block group level
 and computing more spatially precise accessibility logsums proved
 infeasible as the spatial lags of the independent variables introduced
-substantial collinearity in the model equations.} A large-sample survey
+substantial collinearity in the model equations. A large-sample survey
 of individuals in New York City, including measured physical activities
 and obesity would always be preferable to the tract-level data used in
 this study. An ideal survey to address the question would incorporate
@@ -795,11 +800,12 @@ other. As no such dataset exists to our knowledge, this tract-level
 aggregate analysis with asserted and transferred utility coefficients is
 the possibility that remains.
 
-This paper applies a previously-presented but little-used accessibility
-statistic that could, in theory, accommodate many attributes of the
-destination parks as well as the people who might use them. As an
-illustration: the park-going population could be separated into at least
-four delineated clusters, each preferring different amenities of a park:
+This paper applies a previously presented but seldom applied
+accessibility statistic that could, in theory, accommodate many
+attributes of the destination parks as well as the people who might use
+them. As an illustration: the park-going population could be separated
+into at least four delineated clusters, each preferring different
+amenities of a park:
 
 \begin{itemize}
  \item{runners and cyclists: long, interesting trail systems}
@@ -811,19 +817,24 @@ four delineated clusters, each preferring different amenities of a park:
 An analyst could then compute the utility-based accessibility for each
 cluster with different utility values for each park's amenities, and
 obtain a measure of a neighborhood's accessibility to park features that
-its residents most care about. In this paper, we proceed only
-incrementally towards this by adding some selected park amenities as an
-element of each park's attractiveness above and beyond its size. \textcolor{blue}{The set
-of amenities we included in the utility calculation --- and the
-contribution of each amenity to the overall utility --- was dictated by
-the availability of data on the park amenities in New York City and our
-ability to find comparable prior studies with transferrable utility
-parameters. We can envision a study where mobile device data revealing
-the home locations of park users would be paired with more detailed park
-amenities and use data (e.g.~geolocated Twitter data \emph{a la}
-\citet{roberts2017using}) to estimate the utility contribution of these
-features.} This could in turn provide a more nuanced understanding of the
-relationship between park accessibility, \textcolor{blue}{use,} and health outcomes.
+its residents most care about. The set of amenities we included in the
+utility calculation --- and the contribution of each amenity to the
+overall utility --- was dictated by the availability of open data on the
+park amenities in New York City and our ability to find comparable prior
+studies with transferable utility parameters. It is remarkable that our
+two utility specifications --- one with size and distance, and one with
+size and distance plus amenities --- result in such similar model
+estimates. This may indicate that the utility is driven largely by size
+and distance, or that the additional park amenities we included in the
+utility specification are spatially distributed in a way that correlates
+with the health outcomes. Either way, further analysis examining more
+amenity variables is warranted. We can envision a study where mobile
+device data revealing the home locations of park users would be paired
+with more detailed park amenities and use data (e.g.~geolocated Twitter
+data \emph{a la} \citet{roberts2017using}) to estimate the utility
+contribution of these features. This could in turn provide a more
+nuanced understanding of the relationship between park accessibility,
+use, and health outcomes.
 
 As a travel impedance measure, we used the Euclidean distance between
 each tract's population-weighted centroid and the nearest point on the
@@ -832,12 +843,12 @@ limitations regarding their fidelity with the underlying infrastructure
 network, etc. Network-based distances can also suffer from challenges
 when applied to multimodal problems; these challenges are exacerbated
 when the non-highway mode share is high, as is likely when considering
-access to parks. \textcolor{blue}{We examined replacing the Euclidean distance with a
+access to parks. We examined replacing the Euclidean distance with a
 network-based distance; the choice of distance metric appeared
 inconsequential to our larger findings in this case while substantially
 increasing the computational load required. Additionally, we could not
 verify the accuracy of the underlying network data at the scale of this
-analysis. We therefore retain the Euclidean distance for simplicity.} A
+analysis. We therefore retain the Euclidean distance for simplicity. A
 better metric of travel impedance may be a mode choice model logsum,
 which weights all alternative travel alternatives against each other. We
 leave this as a recommendation for future research.
@@ -849,7 +860,14 @@ isochrone. It is possible that this isochrone may be more discriminating
 of park access in other cities, or that a different definition would
 yield different results in New York City. This observation however
 reinforces our suggestion that a measure explicitly based in the utility
-of access is warranted.
+of access is warranted. We acknowledge that a utility-based framework
+for access may be more technically difficult for some practitioners to
+independently construct for their analyses than an isochrone or even a
+gravity-based measure. That said, it may not be necessary for practicing
+planners to construct this measure themselves: web-based tools such as
+ParkIndex \citep{Kaczynski2016} and even WalkScore
+(\url{https://www.walkscore.com}) abstract complex methodologies into
+tools that planners can and do readily apply.
 
 Finally, this study is primarily focused on the hypothesis that
 accessibility to parks encourages physical activity, which in turn
@@ -867,9 +885,9 @@ other health outcomes. And regarding these other variables: this study
 did not consider potential relationships between park access and
 hospitalization rates, life expectancy, respiratory disease, mental
 health, or any number of potential beneficial outcomes hypothesized or
-explored in the existing literature. \textcolor{blue}{The COVID-19 pandemic and its
+explored in the existing literature. The COVID-19 pandemic and its
 associated social distancing behaviors in many regions of the world has
-also drawn attention to problems of park access, use, and equity.}
+also drawn attention to problems of park access, use, and equity.
 Exploring these connections and their underlying mechanisms should be a
 priority as city planners and urban architects attempt to improve the
 quality of life of urban residents in the future.
@@ -879,20 +897,19 @@ quality of life of urban residents in the future.
 
 Increased physical activity and decreased obesity rates are critical
 measures of improvement in public health. Although many have theorized
-the link between park accessibility and these metrics, previous
-literature has produced mixed findings, perhaps owing to the range of
-variables modeled and the coarse spatial scale of the analyses. Using
-New York City as a case study, we presented a holistic and flexible
-measurement for park accessibility that compares the continuous distance
-to all parks in the region, weighted against the size of the park and
-its other amenities, with weights determinable through revealed
-preferences. In terms of physical activity, we found a positive
-relationship where the least park-accessible tracts have an expected
-physical activity participation rate between 0.06 and 1.8 percentage
-points lower than the most accessible tracts. We also found a suggestive
-though not significant relationship between park accessibility and
-expected obesity rates \emph{in addition to} the effect of physical
-activity participation.
+the link between park access and public health, previous literature has
+produced mixed findings, perhaps owing to the wide range of
+accessibility definitions. Using New York City as a case study, we
+presented a holistic and flexible measurement for park accessibility
+that compares the continuous distance to all parks in the region,
+weighted against the size of the park and its other amenities, with
+weights determinable through revealed preferences. In terms of physical
+activity, we found a positive relationship where the least
+park-accessible tracts have an expected physical activity participation
+rate between 0.06 and 1.8 percentage points lower than the most
+accessible tracts. We also found a suggestive though not significant
+relationship between park accessibility and expected obesity rates
+\emph{in addition to} the effect of physical activity participation.
 
 In both cases a common, isochrone-based analysis estimated a
 statistically weak relationship with greater uncertainty. Isochrone
@@ -904,13 +921,15 @@ attributes of parks beyond their proximity. And even proximity may not
 be adequately handled, as the isochrone threshold may be arbitrarily
 asserted by the researcher. The model we apply in this paper extends a
 more comprehensive and flexible approach for measuring the impact of
-park access on health outcomes. Adopting utility-based accessibilities
-of the kind used in this study will allow researchers to encompass the
-full range of park amenities in their accessibility analyses, and to
-separate the definition of access from the study of its effects. This
-will in turn enhance the ability of planners to consider how multiple
-attributes of a park --- from its location to its size to its amenities
-and beyond --- benefit the health of the community the park serves.
+park access on health outcomes.
+
+Adopting utility-based accessibilities of the kind used in this study
+will allow researchers to encompass the full range of park amenities in
+their accessibility analyses, and to separate the definition of access
+from the study of its effects. This will in turn enhance the ability of
+planners to consider how multiple attributes of a park --- from its
+location to its size to its amenities and beyond --- benefit the health
+of the community the park serves.
 
 \begin{acks}
 \end{acks}
@@ -940,66 +959,66 @@ no accessibility statistics for comparison.
 \toprule
  & No Access & Size and Distance & Amenities & 10-minute Walk \\
 \midrule
-(Intercept)                         & $-24.5190^{*}$         & $-24.8266^{*}$         & $-24.8920^{*}$         & $-24.7176^{*}$         \\
-                                    & $ [-41.5947; -7.4433]$ & $ [-41.7445; -7.9087]$ & $ [-41.8372; -7.9468]$ & $ [-41.7891; -7.6461]$ \\
-log(Density)                        & $0.1740^{*}$           & $0.1766^{*}$           & $0.1757^{*}$           & $0.1686^{*}$           \\
-                                    & $ [  0.0348;  0.3132]$ & $ [  0.0375;  0.3156]$ & $ [  0.0366;  0.3148]$ & $ [  0.0293;  0.3079]$ \\
-log(Income)                         & $5.9786^{*}$           & $5.9976^{*}$           & $5.9964^{*}$           & $5.9767^{*}$           \\
-                                    & $ [  5.5540;  6.4032]$ & $ [  5.5737;  6.4215]$ & $ [  5.5723;  6.4205]$ & $ [  5.5523;  6.4011]$ \\
-Fulltime                            & $0.1283^{*}$           & $0.1275^{*}$           & $0.1275^{*}$           & $0.1285^{*}$           \\
-                                    & $ [  0.1098;  0.1468]$ & $ [  0.1090;  0.1460]$ & $ [  0.1090;  0.1460]$ & $ [  0.1100;  0.1470]$ \\
-College-educated                    & $0.0075$               & $0.0076$               & $0.0073$               & $0.0083$               \\
-                                    & $ [ -0.0159;  0.0310]$ & $ [ -0.0158;  0.0309]$ & $ [ -0.0161;  0.0306]$ & $ [ -0.0152;  0.0317]$ \\
-Single Adults                       & $-0.0363^{*}$          & $-0.0362^{*}$          & $-0.0360^{*}$          & $-0.0366^{*}$          \\
-                                    & $ [ -0.0527; -0.0198]$ & $ [ -0.0526; -0.0198]$ & $ [ -0.0524; -0.0196]$ & $ [ -0.0530; -0.0201]$ \\
-Youth (0-17)                        & $-0.1306^{*}$          & $-0.1311^{*}$          & $-0.1310^{*}$          & $-0.1311^{*}$          \\
-                                    & $ [ -0.1572; -0.1040]$ & $ [ -0.1576; -0.1046]$ & $ [ -0.1576; -0.1045]$ & $ [ -0.1577; -0.1045]$ \\
-Young adults (18-34)                & $0.0283^{*}$           & $0.0293^{*}$           & $0.0294^{*}$           & $0.0281^{*}$           \\
-                                    & $ [  0.0081;  0.0484]$ & $ [  0.0092;  0.0495]$ & $ [  0.0092;  0.0495]$ & $ [  0.0079;  0.0482]$ \\
-Seniors (65+)                       & $0.0430^{*}$           & $0.0403^{*}$           & $0.0408^{*}$           & $0.0427^{*}$           \\
-                                    & $ [  0.0157;  0.0704]$ & $ [  0.0130;  0.0677]$ & $ [  0.0135;  0.0682]$ & $ [  0.0153;  0.0700]$ \\
-Black population share              & $-0.0499^{*}$          & $-0.0499^{*}$          & $-0.0498^{*}$          & $-0.0497^{*}$          \\
-                                    & $ [ -0.0587; -0.0412]$ & $ [ -0.0586; -0.0412]$ & $ [ -0.0585; -0.0411]$ & $ [ -0.0584; -0.0409]$ \\
-Asian population share              & $-0.0772^{*}$          & $-0.0767^{*}$          & $-0.0768^{*}$          & $-0.0774^{*}$          \\
-                                    & $ [ -0.0877; -0.0666]$ & $ [ -0.0873; -0.0662]$ & $ [ -0.0874; -0.0663]$ & $ [ -0.0879; -0.0669]$ \\
-Hispanic population share           & $-0.1021^{*}$          & $-0.1025^{*}$          & $-0.1025^{*}$          & $-0.1020^{*}$          \\
-                                    & $ [ -0.1112; -0.0929]$ & $ [ -0.1116; -0.0934]$ & $ [ -0.1116; -0.0934]$ & $ [ -0.1111; -0.0928]$ \\
-Other Minorities                    & $0.0006$               & $0.0035$               & $0.0037$               & $-0.0005$              \\
-                                    & $ [ -0.0882;  0.0894]$ & $ [ -0.0851;  0.0921]$ & $ [ -0.0850;  0.0923]$ & $ [ -0.0893;  0.0883]$ \\
-$\gamma$: log(Density)              & $1.1105^{*}$           & $1.0987^{*}$           & $1.1030^{*}$           & $1.0928^{*}$           \\
-                                    & $ [  0.7245;  1.4964]$ & $ [  0.7156;  1.4817]$ & $ [  0.7196;  1.4865]$ & $ [  0.7063;  1.4793]$ \\
-$\gamma$: log(Income)               & $1.9269^{*}$           & $1.9646^{*}$           & $1.9570^{*}$           & $1.9189^{*}$           \\
-                                    & $ [  0.8913;  2.9625]$ & $ [  0.9370;  2.9922]$ & $ [  0.9282;  2.9857]$ & $ [  0.8836;  2.9541]$ \\
-$\gamma$: Fulltime                  & $-0.0360$              & $-0.0396$              & $-0.0388$              & $-0.0363$              \\
-                                    & $ [ -0.0835;  0.0115]$ & $ [ -0.0869;  0.0076]$ & $ [ -0.0861;  0.0085]$ & $ [ -0.0837;  0.0112]$ \\
-$\gamma$: College-educated          & $-0.0707^{*}$          & $-0.0711^{*}$          & $-0.0721^{*}$          & $-0.0731^{*}$          \\
-                                    & $ [ -0.1307; -0.0107]$ & $ [ -0.1306; -0.0116]$ & $ [ -0.1317; -0.0125]$ & $ [ -0.1332; -0.0131]$ \\
-$\gamma$: Single Adults             & $-0.0081$              & $-0.0085$              & $-0.0077$              & $-0.0076$              \\
-                                    & $ [ -0.0506;  0.0344]$ & $ [ -0.0507;  0.0336]$ & $ [ -0.0499;  0.0345]$ & $ [ -0.0501;  0.0348]$ \\
-$\gamma$: Youth (0-17)              & $-0.0111$              & $-0.0111$              & $-0.0101$              & $-0.0120$              \\
-                                    & $ [ -0.0806;  0.0585]$ & $ [ -0.0802;  0.0579]$ & $ [ -0.0793;  0.0591]$ & $ [ -0.0815;  0.0575]$ \\
-$\gamma$: Young adults (18-34)      & $0.0806^{*}$           & $0.0842^{*}$           & $0.0848^{*}$           & $0.0801^{*}$           \\
-                                    & $ [  0.0296;  0.1317]$ & $ [  0.0335;  0.1349]$ & $ [  0.0339;  0.1356]$ & $ [  0.0291;  0.1311]$ \\
-$\gamma$: Seniors (65+)             & $0.0625$               & $0.0589$               & $0.0603$               & $0.0623$               \\
-                                    & $ [ -0.0071;  0.1322]$ & $ [ -0.0103;  0.1282]$ & $ [ -0.0090;  0.1296]$ & $ [ -0.0073;  0.1319]$ \\
+(Intercept)                         & $-24.5190^{*}$         & $-24.7352^{*}$         & $-24.8758^{*}$         & $-24.7176^{*}$         \\
+                                    & $ [-41.5947; -7.4433]$ & $ [-41.5391; -7.9312]$ & $ [-41.7511; -8.0005]$ & $ [-41.7891; -7.6461]$ \\
+log(Density)                        & $0.1740^{*}$           & $0.1760^{*}$           & $0.1753^{*}$           & $0.1686^{*}$           \\
+                                    & $ [  0.0348;  0.3132]$ & $ [  0.0371;  0.3150]$ & $ [  0.0362;  0.3143]$ & $ [  0.0293;  0.3079]$ \\
+log(Income)                         & $5.9786^{*}$           & $6.0134^{*}$           & $6.0060^{*}$           & $5.9767^{*}$           \\
+                                    & $ [  5.5540;  6.4032]$ & $ [  5.5901;  6.4368]$ & $ [  5.5822;  6.4298]$ & $ [  5.5523;  6.4011]$ \\
+Fulltime                            & $0.1283^{*}$           & $0.1271^{*}$           & $0.1272^{*}$           & $0.1285^{*}$           \\
+                                    & $ [  0.1098;  0.1468]$ & $ [  0.1086;  0.1455]$ & $ [  0.1087;  0.1457]$ & $ [  0.1100;  0.1470]$ \\
+College-educated                    & $0.0075$               & $0.0077$               & $0.0071$               & $0.0083$               \\
+                                    & $ [ -0.0159;  0.0310]$ & $ [ -0.0156;  0.0310]$ & $ [ -0.0162;  0.0305]$ & $ [ -0.0152;  0.0317]$ \\
+Single Adults                       & $-0.0363^{*}$          & $-0.0365^{*}$          & $-0.0362^{*}$          & $-0.0366^{*}$          \\
+                                    & $ [ -0.0527; -0.0198]$ & $ [ -0.0528; -0.0201]$ & $ [ -0.0526; -0.0198]$ & $ [ -0.0530; -0.0201]$ \\
+Youth (0-17)                        & $-0.1306^{*}$          & $-0.1320^{*}$          & $-0.1316^{*}$          & $-0.1311^{*}$          \\
+                                    & $ [ -0.1572; -0.1040]$ & $ [ -0.1585; -0.1055]$ & $ [ -0.1581; -0.1050]$ & $ [ -0.1577; -0.1045]$ \\
+Young adults (18-34)                & $0.0283^{*}$           & $0.0292^{*}$           & $0.0293^{*}$           & $0.0281^{*}$           \\
+                                    & $ [  0.0081;  0.0484]$ & $ [  0.0092;  0.0493]$ & $ [  0.0092;  0.0494]$ & $ [  0.0079;  0.0482]$ \\
+Seniors (65+)                       & $0.0430^{*}$           & $0.0386^{*}$           & $0.0398^{*}$           & $0.0427^{*}$           \\
+                                    & $ [  0.0157;  0.0704]$ & $ [  0.0112;  0.0659]$ & $ [  0.0125;  0.0671]$ & $ [  0.0153;  0.0700]$ \\
+Black population share              & $-0.0499^{*}$          & $-0.0499^{*}$          & $-0.0497^{*}$          & $-0.0497^{*}$          \\
+                                    & $ [ -0.0587; -0.0412]$ & $ [ -0.0586; -0.0412]$ & $ [ -0.0585; -0.0410]$ & $ [ -0.0584; -0.0409]$ \\
+Asian population share              & $-0.0772^{*}$          & $-0.0764^{*}$          & $-0.0766^{*}$          & $-0.0774^{*}$          \\
+                                    & $ [ -0.0877; -0.0666]$ & $ [ -0.0870; -0.0659]$ & $ [ -0.0872; -0.0661]$ & $ [ -0.0879; -0.0669]$ \\
+Hispanic population share           & $-0.1021^{*}$          & $-0.1023^{*}$          & $-0.1024^{*}$          & $-0.1020^{*}$          \\
+                                    & $ [ -0.1112; -0.0929]$ & $ [ -0.1114; -0.0932]$ & $ [ -0.1115; -0.0933]$ & $ [ -0.1111; -0.0928]$ \\
+Other Minorities                    & $0.0006$               & $0.0047$               & $0.0043$               & $-0.0005$              \\
+                                    & $ [ -0.0882;  0.0894]$ & $ [ -0.0837;  0.0931]$ & $ [ -0.0842;  0.0929]$ & $ [ -0.0893;  0.0883]$ \\
+$\gamma$: log(Density)              & $1.1105^{*}$           & $1.0873^{*}$           & $1.0967^{*}$           & $1.0928^{*}$           \\
+                                    & $ [  0.7245;  1.4964]$ & $ [  0.7062;  1.4684]$ & $ [  0.7145;  1.4789]$ & $ [  0.7063;  1.4793]$ \\
+$\gamma$: log(Income)               & $1.9269^{*}$           & $1.9780^{*}$           & $1.9650^{*}$           & $1.9189^{*}$           \\
+                                    & $ [  0.8913;  2.9625]$ & $ [  0.9563;  2.9997]$ & $ [  0.9397;  2.9902]$ & $ [  0.8836;  2.9541]$ \\
+$\gamma$: Fulltime                  & $-0.0360$              & $-0.0411$              & $-0.0394$              & $-0.0363$              \\
+                                    & $ [ -0.0835;  0.0115]$ & $ [ -0.0882;  0.0059]$ & $ [ -0.0865;  0.0078]$ & $ [ -0.0837;  0.0112]$ \\
+$\gamma$: College-educated          & $-0.0707^{*}$          & $-0.0704^{*}$          & $-0.0718^{*}$          & $-0.0731^{*}$          \\
+                                    & $ [ -0.1307; -0.0107]$ & $ [ -0.1296; -0.0112]$ & $ [ -0.1312; -0.0125]$ & $ [ -0.1332; -0.0131]$ \\
+$\gamma$: Single Adults             & $-0.0081$              & $-0.0094$              & $-0.0080$              & $-0.0076$              \\
+                                    & $ [ -0.0506;  0.0344]$ & $ [ -0.0514;  0.0325]$ & $ [ -0.0501;  0.0341]$ & $ [ -0.0501;  0.0348]$ \\
+$\gamma$: Youth (0-17)              & $-0.0111$              & $-0.0128$              & $-0.0108$              & $-0.0120$              \\
+                                    & $ [ -0.0806;  0.0585]$ & $ [ -0.0815;  0.0559]$ & $ [ -0.0797;  0.0582]$ & $ [ -0.0815;  0.0575]$ \\
+$\gamma$: Young adults (18-34)      & $0.0806^{*}$           & $0.0838^{*}$           & $0.0846^{*}$           & $0.0801^{*}$           \\
+                                    & $ [  0.0296;  0.1317]$ & $ [  0.0334;  0.1342]$ & $ [  0.0340;  0.1352]$ & $ [  0.0291;  0.1311]$ \\
+$\gamma$: Seniors (65+)             & $0.0625$               & $0.0545$               & $0.0579$               & $0.0623$               \\
+                                    & $ [ -0.0071;  0.1322]$ & $ [ -0.0145;  0.1235]$ & $ [ -0.0112;  0.1270]$ & $ [ -0.0073;  0.1319]$ \\
 $\gamma$: Black population share    & $0.0006$               & $0.0011$               & $0.0008$               & $0.0006$               \\
-                                    & $ [ -0.0157;  0.0168]$ & $ [ -0.0151;  0.0172]$ & $ [ -0.0153;  0.0170]$ & $ [ -0.0157;  0.0168]$ \\
-$\gamma$: Asian population share    & $-0.0410^{*}$          & $-0.0398^{*}$          & $-0.0401^{*}$          & $-0.0409^{*}$          \\
-                                    & $ [ -0.0597; -0.0223]$ & $ [ -0.0584; -0.0212]$ & $ [ -0.0587; -0.0215]$ & $ [ -0.0596; -0.0222]$ \\
-$\gamma$: Hispanic population share & $0.0009$               & $-0.0009$              & $-0.0008$              & $0.0008$               \\
-                                    & $ [ -0.0164;  0.0182]$ & $ [ -0.0181;  0.0163]$ & $ [ -0.0181;  0.0164]$ & $ [ -0.0165;  0.0181]$ \\
-$\gamma$: Other Minorities          & $0.0656$               & $0.0715$               & $0.0710$               & $0.0716$               \\
-                                    & $ [ -0.1926;  0.3239]$ & $ [ -0.1856;  0.3287]$ & $ [ -0.1863;  0.3284]$ & $ [ -0.1866;  0.3299]$ \\
-Accessibility                       &                        & $0.1610^{*}$           & $0.1472^{*}$           & $0.5865$               \\
-                                    &                        & $ [  0.0238;  0.2982]$ & $ [  0.0058;  0.2886]$ & $ [ -0.1778;  1.3508]$ \\
-$\lambda$: spatial correlation      & $0.6985^{*}$           & $0.6906^{*}$           & $0.6917^{*}$           & $0.6987^{*}$           \\
-                                    & $ [  0.6600;  0.7370]$ & $ [  0.6514;  0.7297]$ & $ [  0.6526;  0.7307]$ & $ [  0.6602;  0.7372]$ \\
+                                    & $ [ -0.0157;  0.0168]$ & $ [ -0.0149;  0.0172]$ & $ [ -0.0153;  0.0169]$ & $ [ -0.0157;  0.0168]$ \\
+$\gamma$: Asian population share    & $-0.0410^{*}$          & $-0.0397^{*}$          & $-0.0401^{*}$          & $-0.0409^{*}$          \\
+                                    & $ [ -0.0597; -0.0223]$ & $ [ -0.0582; -0.0212]$ & $ [ -0.0587; -0.0216]$ & $ [ -0.0596; -0.0222]$ \\
+$\gamma$: Hispanic population share & $0.0009$               & $-0.0015$              & $-0.0012$              & $0.0008$               \\
+                                    & $ [ -0.0164;  0.0182]$ & $ [ -0.0185;  0.0156]$ & $ [ -0.0184;  0.0159]$ & $ [ -0.0165;  0.0181]$ \\
+$\gamma$: Other Minorities          & $0.0656$               & $0.0723$               & $0.0719$               & $0.0716$               \\
+                                    & $ [ -0.1926;  0.3239]$ & $ [ -0.1840;  0.3286]$ & $ [ -0.1849;  0.3287]$ & $ [ -0.1866;  0.3299]$ \\
+Accessibility                       &                        & $0.2306^{*}$           & $0.1923^{*}$           & $0.5865$               \\
+                                    &                        & $ [  0.0907;  0.3705]$ & $ [  0.0498;  0.3347]$ & $ [ -0.1778;  1.3508]$ \\
+$\lambda$: spatial correlation      & $0.6985^{*}$           & $0.6854^{*}$           & $0.6885^{*}$           & $0.6987^{*}$           \\
+                                    & $ [  0.6600;  0.7370]$ & $ [  0.6459;  0.7249]$ & $ [  0.6492;  0.7278]$ & $ [  0.6602;  0.7372]$ \\
 \midrule
 Num. obs.                           & $2099$                 & $2099$                 & $2099$                 & $2099$                 \\
 Parameters                          & $27$                   & $28$                   & $28$                   & $28$                   \\
-Log Likelihood                      & $-4438.0569$           & $-4435.5066$           & $-4436.0465$           & $-4436.9264$           \\
+Log Likelihood                      & $-4438.0569$           & $-4433.0965$           & $-4434.7087$           & $-4436.9264$           \\
 \bottomrule
-\multicolumn{5}{l}{\scriptsize{$^*$ 0 outside the confidence interval. 95\% confidence interval in brackets.}}
+\multicolumn{5}{l}{\scriptsize{$^*$ Null hypothesis value outside the confidence interval. 95\% confidence interval in brackets.}}
 \end{tabular}
 }\end{center}
 \end{table*}
@@ -1013,70 +1032,70 @@ Log Likelihood                      & $-4438.0569$           & $-4435.5066$     
 \toprule
  & No Access & Size and Distance & Amenities & 10-minute Walk \\
 \midrule
-(Intercept)                         & $71.6539^{*}$         & $71.7489^{*}$         & $71.7525^{*}$         & $71.7182^{*}$         \\
-                                    & $ [61.1144; 82.1933]$ & $ [61.2170; 82.2809]$ & $ [61.2164; 82.2887]$ & $ [61.1846; 82.2518]$ \\
-log(Density)                        & $-0.0294$             & $-0.0307$             & $-0.0306$             & $-0.0266$             \\
-                                    & $ [-0.1037;  0.0448]$ & $ [-0.1050;  0.0436]$ & $ [-0.1049;  0.0437]$ & $ [-0.1009;  0.0478]$ \\
-log(Income)                         & $-0.4849^{*}$         & $-0.4907^{*}$         & $-0.4908^{*}$         & $-0.4861^{*}$         \\
-                                    & $ [-0.7612; -0.2085]$ & $ [-0.7672; -0.2141]$ & $ [-0.7674; -0.2142]$ & $ [-0.7623; -0.2098]$ \\
-Fulltime                            & $-0.0137^{*}$         & $-0.0137^{*}$         & $-0.0137^{*}$         & $-0.0139^{*}$         \\
-                                    & $ [-0.0244; -0.0031]$ & $ [-0.0244; -0.0030]$ & $ [-0.0244; -0.0030]$ & $ [-0.0246; -0.0032]$ \\
+(Intercept)                         & $71.6539^{*}$         & $71.7483^{*}$         & $71.7551^{*}$         & $71.7182^{*}$         \\
+                                    & $ [61.1144; 82.1933]$ & $ [61.2129; 82.2836]$ & $ [61.2150; 82.2951]$ & $ [61.1846; 82.2518]$ \\
+log(Density)                        & $-0.0294$             & $-0.0308$             & $-0.0307$             & $-0.0266$             \\
+                                    & $ [-0.1037;  0.0448]$ & $ [-0.1051;  0.0435]$ & $ [-0.1050;  0.0436]$ & $ [-0.1009;  0.0478]$ \\
+log(Income)                         & $-0.4849^{*}$         & $-0.4974^{*}$         & $-0.4956^{*}$         & $-0.4861^{*}$         \\
+                                    & $ [-0.7612; -0.2085]$ & $ [-0.7743; -0.2205]$ & $ [-0.7724; -0.2187]$ & $ [-0.7623; -0.2098]$ \\
+Fulltime                            & $-0.0137^{*}$         & $-0.0137^{*}$         & $-0.0136^{*}$         & $-0.0139^{*}$         \\
+                                    & $ [-0.0244; -0.0031]$ & $ [-0.0244; -0.0030]$ & $ [-0.0243; -0.0029]$ & $ [-0.0246; -0.0032]$ \\
 College-educated                    & $0.0343^{*}$          & $0.0343^{*}$          & $0.0343^{*}$          & $0.0340^{*}$          \\
-                                    & $ [ 0.0211;  0.0474]$ & $ [ 0.0211;  0.0474]$ & $ [ 0.0211;  0.0474]$ & $ [ 0.0208;  0.0471]$ \\
+                                    & $ [ 0.0211;  0.0474]$ & $ [ 0.0211;  0.0474]$ & $ [ 0.0212;  0.0475]$ & $ [ 0.0208;  0.0471]$ \\
 Single Adults                       & $0.0010$              & $0.0010$              & $0.0010$              & $0.0012$              \\
-                                    & $ [-0.0082;  0.0103]$ & $ [-0.0083;  0.0103]$ & $ [-0.0083;  0.0102]$ & $ [-0.0081;  0.0104]$ \\
-Youth (0-17)                        & $0.0051$              & $0.0052$              & $0.0052$              & $0.0054$              \\
-                                    & $ [-0.0099;  0.0201]$ & $ [-0.0098;  0.0202]$ & $ [-0.0098;  0.0202]$ & $ [-0.0096;  0.0204]$ \\
+                                    & $ [-0.0082;  0.0103]$ & $ [-0.0082;  0.0103]$ & $ [-0.0082;  0.0103]$ & $ [-0.0081;  0.0104]$ \\
+Youth (0-17)                        & $0.0051$              & $0.0054$              & $0.0054$              & $0.0054$              \\
+                                    & $ [-0.0099;  0.0201]$ & $ [-0.0095;  0.0204]$ & $ [-0.0096;  0.0204]$ & $ [-0.0096;  0.0204]$ \\
 Young adults (18-34)                & $-0.0095$             & $-0.0097$             & $-0.0098$             & $-0.0094$             \\
                                     & $ [-0.0206;  0.0016]$ & $ [-0.0209;  0.0014]$ & $ [-0.0209;  0.0014]$ & $ [-0.0205;  0.0017]$ \\
-Seniors (65+)                       & $-0.0826^{*}$         & $-0.0821^{*}$         & $-0.0821^{*}$         & $-0.0825^{*}$         \\
-                                    & $ [-0.0977; -0.0675]$ & $ [-0.0973; -0.0669]$ & $ [-0.0973; -0.0670]$ & $ [-0.0976; -0.0673]$ \\
-Black population share              & $0.0462^{*}$          & $0.0462^{*}$          & $0.0462^{*}$          & $0.0461^{*}$          \\
+Seniors (65+)                       & $-0.0826^{*}$         & $-0.0818^{*}$         & $-0.0819^{*}$         & $-0.0825^{*}$         \\
+                                    & $ [-0.0977; -0.0675]$ & $ [-0.0969; -0.0666]$ & $ [-0.0970; -0.0667]$ & $ [-0.0976; -0.0673]$ \\
+Black population share              & $0.0462^{*}$          & $0.0463^{*}$          & $0.0462^{*}$          & $0.0461^{*}$          \\
                                     & $ [ 0.0414;  0.0511]$ & $ [ 0.0414;  0.0511]$ & $ [ 0.0414;  0.0510]$ & $ [ 0.0413;  0.0510]$ \\
-Asian population share              & $-0.1010^{*}$         & $-0.1010^{*}$         & $-0.1010^{*}$         & $-0.1009^{*}$         \\
+Asian population share              & $-0.1010^{*}$         & $-0.1011^{*}$         & $-0.1010^{*}$         & $-0.1009^{*}$         \\
                                     & $ [-0.1069; -0.0950]$ & $ [-0.1070; -0.0951]$ & $ [-0.1070; -0.0951]$ & $ [-0.1068; -0.0949]$ \\
 Hispanic population share           & $-0.0062^{*}$         & $-0.0061^{*}$         & $-0.0061^{*}$         & $-0.0062^{*}$         \\
                                     & $ [-0.0118; -0.0007]$ & $ [-0.0116; -0.0006]$ & $ [-0.0116; -0.0006]$ & $ [-0.0117; -0.0007]$ \\
-Other Minorities                    & $-0.0642^{*}$         & $-0.0646^{*}$         & $-0.0647^{*}$         & $-0.0637^{*}$         \\
-                                    & $ [-0.1127; -0.0156]$ & $ [-0.1132; -0.0161]$ & $ [-0.1133; -0.0162]$ & $ [-0.1122; -0.0151]$ \\
-$\gamma$: log(Density)              & $-0.5545^{*}$         & $-0.5565^{*}$         & $-0.5567^{*}$         & $-0.5445^{*}$         \\
-                                    & $ [-0.7908; -0.3182]$ & $ [-0.7927; -0.3203]$ & $ [-0.7929; -0.3204]$ & $ [-0.7812; -0.3079]$ \\
-$\gamma$: log(Income)               & $-0.0863$             & $-0.1004$             & $-0.0987$             & $-0.0783$             \\
-                                    & $ [-0.7966;  0.6240]$ & $ [-0.8108;  0.6100]$ & $ [-0.8091;  0.6118]$ & $ [-0.7883;  0.6317]$ \\
+Other Minorities                    & $-0.0642^{*}$         & $-0.0649^{*}$         & $-0.0649^{*}$         & $-0.0637^{*}$         \\
+                                    & $ [-0.1127; -0.0156]$ & $ [-0.1135; -0.0164]$ & $ [-0.1135; -0.0164]$ & $ [-0.1122; -0.0151]$ \\
+$\gamma$: log(Density)              & $-0.5545^{*}$         & $-0.5544^{*}$         & $-0.5550^{*}$         & $-0.5445^{*}$         \\
+                                    & $ [-0.7908; -0.3182]$ & $ [-0.7907; -0.3182]$ & $ [-0.7913; -0.3187]$ & $ [-0.7812; -0.3079]$ \\
+$\gamma$: log(Income)               & $-0.0863$             & $-0.1110$             & $-0.1063$             & $-0.0783$             \\
+                                    & $ [-0.7966;  0.6240]$ & $ [-0.8220;  0.6000]$ & $ [-0.8173;  0.6047]$ & $ [-0.7883;  0.6317]$ \\
 $\gamma$: Fulltime                  & $-0.0118$             & $-0.0115$             & $-0.0116$             & $-0.0116$             \\
-                                    & $ [-0.0404;  0.0169]$ & $ [-0.0402;  0.0172]$ & $ [-0.0402;  0.0171]$ & $ [-0.0402;  0.0171]$ \\
+                                    & $ [-0.0404;  0.0169]$ & $ [-0.0401;  0.0172]$ & $ [-0.0403;  0.0171]$ & $ [-0.0402;  0.0171]$ \\
 $\gamma$: College-educated          & $0.0698^{*}$          & $0.0698^{*}$          & $0.0699^{*}$          & $0.0710^{*}$          \\
                                     & $ [ 0.0334;  0.1062]$ & $ [ 0.0334;  0.1062]$ & $ [ 0.0335;  0.1063]$ & $ [ 0.0346;  0.1075]$ \\
-$\gamma$: Single Adults             & $-0.0114$             & $-0.0113$             & $-0.0114$             & $-0.0117$             \\
-                                    & $ [-0.0368;  0.0140]$ & $ [-0.0367;  0.0140]$ & $ [-0.0368;  0.0140]$ & $ [-0.0371;  0.0137]$ \\
-$\gamma$: Youth (0-17)              & $-0.0330$             & $-0.0330$             & $-0.0332$             & $-0.0326$             \\
-                                    & $ [-0.0748;  0.0088]$ & $ [-0.0748;  0.0088]$ & $ [-0.0750;  0.0086]$ & $ [-0.0744;  0.0092]$ \\
-$\gamma$: Young adults (18-34)      & $-0.0238$             & $-0.0247$             & $-0.0248$             & $-0.0235$             \\
-                                    & $ [-0.0545;  0.0069]$ & $ [-0.0554;  0.0060]$ & $ [-0.0555;  0.0059]$ & $ [-0.0542;  0.0071]$ \\
-$\gamma$: Seniors (65+)             & $-0.0222$             & $-0.0217$             & $-0.0218$             & $-0.0222$             \\
-                                    & $ [-0.0629;  0.0185]$ & $ [-0.0624;  0.0190]$ & $ [-0.0625;  0.0189]$ & $ [-0.0628;  0.0185]$ \\
-$\gamma$: Black population share    & $0.0186^{*}$          & $0.0186^{*}$          & $0.0186^{*}$          & $0.0185^{*}$          \\
-                                    & $ [ 0.0080;  0.0292]$ & $ [ 0.0080;  0.0292]$ & $ [ 0.0080;  0.0292]$ & $ [ 0.0079;  0.0291]$ \\
-$\gamma$: Asian population share    & $-0.0460^{*}$         & $-0.0462^{*}$         & $-0.0461^{*}$         & $-0.0461^{*}$         \\
-                                    & $ [-0.0594; -0.0325]$ & $ [-0.0596; -0.0327]$ & $ [-0.0596; -0.0327]$ & $ [-0.0595; -0.0327]$ \\
-$\gamma$: Hispanic population share & $0.0257^{*}$          & $0.0263^{*}$          & $0.0263^{*}$          & $0.0258^{*}$          \\
-                                    & $ [ 0.0129;  0.0386]$ & $ [ 0.0134;  0.0392]$ & $ [ 0.0134;  0.0391]$ & $ [ 0.0130;  0.0386]$ \\
-$\gamma$: Other Minorities          & $0.0794$              & $0.0789$              & $0.0790$              & $0.0767$              \\
-                                    & $ [-0.0648;  0.2236]$ & $ [-0.0652;  0.2230]$ & $ [-0.0652;  0.2231]$ & $ [-0.0674;  0.2209]$ \\
-Physical Activity                   & $-0.4807^{*}$         & $-0.4803^{*}$         & $-0.4803^{*}$         & $-0.4803^{*}$         \\
-                                    & $ [-0.5048; -0.4566]$ & $ [-0.5044; -0.4561]$ & $ [-0.5044; -0.4562]$ & $ [-0.5044; -0.4562]$ \\
-$\gamma$: Physical Activity         & $0.0180$              & $0.0195$              & $0.0194$              & $0.0173$              \\
-                                    & $ [-0.0397;  0.0757]$ & $ [-0.0383;  0.0772]$ & $ [-0.0383;  0.0772]$ & $ [-0.0404;  0.0750]$ \\
-Accessibility                       &                       & $-0.0349$             & $-0.0352$             & $-0.2630$             \\
-                                    &                       & $ [-0.1095;  0.0397]$ & $ [-0.1129;  0.0425]$ & $ [-0.6491;  0.1232]$ \\
-$\lambda$: spatial correlation      & $0.8363^{*}$          & $0.8357^{*}$          & $0.8360^{*}$          & $0.8361^{*}$          \\
-                                    & $ [ 0.8101;  0.8625]$ & $ [ 0.8094;  0.8620]$ & $ [ 0.8098;  0.8622]$ & $ [ 0.8099;  0.8624]$ \\
+$\gamma$: Single Adults             & $-0.0114$             & $-0.0112$             & $-0.0114$             & $-0.0117$             \\
+                                    & $ [-0.0368;  0.0140]$ & $ [-0.0366;  0.0141]$ & $ [-0.0368;  0.0140]$ & $ [-0.0371;  0.0137]$ \\
+$\gamma$: Youth (0-17)              & $-0.0330$             & $-0.0325$             & $-0.0328$             & $-0.0326$             \\
+                                    & $ [-0.0748;  0.0088]$ & $ [-0.0743;  0.0093]$ & $ [-0.0746;  0.0090]$ & $ [-0.0744;  0.0092]$ \\
+$\gamma$: Young adults (18-34)      & $-0.0238$             & $-0.0246$             & $-0.0248$             & $-0.0235$             \\
+                                    & $ [-0.0545;  0.0069]$ & $ [-0.0553;  0.0060]$ & $ [-0.0555;  0.0059]$ & $ [-0.0542;  0.0071]$ \\
+$\gamma$: Seniors (65+)             & $-0.0222$             & $-0.0208$             & $-0.0212$             & $-0.0222$             \\
+                                    & $ [-0.0629;  0.0185]$ & $ [-0.0616;  0.0199]$ & $ [-0.0620;  0.0195]$ & $ [-0.0628;  0.0185]$ \\
+$\gamma$: Black population share    & $0.0186^{*}$          & $0.0187^{*}$          & $0.0187^{*}$          & $0.0185^{*}$          \\
+                                    & $ [ 0.0080;  0.0292]$ & $ [ 0.0081;  0.0293]$ & $ [ 0.0081;  0.0293]$ & $ [ 0.0079;  0.0291]$ \\
+$\gamma$: Asian population share    & $-0.0460^{*}$         & $-0.0461^{*}$         & $-0.0460^{*}$         & $-0.0461^{*}$         \\
+                                    & $ [-0.0594; -0.0325]$ & $ [-0.0595; -0.0326]$ & $ [-0.0595; -0.0326]$ & $ [-0.0595; -0.0327]$ \\
+$\gamma$: Hispanic population share & $0.0257^{*}$          & $0.0264^{*}$          & $0.0264^{*}$          & $0.0258^{*}$          \\
+                                    & $ [ 0.0129;  0.0386]$ & $ [ 0.0136;  0.0393]$ & $ [ 0.0135;  0.0393]$ & $ [ 0.0130;  0.0386]$ \\
+$\gamma$: Other Minorities          & $0.0794$              & $0.0786$              & $0.0786$              & $0.0767$              \\
+                                    & $ [-0.0648;  0.2236]$ & $ [-0.0655;  0.2227]$ & $ [-0.0655;  0.2228]$ & $ [-0.0674;  0.2209]$ \\
+Physical Activity                   & $-0.4807^{*}$         & $-0.4798^{*}$         & $-0.4800^{*}$         & $-0.4803^{*}$         \\
+                                    & $ [-0.5048; -0.4566]$ & $ [-0.5039; -0.4556]$ & $ [-0.5041; -0.4558]$ & $ [-0.5044; -0.4562]$ \\
+$\gamma$: Physical Activity         & $0.0180$              & $0.0207$              & $0.0204$              & $0.0173$              \\
+                                    & $ [-0.0397;  0.0757]$ & $ [-0.0371;  0.0785]$ & $ [-0.0375;  0.0782]$ & $ [-0.0404;  0.0750]$ \\
+Accessibility                       &                       & $-0.0495$             & $-0.0471$             & $-0.2630$             \\
+                                    &                       & $ [-0.1260;  0.0270]$ & $ [-0.1259;  0.0316]$ & $ [-0.6491;  0.1232]$ \\
+$\lambda$: spatial correlation      & $0.8363^{*}$          & $0.8362^{*}$          & $0.8365^{*}$          & $0.8361^{*}$          \\
+                                    & $ [ 0.8101;  0.8625]$ & $ [ 0.8100;  0.8624]$ & $ [ 0.8103;  0.8627]$ & $ [ 0.8099;  0.8624]$ \\
 \midrule
 Num. obs.                           & $2099$                & $2099$                & $2099$                & $2099$                \\
 Parameters                          & $29$                  & $30$                  & $30$                  & $30$                  \\
-Log Likelihood                      & $-3114.3931$          & $-3113.9742$          & $-3113.9998$          & $-3113.5028$          \\
+Log Likelihood                      & $-3114.3931$          & $-3113.5891$          & $-3113.7048$          & $-3113.5028$          \\
 \bottomrule
-\multicolumn{5}{l}{\scriptsize{$^*$ 0 outside the confidence interval. 95\% confidence interval in brackets.}}
+\multicolumn{5}{l}{\scriptsize{$^*$ Null hypothesis value outside the confidence interval. 95\% confidence interval in brackets.}}
 \end{tabular}
 }\end{center}
 \end{table*}
