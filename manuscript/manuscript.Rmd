@@ -505,7 +505,9 @@ map +
   geom_sf(data = tracts, inherit.aes=FALSE,
           aes(fill = cut(euc_multi, breaks = c(-Inf, -3, -2, -1, 0, 1, 2, 3, Inf))),
           alpha = 0.9, color = NA) +
-  scale_fill_brewer("Accessibility", palette = "RdYlBu")
+  scale_fill_manual("Accessibility", 
+                    values =   c("#F46D43", "#FDAE61", "#FEE090", "#E0F3F8", "#ABD9E9", 
+                                 "#74ADD1", "#4575B4"))
 ```
 
 
