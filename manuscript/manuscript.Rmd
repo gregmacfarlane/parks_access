@@ -918,7 +918,7 @@ residents in the future.
 
 Increased physical activity and decreased obesity rates are critical measures of
 improvement in public health. Although many have theorized the link between park
-access and public, previous literature has produced mixed
+access and public health, previous literature has produced mixed
 findings, perhaps owing to the wide range of accessibility definitions. 
 Using New York City as a case study, we presented a
 holistic and flexible measurement for park accessibility that compares the
