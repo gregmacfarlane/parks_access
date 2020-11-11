@@ -171,8 +171,8 @@ centering]{geometry}
 
 %papersize={width,height}%single column
 \if@Crown
-\usepackage[text={146.5mm,183mm},%
-papersize={7.25in,9.5in},%
+\usepackage[text={6.5in,9in},%
+papersize={8.5in,11in},%
 columnsep=12pt,%
 headsep=21pt,%
 centering]{geometry}
